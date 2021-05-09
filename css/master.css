@@ -1,0 +1,429 @@
+/* CSS Document */
+
+/*-----------------------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////
+	Typography & Backgrounds
+/////////////////////////////////////////////////////////////////////////////////////
+-----------------------------------------------------------------------------------*/
+
+.backgroundcolor-white {
+  background: white;
+}
+
+.backround_tile {
+  background:url('../images/bknd_tile.jpg') 0 0;
+}
+
+.background_reddish {
+  background: #FBF7F7; /*Reddish*/
+  border-top: 1px solid rgba(0,28,47,0.1);
+  border-bottom: 1px solid rgba(0,28,47,0.1);
+}
+
+.header {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 3.75rem;
+  color: #001C2F; /*Dark Gray*/
+}
+
+.sans-serif {
+  font-family: 'Archivo', sans-serif;
+}
+
+.textsecondary {
+  color: #687B88; /*Med Gray*/
+}
+
+.btnbknd {
+  background: rgba(0, 28, 47, 0.05);
+}
+
+.textprimary {
+  color: #001C2F; /*Dark Gray*/
+}
+
+.meta { /*Small text*/
+  color: #687B88;
+  font-size: 0.75rem;
+  line-height: 1em;
+  letter-spacing: .5px;
+}
+
+.textwhite {
+  color: #FFF;
+}
+
+.lh150 {
+  line-height: 150%;
+}
+
+.fw4-5 {
+  font-size:1.125rem;
+}
+
+.textred {
+  color: #D1293D; /*JTroll Red*/
+}
+
+a.textred:hover {
+  color: #A92626; /*Darker JTroll Red*/
+  transition: all .15s ease;
+}
+
+.active {
+  color: #D1293D !important; /*JTroll Red*/
+  background: #F9EEEE !important; /*Slight red background*/
+}
+
+h3 {
+/*  scroll-margin-top: 12rem; */
+}
+
+.anchor {
+    display: block;
+    position: relative;
+    top: -12rem;
+    visibility: hidden;
+}
+
+/*CSS FOR ANY BREAKPOINTS SMALLER THAN 30EM - i.e. PHONES*/
+@media screen and (max-width: 30em) {
+    .header-s {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 2.5rem;
+      color: #001C2F; /*Dark Gray*/
+    }
+}
+
+
+
+/*-----------------------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////
+	Buttons
+/////////////////////////////////////////////////////////////////////////////////////
+-----------------------------------------------------------------------------------*/
+
+.navbutton {
+  border-radius:9999px;
+  padding-top:0.75rem;
+  padding-bottom:0.75rem;
+  padding-left:1.25rem;
+  padding-right:1.25rem;
+  display:inline-block;
+  font-size:1.125rem;
+  background: rgba(0, 28, 47, 0.05);
+  color: #001C2F;
+  font-weight:400;
+}
+
+.darken { /*Base state for buttons with this property*/
+    background: rgba(0, 28, 47, 0.05);
+    transition: all .15s ease-in;
+}
+
+.darken:hover, .darken:focus { /*The state these buttons transition to on hover and focus*/
+    background: rgba(0, 28, 47, 0.15);
+    transform:scale(0.98);
+    transition: all .15s ease;
+}
+
+.darken:active { /*The press state of the button*/
+    background: rgba(0, 28, 47, 0.20);
+    transform:scale(0.95);
+    transition: all .15s ease;
+}
+
+
+/*-----------------------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////
+	Decorative Elements
+/////////////////////////////////////////////////////////////////////////////////////
+-----------------------------------------------------------------------------------*/
+
+.logo {
+  height:2.75rem;
+}
+
+.logo-s {
+  height:2.75rem;
+}
+
+.logo_shrink {
+  height:1.5rem;
+  transition: all 0.2s ease;
+}
+
+.bbar {
+  background: #001C2F;
+  z-index:999;
+}
+
+.headershadow {
+  box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0); /*Opacity used to also be 0.12; adjusted it to 0)*/
+  padding-top:2rem;
+  padding-bottom:2rem;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+.headershadow_shrink {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+  padding-top:1.5rem;
+  padding-bottom:1.5rem;
+  background:url('../images/bknd_tile.jpg') 0 0;
+}
+
+.line {
+  background: rgba(0, 28, 47, 0.10);
+  height:1px;
+}
+
+.workimage {
+  object-fit: cover;
+  width: 100%;
+  /*max-height: 386px;*/
+}
+
+/*CSS FOR ANY BREAKPOINTS ABOVE 60EM - i.e. NOT PHONES*/
+@media screen and (min-width: 60em) {
+  .pr-l {
+    padding-right: 0.625rem;
+  }
+
+  .pl-l {
+    padding-left: 0.625rem;
+  }
+}
+
+
+/*CSS FOR ANY BREAKPOINTS SMALLER THAN 30EM - i.e. PHONES*/
+@media screen and (max-width: 30em) {
+      .rightborder {
+        border-right:none;
+       }
+
+       .headershadow_shrink {
+         padding-top:1rem !important;
+         padding-bottom:1rem !important;
+       }
+}
+
+/*CSS FOR ANY BREAKPOINTS BETWEWEN 30EM-60EM - i.e. MEDIUM*/
+@media screen and (min-width: 30em) and (max-width: 60em) {
+  .rightborder {
+    border-right:none;
+   }
+}
+
+/*-----------------------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////
+	Article Cards
+/////////////////////////////////////////////////////////////////////////////////////
+-----------------------------------------------------------------------------------*/
+
+.masonry-articles {
+  columns: 3;
+  column-width: 22rem;
+  column-gap: 1.25rem;
+}
+
+.articlerules {
+  width: 22rem;
+  margin: 0 0 1.25rem 0;
+  display: inline-block;
+  width: 100%;
+}
+
+.fancy_card {
+  width: 22rem;
+  margin: 0;
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1), 0px 0px 2px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* otherwise header image won't respect rounded corners */
+  background: white;
+  transition: all .5s ease; /* back to normal */
+  display: inline-block;
+}
+
+.cr {
+  margin-right: 0.625rem;
+}
+
+.cl {
+  margin-left: 0.625rem;
+}
+
+.pr {
+  padding-right: 0.625rem;
+}
+
+.pl {
+  padding-left: 0.625rem;
+}
+
+.fancy_card:hover {
+  /*transform: scale(1.005); */ /* move up slightly and zoom in */
+  /*transform-style: preserve-3d;
+  transform: translate(0, -2px);*/
+  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.15), 0px 1px 4px rgba(0, 0, 0, 0.2);
+  transition: all .4s ease; /* zoom in */
+}
+
+.card_image {
+  object-fit: cover;
+  width: 100%;
+  height: 140px;
+}
+
+.card_text {
+  margin: 2.5rem;
+}
+
+.col-same {
+  -webkit-flex: 1 0 0px;
+}
+
+.masonry-work2 {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.workrules2 {
+  max-width: 34.25rem;
+  flex: auto;
+  margin: 0 1.25rem 1.25rem 0;
+  display: inline-block;
+}
+
+/*The following styles aren't used; they made the "work" stuff flow into vertical columns instead of horizontal ones
+.masonry-work {
+  columns: 2;
+  column-width: 35rem;
+  column-gap: 1.25rem;
+}
+
+.workrules {
+  width: 35rem;
+  margin: 0 0 1.25rem 0;
+  display: inline-block;
+  width: 100%;
+}
+*/
+
+.masonry-speaking {
+  columns: 4;
+  column-width: 13.125rem;
+  column-gap: 1.875rem;
+}
+
+.speakingrules {
+  width: 13.125rem;
+  margin: 0 0 2.5rem 0;
+  display: inline-block;
+  width: 100%;
+}
+
+.masonry-photos {
+  columns: 2;
+  column-width: 35rem;
+  column-gap: 1.25rem;
+}
+
+.photorules {
+  width: 35rem;
+  margin: 0 0 1.25rem 0;
+  display: inline-block;
+  width: 100%;
+}
+
+
+/*-----------------------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////
+	Gig Items
+/////////////////////////////////////////////////////////////////////////////////////
+-----------------------------------------------------------------------------------*/
+
+.gig {
+  /*
+  margin-top: 0;
+  margin-bottom: 2.5rem;
+  */
+}
+
+.gig img {
+  border-radius: 0.5rem;
+  width: 5rem;
+  height: 3.75rem;
+}
+
+.gml {
+  margin-left: 1.875rem;
+}
+
+.gmr {
+  margin-right: 1.875rem;
+}
+
+/*-----------------------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////
+	Wrappers, Spacing & Positioning
+/////////////////////////////////////////////////////////////////////////////////////
+-----------------------------------------------------------------------------------*/
+
+.wrapper_large {
+  width: 95%;
+  max-width: 1140px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.wrapper {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.grow2 {
+  flex-grow: 2;
+}
+
+.regularsize {
+  max-width: 50%;
+  height: 50%;
+}
+
+.mla {
+  margin-left:auto;
+}
+
+.ma0375 {
+  margin:0.375rem;
+}
+
+.mt625 {
+  margin-top:6.25rem;
+}
+
+.mb625 {
+  margin-bottom:6.25rem;
+}
+
+.mv625 {
+  margin-top: 6.25rem;
+  margin-bottom: 6.25rem;
+}
+
+.pt625 {
+  padding-top:6.25rem;
+}
+
+.pb625 {
+  padding-bottom:6.25rem;
+}
+
+.mt25 {
+  margin-top: 2.5rem;
+}

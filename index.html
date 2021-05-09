@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+	<title>JTroll</title>
+	<meta http-equiv="Content-Language" content="en-us" />
+  <meta http-equiv="imagetoolbar" content="no" />
+	<meta name="MSSmartTagsPreventParsing" content="true" />
+
+	<meta name="author" content="" />
+	<meta name="description" content="JTroll: J.T. Trollman" />
+	<meta name="keywords" content="JTroll,Trollman,J.T.,J.T. Trollman,design" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/tachyons.min.css"/>
+  <link rel="stylesheet" href="css/master.css" />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  <!--
+  <link rel="stylesheet" href="https://unpkg.com/tachyons@4.6.1/css/tachyons.min.css"/>
+  -->
+
+  <!-- Initialize JavaScript-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <!-- End JavaScript-->
+
+</head>
+
+<body class="backround_tile sans-serif">
+
+  <!--Fixed Header Nav-->
+  <div class="fixed w-100 h1 bbar mb6"></div> <!--Fixed dark blue bar at top of page-->
+  <header class="fixed w-100 mt3 headershadow z100 justify-between items-center">
+    <nav class="wrapper_large">
+
+      <!--Centered logo at small sizes-->
+      <a class="dn-ns flex justify-center v-mid link dim tc" href="http://www.jtroll.com" title="Home">
+        <img src="images/logo_jtroll.png" class="dib logo-s" alt="JTroll">
+      </a>
+
+      <!--Full-width nav at large and medium sizes-->
+      <div id="menu" class="flex static-ns mt0-ns mt6 w-100 bg-white-95-s justify-between absolute">
+        <div>
+          <a class="dim db-l db-m dn" href="http://www.jtroll.com" title="Home">
+            <img src="images/logo_jtroll.png" class="logo" alt="JTroll">
+          </a>
+        </div>
+        <ul class="flex-l flex-row-l flex-column-l mv0 list topnav dn"> <!--Added a bunch of classes here to hide the nav at anything but large screen sizes-->
+          <li>
+            <a class="navbutton link darken mr3" href="#selectedwriting">Selected Writing</a>
+          </li>
+          <li>
+            <a class="navbutton link darken mr3" href="#work">Work</a>
+          </li>
+          <li>
+            <a class="navbutton link darken mr3" href="#about">About</a>
+          </li>
+          <li>
+            <a class="navbutton link darken mr3" href="#speaking">Speaking</a>
+          </li>
+          <li>
+            <a class="navbutton link darken mr3" href="#photos">Photos</a>
+          </li>
+          <li>
+            <a class="navbutton link darken" href="#contact">Contact</a>
+          </li>
+        </ul>
+      </div>
+
+    </nav>
+  </header>
+  <!--End Fixed Header-->
+
+
+  <div class="overflow-auto pt6">
+    <div class="wrapper_large pt4 flex flex-row-l flex-row-m flex-column">
+      <div class="flex inline-flex justify-center"> <!--Avatar positioning that only shows up on small screens-->
+        <img width="120" height="120" src="images/jt_avatar.png" class="dn-ns" alt="Hi!">
+      </div>
+      <div class="flex flex-column w-70-l w-90-m w-100 ph0-l ph0-m ph3">
+        <p class="textsecondary f3 lh150">J.T. Trollman &mdash; I help make useful products, building on over 15 years of experience working across both major brands and tiny startups.</p>
+        <p class="textprimary header header-s mt0">Practically speaking, I try to solve meaningful problems for people<span class="textred">.</span></p>
+      </div>
+      <div class="flex w-30-l inline-flex items-center">
+        <img width="200" height="200" src="images/jt_avatar.png" class="mla dn db-l" alt="Hi!">
+      </div>
+    </div>
+
+    <!--Social Media Buttons-->
+    <div class="wrapper_large flex flex-row">
+      <ul class="flex flex-wrap justify-start-l justify-start-m justify-center mv0 ph0 list">
+        <li>
+          <a class="navbutton link darken mr3 mv0-l mv2" target="_blank" href="https://twitter.com/jtroll">
+            <img src="images/logo_twitter.png" width="32" class="v-mid">
+            Twitter &#x2192;
+          </a>
+        </li>
+        <li>
+          <a class="navbutton link darken mr3 mv0-l mv2" target="_blank" href="https://medium.com/@jtroll">
+            <img src="images/logo_medium.png" width="20" class="v-mid ma0375">
+            Medium &#x2192;
+          </a>
+        </li>
+        <li>
+          <a class="navbutton link darken mr3 mv0-l mv2" target="_blank" href="https://www.instagram.com/jtroll/">
+            <img src="images/logo_ig.png" width="20" class="v-mid ma0375">
+            Instagram &#x2192;
+          </a>
+        </li>
+        <li>
+          <a class="navbutton link darken mr3 mv0-l mv2" target="_blank" href="https://www.linkedin.com/in/trollman/">
+            <img src="images/logo_linkedin.png" width="20" class="v-mid ma0375">
+            LinkedIn &#x2192;
+          </a>
+        </li>
+    </div>
+    <!--End Social Media Buttons-->
+
+    <div class="wrapper_large flex flex-column">
+      <div class="line w-100 mt625 mb5"></div> <!--Divider line-->
+
+      <div class="anchor page-section" id="selectedwriting"></div>
+      <h3 class="textprimary f3 mb5 ph0-l ph0-m ph3"><strong>Selected Writing</strong></h3>
+
+      <div class="masonry-articles ph0-l ph0-m ph3"> <!--Articles-->
+
+          <a href="https://medium.com/facebook-design/six-questions-to-structure-great-projects-24a557cb11ab" class="link articlerules" target="_blank">
+            <div class="fancy_card">
+              <img src="images/article_01.png" class="card_image">
+              <div class="card_text"><!--Card text bounds-->
+                <p class="textprimary"><strong>Six Questions to Structure Great Projects</strong></p>
+                <p class="meta">9 min read ‧ Facebook Medium Article</p>
+            </div><!--end fancy_card-->
+          </div>
+          </a>
+
+          <a href="https://medium.com/facebook-design/two-lessons-for-using-feedback-318608d768c1" class="link articlerules" target="_blank">
+            <div class="fancy_card">
+              <img src="images/article_04.jpeg" class="card_image">
+              <div class="card_text"><!--Card text bounds-->
+                <p class="textprimary"><strong>Two Lessons For Using Feedback</strong></p>
+                <p class="meta">8 min read ‧ Facebook Medium Article</p>
+              </div>
+            </div><!--end fancy_card-->
+          </a>
+
+          <a href="https://medium.com/@jtroll/fueling-creativity-36cff6ffd35f" class="link articlerules" target="_blank">
+            <div class="fancy_card">
+              <img src="images/article_03.jpeg" class="card_image">
+              <div class="card_text"><!--Card text bounds-->
+                <p class="textprimary"><strong>Fueling Creativity: How Harley Earl Taught Us Design Reshapes Everything</strong></p>
+                <p class="meta">13 min read ‧ Medium Article</p>
+              </div><!--end fancy_card-->
+            </div>
+          </a>
+
+          <a href="https://medium.com/@jtroll/ai-should-take-offense-d6fbf2b3e930" class="link articlerules" target="_blank">
+            <div class="fancy_card">
+              <img src="images/article_02.png" class="card_image">
+              <div class="card_text"><!--Card text bounds-->
+                <p class="textprimary"><strong>AI Should Take Offense (Or We Risk Losing All Our Politeness)</strong></p>
+                <p class="meta">5 min read ‧ Medium Article</p>
+              </div><!--end fancy_card-->
+          </div>
+          </a>
+      </div>
+
+      <div class="line w-100 mt625 mb5"></div> <!--Divider line-->
+
+      <div class="anchor page-section" id="work"></div>
+      <h3 class="textprimary f3 mb5 ph0-l ph0-m ph3"><strong>Current Work</strong></h3>
+
+      <div class="ph0 list f3 w-75-l w-100 ph0-l ph0-m ph3">
+        <div class="mv3 flex flex-row items-center">
+          <img src="images/logo_fb.png" width="32" height="32" class="mr3">
+          <p class="textsecondary mv0"><a class="textred link" target="_blank" href="https://www.facebook.com/">Facebook</a> &mdash; Product Design Manager, Facebook Reality Labs</p>
+        </div>
+
+        <div class="line w-20 mv4"></div> <!--Divider line-->
+
+        <div class="mv3 flex flex-row items-center">
+          <img src="images/logo_mada.png" width="32" height="32" class="mr3">
+          <p class="textsecondary mv0"><a class="textred link" target="_blank" href="http://www.makeamericadinneragain.com/">Make America Dinner Again</a> &mdash; Founding Designer</p>
+        </div>
+        <div class="mv3 flex flex-row items-center">
+          <img src="images/logo_go.png" width="32" height="32" class="mr3">
+          <p class="textsecondary mv0"><a class="textred link" target="_blank" href="https://gosafeinsurance.com/">Go Insurance</a> &mdash; Advisor</p>
+        </div>
+        <div class="mv3 flex flex-row items-center">
+          <img src="images/logo_placeholder.png" width="32" height="32" class="mr3">
+          <p class="textsecondary mv0">Go Safe Labs &mdash; Secretary &amp; Treasurer</p>
+        </div>
+      </div>
+
+      <!--Work-->
+      <div class="mt5-l mt4 masonry-work2 ph0-l ph0-m ph3">
+          <div class="flex flex-column workrules2 mb4">
+            <img src="images/work_01_frl.png" class="workimage">
+            <p class="meta">2021&ndash;Present</p>
+            <p class="textprimary"><strong>Facebook Reality Labs</strong></p>
+            <p class="textsecondary">Supporting a new product and new team within our hardware-software division, creating new interaction mechanics and consumer devices.</p>
+          </div>
+
+          <div class="flex flex-column workrules2 mb4">
+            <img src="images/work_02_campus.jpg" class="workimage">
+            <p class="meta">2020&ndash;2021</p>
+            <p class="textprimary"><strong>Facebook Campus</strong></p>
+            <p class="textsecondary">Founding design manager for a comprehensive new community product for college students. Launched its North American beta summer 2020.</p>
+          </div>
+
+          <div class="flex flex-column workrules2 mb4">
+            <img src="images/work_03_neighborhoods.jpg" class="workimage">
+            <p class="meta">2020</p>
+            <p class="textprimary"><strong>Facebook Neighborhoods</strong></p>
+            <p class="textsecondary">Founding design manager for another new community product, for local neighborhoods. Launched its North American beta fall 2020.</p>
+          </div>
+
+          <div class="flex flex-column workrules2 mb4">
+            <img src="images/work_04_events.jpg" class="workimage">
+            <p class="meta">2017&ndash;2019</p>
+            <p class="textprimary"><strong>Facebook Events</strong></p>
+            <p class="textsecondary">Design manager for the Facebook Events product ecosystem and the Facebook Local app. 600M people per month use our products.</p>
+          </div>
+
+          <div class="flex flex-column workrules2 mb4">
+            <img src="images/work_05_mada.jpg" class="workimage">
+            <p class="meta">2016&ndash;Present</p>
+            <p class="textprimary"><strong>Make America Dinner Again</strong></p>
+            <p class="textsecondary">Founding designer for this national volunteer organization, fostering better communication across the aisle.</p>
+          </div>
+
+          <div class="flex flex-column workrules2 mb4">
+            <img src="images/work_06_communityintegrity.jpg" class="workimage">
+            <p class="meta">2014&ndash;2017</p>
+            <p class="textprimary"><strong>Community Integrity</strong></p>
+            <p class="textsecondary">Design lead across all Facebook Consumer Support tools, including reporting and Help Center.</p>
+          </div>
+
+          <div class="flex flex-column workrules2 mb4">
+            <img src="images/work_07_coreexperiences.jpeg" class="workimage">
+            <p class="meta">2013&ndash;2014</p>
+            <p class="textprimary"><strong>Core Experiences</strong></p>
+            <p class="textsecondary">Designed core systems for Facebook, including News Feed, rich engagement features, and emerging market features. Co-designed the first comprehensive, component-based design library for the Facebook app on Android.</p>
+          </div>
+
+          <div class="flex flex-column workrules2 mb4">
+            <img src="images/work_08_prefacebook.png" class="workimage">
+            <p class="meta">Pre-2013</p>
+            <p class="textprimary"><strong>Pre-Facebook</strong></p>
+            <p class="textsecondary">Co-founded two start-ups, ran a small design consultancy, and had a career in design agency life before that through places like IDEO.</p>
+          </div>
+        </div><!--end Work-->
+    </div><!--end wrapper_large container-->
+  </div><!--end overflow-auto container-->
+
+  <div class="overflow-auto pt5 pb625 background_reddish mt625 mb5">
+    <div class="wrapper_large flex flex-column f3 ph0-l ph0-m ph3">
+      <div class="w-75-l w-75-m w-100 lh150">
+        <div class="anchor page-section" id="about"></div>
+        <h3 class="textprimary f3 mb5 "><strong>About</strong></h3>
+        <p class="textsecondary">I’m particularly invested in my work at <a class="link textred" target="_blank" href="https://facebook.design/">Facebook</a> because it enables me to do the greatest amount of good I can manage for society — with all the humbling responsibility and pitfalls that can entail. Most recently I’ve joined Facebook Reality Labs to support new initiatives there on the leading edge of human interaction and productivity.</p>
+        <p class="textsecondary">Previously I supported multiple “0&ndash;1” new product teams within Facebook App’s Community Incubator group, and am a product lead for our internal design education initiatives. I’ve helped facilitate internal racial justice initiatives as well, both on the product and the people side of things.</p>
+        <p class="textsecondary">Prior to that I was the design manager for Facebook’s Events products and Local app, enabling people to spend more time with close friends and family in the real world. I also spent years on our Community Integrity team as the design lead for our content moderation and help products, touching everything from chat bot technology to redesigning our reporting and help center tools. And winding the clock back even more, I was one of two designers to create our first Android design & navigation system in the process of initiating better emerging market support; and I worked on News Feed and expression products (like adding stickers to comments).</p>
+        <p class="textsecondary">Key areas of interest for me include creating products for underserved communities; emerging-market enablement; privacy, trust & safety issues; community involvement and engagement; political engagement; public information access; automotive & transit technology; AI; and cartography. (I’m also a huge nerd for music, comics, videogames and <a class="link textred" target="_blank" href="https://www.pinterest.com/jtroll/automotive/">cars</a>.)</p>
+        <p class="textsecondary">I've spoken internationally about some of the issues above. After the 2016 US election, I also became the founding designer for a passion project to facilitate understanding across the political divide at <a class="link textred" target="_blank" href="http://www.makeamericadinneragain.com/">Make America Dinner Again</a>. We have over 12 chapters nationwide, and have been covered everywhere from The New York Times to the BBC to The Blaze. Somehow both Oprah and Glenn Beck love us.</p>
+        <p class="textsecondary">Before all that, I co-founded two start-ups (B4UGO and Happiness Engines), piloted a small design consultancy, and tinkered on countless other side projects with friends. I’ve also acted as an advisor and strategist for start-ups, and worked alongside great folks at <a class="link textred" target="_blank" href="https://www.ideo.com/">IDEO</a> for some years as well.</p>
+      </div>
+    </div><!--end wrapper_large container-->
+  </div><!--end overflow-auto container-->
+
+  <div class="overflow-auto mt625 mb5 ph0-l ph0-m ph3">
+    <div class="wrapper_large flex flex-column">
+      <div class="anchor page-section" id="speaking"></div>
+      <h3 class="textprimary f3 mb5"><strong>Speaking, Teaching &amp; Mentoring</strong></h3>
+
+      <div class="masonry-speaking"> <!--Items-->
+
+            <div class="flex flex-column speakingrules gig">
+              <img src="images/stm_hive.png">
+              <p class="meta">Speaking ‧ 2015</p>
+              <p class="textprimary"><strong>HIVE: Designing For Empathy</strong></p>
+              <p class="textsecondary">A talk grounded in three principles for designing for empathetic products</p>
+            </div><!--end gig-->
+
+            <div class="flex flex-column speakingrules gig">
+              <img src="images/stm_telaviv.png">
+              <p class="meta">Speaking ‧ 2016</p>
+              <p class="textprimary"><strong>Tel Aviv Talks: Designing For Moments of Struggle</strong></p>
+              <p class="textsecondary">Examples of how designers can and should consider how their products touch people in their most vulnerable moments</p>
+            </div><!--end gig-->
+
+            <div class="flex flex-column speakingrules gig">
+              <img src="images/stm_bb19.png">
+              <p class="meta">Speaking ‧ 2019</p>
+              <p class="textprimary"><strong>Bridge Builders 2019: Product Thinking</strong></p>
+              <p class="textsecondary">A primer on how Facebook has a uniquely developed opinion on product thinking</p>
+            </div><!--end gig-->
+
+            <div class="flex flex-column speakingrules gig">
+              <img src="images/stm_bb20.png">
+              <p class="meta">Speaking ‧ 2020</p>
+              <p class="textprimary"><strong>Bridge Builders 2020: What We Don’t Talk About When We Talk About Product Design</strong></p>
+              <p class="textsecondary">Grounding people in the soft skills of product design: proactivity, communication and humility</p>
+            </div><!--end gig-->
+
+            <div class="flex flex-column speakingrules gig">
+              <img src="images/stm_dc.png">
+              <p class="meta">Teaching ‧ 2014&ndash;Present</p>
+              <p class="textprimary"><strong>Facebook Design Camp</strong></p>
+              <p class="textsecondary">As product lead for Facebook’s design education program, I’ve crafted and taught the curriculum for a wide variety of classes geared toward thousands of company design team members</p>
+            </div><!--end gig-->
+
+            <div class="flex flex-column speakingrules gig">
+              <img src="images/stm_fb.png">
+              <p class="meta">Mentorship ‧ Ongoing</p>
+              <p class="textprimary"><strong>Facebook Design Mentorship</strong></p>
+              <p class="textsecondary">I run the senior designers mentorship circles program for the Facebook App org, and mentor 2&ndash;3 managers and designers each half</p>
+            </div><!--end gig-->
+
+            <div class="flex flex-column speakingrules gig">
+              <img src="images/stm_mentorship.png">
+              <p class="meta">Mentorship ‧ Ongoing</p>
+              <p class="textprimary"><strong>External Mentorship</strong></p>
+              <p class="textsecondary">I mentor 1&ndash;2 under-represented external designers each half, with the goal to create lasting relationships</p>
+            </div><!--end gig-->
+      </div>
+
+        <div class="line w-100 mt625 mb5"></div> <!--Divider line-->
+
+        <div class="w-75-l w-75-m w-100 lh150 f3 ph0-l ph0-m ph3">
+          <div class="anchor page-section" id="photos"></div>
+          <h3 class="textprimary f3 mb5"><strong>Photos</strong></h3>
+          <p class="textsecondary">I’m an amateur photographer with a great joy for people and the outdoors, slowly learning how much I respect videographers for the added dimensions of sound, motion and time they juggle. I've been lucky enough to have my work included in publications such as The New York Times.</p>
+        </div>
+
+        <div class="mt4-l mt3 masonry-photos ph0-l ph0-m ph3"> <!--Photos-->
+            <div class="photorules">
+              <img src="images/photo_01_santorini.jpg" class="workimage">
+            </div>
+
+            <div class="photorules">
+              <img src="images/photo_02_naxos.jpg" class="workimage">
+            </div>
+
+            <div class="photorules">
+              <img src="images/photo_03_athens.jpg" class="workimage">
+            </div>
+
+            <div class="photorules">
+              <img src="images/photo_04_monemvasia.jpg" class="workimage">
+            </div>
+
+            <div class="photorules">
+              <img src="images/photo_05_yosemite.jpg" class="workimage">
+            </div>
+
+            <div class="photorules">
+              <img src="images/photo_06_naoshima.jpg" class="workimage">
+            </div>
+          </div><!--end Photos-->
+
+        <div class="flex justify-center mt25">
+          <a class="navbutton link darken mr3" target="_blank" href="https://www.instagram.com/jtroll/">
+            <img src="images/logo_ig.png" width="20" class="v-mid ma0375">
+            Investigate on Instagram &#x2192;
+          </a>
+        </div>
+
+        <div class="line w-100 mt625 mb5"></div> <!--Divider line-->
+
+        <div class="w-75-l w-75-m w-100 lh150 f3 ph0-l ph0-m ph3">
+          <div class="anchor page-section" id="contact"></div>
+          <h3 class="textprimary f3 mb5"><strong>Contact</strong></h3>
+          <p class="textsecondary">Drop me a line at <a class="link textred" target="_blank" href="mailto:jt@jtroll.com">jt@jtroll.com</a>, or through social media of your choice. Thanks for your time!</p>
+        </div>
+
+        <!--Social Media Buttons-->
+        <div class="flex flex-row">
+          <ul class="flex flex-wrap justify-start-l justify-start-m justify-center mv0 ph0 list">
+            <li>
+              <a class="navbutton link darken mr3 mv0-l mv2" target="_blank" href="https://twitter.com/jtroll">
+                <img src="images/logo_twitter.png" width="32" class="v-mid">
+                Twitter &#x2192;
+              </a>
+            </li>
+            <li>
+              <a class="navbutton link darken mr3 mv0-l mv2" target="_blank" href="https://medium.com/@jtroll">
+                <img src="images/logo_medium.png" width="20" class="v-mid ma0375">
+                Medium &#x2192;
+              </a>
+            </li>
+            <li>
+              <a class="navbutton link darken mr3 mv0-l mv2" target="_blank" href="https://www.linkedin.com/in/trollman/">
+                <img src="images/logo_linkedin.png" width="20" class="v-mid ma0375">
+                LinkedIn &#x2192;
+              </a>
+            </li>
+        </div>
+        <!--End Social Media Buttons-->
+    </div><!--end wrapper_large container-->
+  </div><!--end overflow-auto container-->
+  <div class="w-100 h4 bbar"></div> <!--Fixed dark blue bar at top of page-->
+
+  <!--JavaScript to change header shadow on scroll-->
+  <script>
+    $(function(){
+     var pageScroll = 100;
+      $(window).scroll(function() {
+        var scroll = getCurrentScroll();
+          if ( scroll >= pageScroll ) {
+               $('.headershadow').addClass('headershadow_shrink');
+               $('.logo-s').addClass('logo_shrink');
+            }
+            else {
+                $('.headershadow').removeClass('headershadow_shrink');
+                $('.logo-s').removeClass('logo_shrink');
+            }
+      });
+    function getCurrentScroll() {
+        return window.pageYOffset || document.documentElement.scrollTop;
+        }
+    });
+  </script>
+
+  <!--Nav scrolling behavior-->
+  <script>
+    $(document).ready(function() {
+      $('a[href*="#"]:not([href="#"])').bind('click', function(e) {
+          e.preventDefault(); // prevent hard jump, the default behavior
+
+          var target = $(this).attr("href"); // Set the target as variable
+
+          // perform animated scrolling by getting top-position of target-element and set it as scroll target
+          $('html, body').stop().animate({
+              scrollTop: $(target).offset().top
+          }, function() {
+              location.hash = target; //attach the hash (#jumptarget) to the pageurl
+          });
+          return false;
+      });
+    });
+    $(window).scroll(function() {
+      var scrollDistance = $(window).scrollTop(); // This variable finds the distance you have scrolled from the top.
+
+      // Assign active class to nav links while scolling
+      $('.page-section').each(function(i) {
+          if ($(this).position().top <= scrollDistance) {
+              $('.topnav a.active').removeClass('active');
+              $('.topnav a').eq(i).addClass('active');
+          }
+          else {
+              $('.topnav a').eq(i).removeClass('active'); //Remove active state of the active nav element if none of the above is true (i.e. you're at the top of the page)
+          }
+
+      });
+    }).scroll();
+  </script>
+
+</body>
+</html>
