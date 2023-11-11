@@ -31,31 +31,39 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
   <!-- Transforming jQuery code -->
-    <script>
-        $(document).ready(function() {
-            $(".workimage").mousemove(function(e) {
-                // Calculate the position of the mouse within the image
-                const mouseX = e.pageX - $(this).offset().left;
-                const mouseY = e.pageY - $(this).offset().top;
+  <script>
+      $(document).ready(function() {
+          $(".workimage").mousemove(function(e) {
+              // Calculate the position of the mouse within the image
+              const mouseX = e.pageX - $(this).offset().left;
+              const mouseY = e.pageY - $(this).offset().top;
 
-                // Calculate the rotation angles based on mouse position
-                const rotateX = (mouseY / $(this).height() - 0.5) * 20;
-                const rotateY = (mouseX / $(this).width() - 0.5) * 20;
+              // Calculate the rotation angles based on mouse position (make it more subtle)
+              const rotateX = (mouseY / $(this).height() - 0.5) * 10;
+              const rotateY = (mouseX / $(this).width() - 0.5) * 10;
 
-                // Apply the transform CSS property to create the rotation effect
-                $(this).css({
-                    "transform": "rotateX(" + rotateX + "deg) rotateY(" + rotateY + "deg)"
-                });
-            });
+              // Apply the transform CSS property to create the rotation effect
+              $(this).css({
+                  "transform": "rotateX(" + rotateX + "deg) rotateY(" + rotateY + "deg) translateZ(10px)"
+              });
 
-            // Reset the image rotation when the mouse leaves the image
-            $(".workimage").mouseleave(function() {
-                $(this).css({
-                    "transform": "rotateX(0) rotateY(0)"
-                });
-            });
-        });
-    </script>
+              // Add a subtle drop shadow and lift the image in z-height
+              $(this).css({
+                  "box-shadow": "0 4px 8px rgba(0, 0, 0, 0.1)",
+                  "transform-origin": "center center"
+              });
+          });
+
+          // Reset the image rotation, drop shadow, and z-height when the mouse leaves the image
+          $(".workimage").mouseleave(function() {
+              $(this).css({
+                  "transform": "rotateX(0) rotateY(0) translateZ(0)",
+                  "box-shadow": "0 0 0 rgba(0, 0, 0, 0)",
+                  "transform-origin": "center center"
+              });
+          });
+      });
+  </script>
   <!-- End JavaScript-->
 
 </head>
