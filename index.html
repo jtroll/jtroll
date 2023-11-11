@@ -29,6 +29,33 @@
 
   <!-- Initialize JavaScript-->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Transforming jQuery code -->
+    <script>
+        $(document).ready(function() {
+            $(".workimage").mousemove(function(e) {
+                // Calculate the position of the mouse within the image
+                const mouseX = e.pageX - $(this).offset().left;
+                const mouseY = e.pageY - $(this).offset().top;
+
+                // Calculate the rotation angles based on mouse position
+                const rotateX = (mouseY / $(this).height() - 0.5) * 20;
+                const rotateY = (mouseX / $(this).width() - 0.5) * 20;
+
+                // Apply the transform CSS property to create the rotation effect
+                $(this).css({
+                    "transform": "rotateX(" + rotateX + "deg) rotateY(" + rotateY + "deg)"
+                });
+            });
+
+            // Reset the image rotation when the mouse leaves the image
+            $(".workimage").mouseleave(function() {
+                $(this).css({
+                    "transform": "rotateX(0) rotateY(0)"
+                });
+            });
+        });
+    </script>
   <!-- End JavaScript-->
 
 </head>

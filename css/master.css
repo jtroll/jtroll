@@ -182,6 +182,7 @@ h3 {
 .workimage {
   object-fit: cover;
   width: 100%;
+  transition: transform 0.3s ease-out; /*test*/
   /*max-height: 386px;*/
 }
 
