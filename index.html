@@ -44,9 +44,6 @@
                 // Apply the transform CSS property to create the rotation effect
                 $(this).find(".workimage").css({
                     "transform": "rotateX(" + rotateX + "deg) rotateY(" + rotateY + "deg)",
-                    "scale": (1.5),
-                    "translate": (0, -2),
-                    "transition": all .4 ease
                 });
 
                 // Add a subtle drop shadow
@@ -60,9 +57,6 @@
                 $(this).find(".workimage").css({
                     "transform": "rotateX(0) rotateY(0)",
                     "box-shadow": "0 0 0 rgba(0, 0, 0, 0)",
-                    "translate": (0, 0),
-                    "scale": (1)
-
                 });
             });
         });

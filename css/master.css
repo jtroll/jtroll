@@ -184,7 +184,7 @@ h3 {
   object-fit: cover;
   width: 100%;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-            transform-origin: center center;
+  transform-origin: center center;
   /*max-height: 386px;*/
 }
 
