@@ -500,16 +500,20 @@
 $('a[href*="#"]:not([href="#"])').click(function(e) {
     e.preventDefault();
     var target = $(this.hash);
-    var menuOffset = -110; // adjust this value based on your actual menu height
+    var menuOffset = 200; // Height of the fixed menu in pixels; adjust as needed
+    // Calculate the target offset position by subtracting the menuOffset
+    var targetOffset = target.offset().top - menuOffset;
+
     $('html, body').animate({
-        scrollTop: target.offset().top - menuOffset
+        scrollTop: targetOffset
     }, 600, function() {
-        var targetId = target.attr('id');
-        if (targetId) {
-            window.location.hash = targetId;
-        }
+        // Optional: Update the window location hash here, if desired.
+        // This can cause a slight jump depending on the browser's behavior with hash changes.
+        // Consider the UX impact before enabling it.
+        // window.location.hash = this.hash;
     });
 });
+
 
 
   // Initialize Intersection Observer
