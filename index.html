@@ -490,22 +490,34 @@
     });
   </script>
 
-  <!--Nav scrolling behavior 2.0 using Intersection Observer Logic-->
+  <!--Nav scrolling behavior 2.1 using Intersection Observer Logic-->
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    $(document).ready(function() {
+  // Smooth scrolling
+  $('a[href*="#"]:not([href="#"])').click(function(e) {
+      e.preventDefault();
+      var target = $(this.hash);
+      $('html, body').animate({
+          scrollTop: target.offset().top
+      }, 600, function() {
+          window.location.hash = target.selector;
+      });
+  });
+
+  // Intersection Observer for activating nav links
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        let activeLink = document.querySelector(`a[href="#${entry.target.id}"]`);
-        if (activeLink) {
-          document.querySelectorAll('.navbutton').forEach((link) => {
+        document.querySelectorAll('.navbutton').forEach((link) => {
+          if (link.getAttribute('href').includes(entry.target.id)) {
+            link.classList.add('active');
+          } else {
             link.classList.remove('active');
-          });
-          activeLink.classList.add('active');
-        }
+          }
+        });
       }
     });
-  }, { rootMargin: "0px", threshold: 0.5 });
+  }, { rootMargin: "-50% 0px -50% 0px", threshold: 0.1 });
 
   document.querySelectorAll('.page-section').forEach((section) => {
     observer.observe(section);
