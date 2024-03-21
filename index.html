@@ -158,7 +158,7 @@
     <div class="wrapper_large flex flex-column">
       <div class="line w-100 mt625 mb5"></div> <!--Divider line-->
 
-      <div class="anchor page-section" id="selectedwriting"></div>
+      <div class="anchor " id="selectedwriting"></div>
       <h3 class="textprimary f3 mb5 ph0-l ph0-m ph3"><strong>Selected Writing</strong></h3>
 
       <div class="masonry-articles ph0-l ph0-m ph3"> <!--Articles-->
@@ -490,40 +490,41 @@
     });
   </script>
 
-  <!--Nav scrolling behavior 2.1 using Intersection Observer Logic-->
+  <!--Nav scrolling behavior 2.3 using Intersection Observer Logic-->
   <script>
-    $(document).ready(function() {
-  // Smooth scrolling
+$(document).ready(function() {
+  // Smooth scrolling functionality
   $('a[href*="#"]:not([href="#"])').click(function(e) {
-      e.preventDefault();
-      var target = $(this.hash);
-      $('html, body').animate({
-          scrollTop: target.offset().top
-      }, 600, function() {
-          window.location.hash = target.selector;
-      });
+    e.preventDefault();
+    var target = $(this.hash);
+    $('html, body').animate({
+        scrollTop: target.offset().top
+    }, 600, function() {
+        window.location.hash = target.selector;
+    });
   });
 
-  // Intersection Observer for activating nav links
+  // Initialize Intersection Observer
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         document.querySelectorAll('.navbutton').forEach((link) => {
-          if (link.getAttribute('href').includes(entry.target.id)) {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + entry.target.id) {
             link.classList.add('active');
-          } else {
-            link.classList.remove('active');
           }
         });
       }
     });
-  }, { rootMargin: "-50% 0px -50% 0px", threshold: 0.1 });
+  }, { rootMargin: "-50% 0px -50% 0px", threshold: 0.25 });
 
+  // Observe each section
   document.querySelectorAll('.page-section').forEach((section) => {
     observer.observe(section);
   });
 });
-  </script>
+</script>
+
 
 </body>
 </html>
