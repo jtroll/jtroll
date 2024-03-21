@@ -158,8 +158,9 @@
     <div class="wrapper_large flex flex-column">
       <div class="line w-100 mt625 mb5"></div> <!--Divider line-->
 
-      <div class="anchor " id="selectedwriting"></div>
-      <h3 class="textprimary f3 mb5 ph0-l ph0-m ph3"><strong>Selected Writing</strong></h3>
+      <div class="page-section" id="selectedwriting">
+      	<h3 class="textprimary f3 mb5 ph0-l ph0-m ph3"><strong>Selected Writing</strong></h3>
+      </div>
 
       <div class="masonry-articles ph0-l ph0-m ph3"> <!--Articles-->
 
@@ -206,7 +207,7 @@
 
       <div class="line w-100 mt625 mb5"></div> <!--Divider line-->
 
-      <div class="anchor page-section" id="work">
+      <div class="page-section" id="work">
       <h3 class="textprimary f3 ph0-l ph0-m ph3"><strong>Recent Work</strong></h3>
       </div>
 <!--
@@ -322,7 +323,7 @@
   <div class="overflow-auto pt5 pb625 background_reddish mt625 mb5">
     <div class="wrapper_large flex flex-column f3 ph0-l ph0-m ph3">
       <div class="w-75-l w-75-m w-100 lh150">
-        <div class="anchor page-section" id="about">
+        <div class="page-section" id="about">
         	<h3 class="textprimary f3 mb5 "><strong>About</strong></h3>
 	</div>
         <p class="textsecondary">I’m a design leader primarily focused on 0&ndash;1 spaces, making hard things a reality. I’ve worked in both hardware/software and pure software environments, and most recently served as the head of product design for <a class="link textred" target="_blank" href="https://www.getcruise.com/">Cruise’s</a> ridehail consumer experiences. I supported 80% of Cruise's business, from in-car display strategy & execution across multiple vehicle lines & generations; to the entire consumer app experiences from hailing, pickup and dropoff in a way that feels intuitive, magical, safe and equitable.</p>
@@ -339,7 +340,7 @@
 
   <div class="overflow-auto mt625 mb5 ph0-l ph0-m ph3">
     <div class="wrapper_large flex flex-column">
-      <div class="anchor page-section" id="speaking">
+      <div class="page-section" id="speaking">
       	<h3 class="textprimary f3 mb5"><strong>Speaking, Teaching &amp; Mentoring</strong></h3>
       </div>
 	      
@@ -398,7 +399,7 @@
         <div class="line w-100 mt625 mb5"></div> <!--Divider line-->
 
         <div class="w-75-l w-75-m w-100 lh150 f3 ph0-l ph0-m ph3">
-          <div class="anchor page-section" id="photos">
+          <div class="page-section" id="photos">
           	<h3 class="textprimary f3 mb5"><strong>Photos</strong></h3>
           </div>
 	  <p class="textsecondary">I’m an amateur photographer with a great joy for people and the outdoors, slowly learning how much I respect videographers for the added dimensions of sound, motion and time they juggle. I've been lucky enough to have my work included in publications such as The New York Times.</p>
@@ -440,7 +441,7 @@
         <div class="line w-100 mt625 mb5"></div> <!--Divider line-->
 
         <div class="w-75-l w-75-m w-100 lh150 f3 ph0-l ph0-m ph3">
-          <div class="anchor page-section" id="contact">
+          <div class="page-section" id="contact">
           	<h3 class="textprimary f3 mb5"><strong>Contact</strong></h3>
 	  </div>
           <p class="textsecondary">Drop me a line at <a class="link textred" target="_blank" href="mailto:jt@jtroll.com">jt@jtroll.com</a>, or through social media of your choice. Thanks for your time!</p>
@@ -496,17 +497,21 @@
 
   <!--Nav scrolling behavior 2.3 using Intersection Observer Logic-->
   <script>
-$(document).ready(function() {
-  // Smooth scrolling functionality
-  $('a[href*="#"]:not([href="#"])').click(function(e) {
+$('a[href*="#"]:not([href="#"])').click(function(e) {
     e.preventDefault();
     var target = $(this.hash);
     $('html, body').animate({
         scrollTop: target.offset().top
     }, 600, function() {
-        window.location.hash = target.selector;
+        // Ensure the element's ID is correctly retrieved before setting the hash.
+        var targetId = target.attr('id');
+        if (targetId) {
+            window.location.hash = targetId;
+        } else {
+            console.log('Failed to retrieve target ID for:', target);
+        }
     });
-  });
+});
 
   // Initialize Intersection Observer
   const observer = new IntersectionObserver((entries) => {
