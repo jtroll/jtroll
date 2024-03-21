@@ -495,23 +495,22 @@
     });
   </script>
 
-  <!--Nav scrolling behavior 2.3 using Intersection Observer Logic-->
+  <!--Nav scrolling behavior 2.4 using Intersection Observer Logic-->
   <script>
 $('a[href*="#"]:not([href="#"])').click(function(e) {
     e.preventDefault();
     var target = $(this.hash);
+    var menuOffset = 32; // Approx 2rem; adjust this value based on your actual menu height
     $('html, body').animate({
-        scrollTop: target.offset().top
+        scrollTop: target.offset().top - menuOffset
     }, 600, function() {
-        // Ensure the element's ID is correctly retrieved before setting the hash.
         var targetId = target.attr('id');
         if (targetId) {
             window.location.hash = targetId;
-        } else {
-            console.log('Failed to retrieve target ID for:', target);
         }
     });
 });
+
 
   // Initialize Intersection Observer
   const observer = new IntersectionObserver((entries) => {
@@ -525,7 +524,7 @@ $('a[href*="#"]:not([href="#"])').click(function(e) {
         });
       }
     });
-  }, { rootMargin: "-50% 0px -50% 0px", threshold: 0.25 });
+  }, { rootMargin: "-10% 0px -10% 0px", threshold: 0.1 });
 
   // Observe each section
   document.querySelectorAll('.page-section').forEach((section) => {
