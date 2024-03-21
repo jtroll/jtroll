@@ -500,7 +500,7 @@
 $('a[href*="#"]:not([href="#"])').click(function(e) {
     e.preventDefault();
     var target = $(this.hash);
-    var menuOffset = 32; // Approx 2rem; adjust this value based on your actual menu height
+    var menuOffset = 110; // Approx 2rem; adjust this value based on your actual menu height
     $('html, body').animate({
         scrollTop: target.offset().top - menuOffset
     }, 600, function() {
