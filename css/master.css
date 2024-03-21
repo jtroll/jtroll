@@ -83,7 +83,7 @@ h3 {
     display: block;
     position: relative;
     top: -12rem;
-    visibility: hidden;
+    /*visibility: hidden;*/
 }
 
 /*CSS FOR ANY BREAKPOINTS SMALLER THAN 30EM - i.e. PHONES*/
