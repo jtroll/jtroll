@@ -490,38 +490,27 @@
     });
   </script>
 
-  <!--Nav scrolling behavior-->
+  <!--Nav scrolling behavior 2.0 using Intersection Observer Logic-->
   <script>
-    $(document).ready(function() {
-      $('a[href*="#"]:not([href="#"])').bind('click', function(e) {
-          e.preventDefault(); // prevent hard jump, the default behavior
-
-          var target = $(this).attr("href"); // Set the target as variable
-
-          // perform animated scrolling by getting top-position of target-element and set it as scroll target
-          $('html, body').stop().animate({
-              scrollTop: $(target).offset().top
-          }, function() {
-              location.hash = target; //attach the hash (#jumptarget) to the pageurl
+    document.addEventListener("DOMContentLoaded", function() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        let activeLink = document.querySelector(`a[href="#${entry.target.id}"]`);
+        if (activeLink) {
+          document.querySelectorAll('.navbutton').forEach((link) => {
+            link.classList.remove('active');
           });
-          return false;
-      });
+          activeLink.classList.add('active');
+        }
+      }
     });
-    $(window).scroll(function() {
-      var scrollDistance = $(window).scrollTop(); // This variable finds the distance you have scrolled from the top.
+  }, { rootMargin: "0px", threshold: 0.5 });
 
-      // Assign active class to nav links while scolling
-      $('.page-section').each(function(i) {
-          if ($(this).position().top <= scrollDistance) {
-              $('.topnav a.active').removeClass('active');
-              $('.topnav a').eq(i).addClass('active');
-          }
-          else {
-              $('.topnav a').eq(i).removeClass('active'); //Remove active state of the active nav element if none of the above is true (i.e. you're at the top of the page)
-          }
-
-      });
-    }).scroll();
+  document.querySelectorAll('.page-section').forEach((section) => {
+    observer.observe(section);
+  });
+});
   </script>
 
 </body>
