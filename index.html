@@ -42,9 +42,10 @@
                 const rotateY = ((e.pageX - containerX) / $(this).width() - 0.2) * 10;
 
                 // Apply the transform CSS property to create the rotation effect
-                $(this).find(".workimage").css({
-                    "transform": "rotateX(" + rotateX + "deg) rotateY(" + rotateY + "deg)",
-                });
+        	// and scale the image by 5%
+        	$(this).find(".workimage").css({
+           	 "transform": `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`,
+        	});
 
                 // Add a subtle drop shadow
                 $(this).find(".workimage").css({
