@@ -1,554 +1,946 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
+<meta charset="utf-8"/>
+<title>J.T. Trollman</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="preload" as="image" href="assets/jt_avatar_wave.webp"/>
+<link rel="preload" as="image" href="assets/jt_avatar_shrug.webp"/>
+<link rel="preload" as="image" href="assets/jt_avatar_pointdown.webp"/>
 
-  <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
-	<title>JTroll</title>
-	<meta http-equiv="Content-Language" content="en-us" />
-  <meta http-equiv="imagetoolbar" content="no" />
-	<meta name="MSSmartTagsPreventParsing" content="true" />
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 
-	<meta name="author" content="" />
-	<meta name="description" content="JTroll: J.T. Trollman" />
-	<meta name="keywords" content="JTroll,Trollman,J.T.,J.T. Trollman,design" />
+<style>
+:root {
+  --ink: #001C2F;
+  --ink-2: #2B3A47;
+  --ink-3: #5C6B77;
+  --muted: #687B88;
+  --red: #D1293D;
+  --red-deep: #A92626;
+  --paper: #FAF8F5;
+  --paper-2: #F2EEE8;
+  --rule: rgba(0, 28, 47, 0.08);
+  --rule-strong: rgba(0, 28, 47, 0.16);
+  --sans: 'Archivo', system-ui, sans-serif;
+  --serif: 'Source Serif 4', Georgia, serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin:0; padding:0; }
+body {
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; }
+ul { margin: 0; padding: 0; list-style: none; }
+p { margin: 0; }
+h1, h2, h3, h4 { margin: 0; font-weight: 700; }
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="css/tachyons.min.css"/>
-  <link rel="stylesheet" href="css/master.css" />
+/* ===== Layout ===== */
+.wrap { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 56px; }
+@media (max-width: 720px) { .wrap { padding: 0 24px; } }
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+/* ===== Top brand bar ===== */
+.brandbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 28px 0;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--sans); font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
+}
+.logo-mark {
+  width: 28px; height: 28px; border-radius: 0; background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.logo-mark img { width: 100%; height: 100%; object-fit: contain; }
+.brandbar-meta {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-3); letter-spacing: 0.08em;
+}
+.brandbar nav ul { display: flex; gap: 32px; font-size: 14px; color: var(--ink-3); }
+.brandbar nav a:hover { color: var(--ink); }
+@media (max-width: 860px) { .brandbar nav { display: none; } }
 
-  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-  <!--
-  <link rel="stylesheet" href="https://unpkg.com/tachyons@4.6.1/css/tachyons.min.css"/>
-  -->
+/* ===== Sticky pill nav ===== */
+.stickynav {
+  position: fixed; top: 16px; left: 50%; transform: translate(-50%, -120%);
+  opacity: 0; pointer-events: none;
+  background: rgba(250, 248, 245, 0.78);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 7px 9px;
+  display: flex; gap: 2px; align-items: center;
+  box-shadow: 0 1px 2px rgba(0,28,47,0.04), 0 12px 32px rgba(0,28,47,0.08);
+  z-index: 100;
+  transition: transform 320ms cubic-bezier(0.4, 0, 0.2, 1), opacity 220ms ease;
+  font-size: 13px; font-weight: 500;
+}
+.stickynav.is-visible { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+.stickynav a { padding: 6px 14px; border-radius: 999px; color: var(--ink-2); transition: background 180ms, color 180ms; }
+.stickynav a:hover { color: var(--ink); }
+.stickynav a.is-active { background: var(--ink); color: var(--paper); }
+@media (max-width: 720px) {
+  .stickynav { font-size: 12px; padding: 5px 6px; max-width: calc(100vw - 32px); overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none; }
+  .stickynav::-webkit-scrollbar { display: none; }
+  .stickynav a { padding: 6px 10px; white-space: nowrap; }
+}
+@media (max-width: 600px) {
+  .stickynav { display: none !important; }
+}
 
-  <!-- Initialize JavaScript-->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+/* ===== Hero ===== */
+.hero { padding: 64px 0 96px; }
+.hero-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 80px; align-items: start; }
+@media (max-width: 960px) { .hero-grid { grid-template-columns: 1fr; gap: 48px; } }
 
-  <!-- Transforming jQuery code -->
-  <script>
-        $(document).ready(function() {
-            $(".workimage-container").mousemove(function(e) {
-                // Calculate the position of the mouse within the container
-                const containerX = $(this).offset().left + $(this).width() / 2;
-                const containerY = $(this).offset().top + $(this).height() / 2;
+.eyebrow {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.eyebrow::before { content: ''; width: 18px; height: 1px; background: currentColor; opacity: 0.6; }
 
-                // Calculate the rotation angles based on mouse position
-                const rotateX = ((e.pageY - containerY) / $(this).height() - 0.2) * 10;
-                const rotateY = ((e.pageX - containerX) / $(this).width() - 0.2) * 10;
+.hero h1 {
+  font-family: var(--serif); font-weight: 400; font-style: normal;
+  font-size: clamp(48px, 7vw, 88px);
+  line-height: 0.98; letter-spacing: -0.03em;
+  color: var(--ink);
+  margin: 28px 0 36px;
+}
+.hero h1 em { font-style: italic; }
+.hero h1 .dot { color: var(--red); font-style: normal; }
 
-                // Apply the transform CSS property to create the rotation effect
-        	// and scale the image by 5%
-        	$(this).find(".workimage").css({
-           	 "transform": `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`,
-        	});
+.hero-lede {
+  font-size: 18px; line-height: 1.55; color: var(--ink-2);
+  max-width: 540px; margin-bottom: 36px;
+}
 
-                // Add a subtle drop shadow
-                $(this).find(".workimage").css({
-                    "box-shadow": "0px 4px 12px rgba(0, 0, 0, 0.1), 0px 0px 2px rgba(0, 0, 0, 0.1)"
-                });
-            });
+.cta-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.btn {
+  font-family: var(--sans); font-weight: 600; font-size: 15px;
+  padding: 14px 22px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: all 180ms ease;
+  border: 1px solid transparent;
+}
+.btn-primary { background: var(--ink); color: var(--paper); }
+.btn-primary:hover { background: #0a2c45; transform: translateY(-1px); }
+.btn-ghost { color: var(--ink); padding: 14px 16px; }
+.btn-ghost:hover { color: var(--red); }
 
-            // Reset the image rotation and drop shadow when the mouse leaves the container
-            $(".workimage-container").mouseleave(function() {
-                $(this).find(".workimage").css({
-                    "transform": "rotateX(0) rotateY(0)",
-                    "box-shadow": "0 0 0 rgba(0, 0, 0, 0)",
-                });
-            });
-        });
-    </script>
-  <!-- End JavaScript-->
+.previously {
+  margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--rule);
+}
+.previously-label { font-family: var(--mono); font-size: 11px; color: var(--ink-3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 18px; display: block; }
+.previously-list {
+  display: flex; gap: 32px; align-items: center; flex-wrap: wrap;
+  font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--ink); letter-spacing: -0.015em;
+}
+.previously-list .dotsep { width: 4px; height: 4px; border-radius: 50%; background: var(--ink); opacity: 0.25; }
+.previously-list em { font-style: italic; }
 
+/* Avatar block */
+.avatar-block { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+@media (max-width: 960px) { .avatar-block { display: none; } }
+.avatar-frame {
+  background: var(--paper-2);
+  border-radius: 50%;
+  width: 100%; max-width: 380px; aspect-ratio: 1 / 1;
+  display: flex; align-items: flex-end; justify-content: center;
+  overflow: hidden; position: relative;
+}
+.avatar-frame img { width: 92%; object-fit: contain; object-position: bottom; }
+.avatar-frame .avatar-pose {
+  position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+  width: 92%; object-fit: contain; object-position: bottom;
+  opacity: 0; transition: opacity 220ms ease;
+  pointer-events: none;
+}
+.avatar-frame .avatar-pose.is-active { opacity: 1; }
+.avatar-caption {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-3); line-height: 1.5; max-width: 320px;
+}
+.avatar-caption .dot { color: var(--red); }
+
+/* ===== Section system ===== */
+.section { padding: 96px 0; }
+.section--paper2 { background: var(--paper-2); }
+
+.section-head {
+  display: grid; grid-template-columns: 120px 1fr; gap: 48px;
+  align-items: baseline;
+  border-top: 1px solid var(--ink); padding-top: 24px;
+  margin-bottom: 48px;
+}
+.section-num { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--ink-3); }
+.section-title {
+  font-family: var(--serif); font-weight: 400; font-style: italic;
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1.0; letter-spacing: -0.025em; color: var(--ink);
+}
+.section-title .dot { color: var(--red); font-style: normal; }
+.section-lede { font-size: 18px; line-height: 1.65; color: var(--ink-2); padding-top: 6px; grid-column: 1 / -1; max-width: 760px; }
+@media (max-width: 860px) {
+  .section-head { grid-template-columns: 1fr; gap: 16px; }
+  .section { padding: 72px 0; }
+}
+
+/* ===== Writing cards ===== */
+.writing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+@media (max-width: 720px) { .writing-grid { grid-template-columns: 1fr; } }
+
+.article-card {
+  display: block;
+  background: #FFFFFF; border: 1px solid var(--rule); border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 200ms, transform 200ms;
+}
+.article-card:hover { border-color: var(--rule-strong); transform: translateY(-2px); }
+.article-card-image { aspect-ratio: 16 / 9; background: var(--paper-2); overflow: hidden; }
+.article-card-image img { width: 100%; height: 100%; object-fit: cover; }
+.article-card-body { padding: 22px 24px 26px; }
+.kicker-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.kicker { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); }
+.year { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--ink-3); }
+.article-card h3 {
+  font-family: var(--serif); font-weight: 400; font-size: 22px;
+  line-height: 1.2; letter-spacing: -0.015em; color: var(--ink); margin: 0 0 10px;
+}
+.article-card-excerpt { font-size: 14px; color: var(--ink-3); line-height: 1.55; margin: 0 0 16px; }
+.article-card-link { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--ink); }
+
+/* ===== Work — Stage + Rail ===== */
+.work-stage { display: grid; grid-template-columns: 1.55fr 1fr; gap: 40px; margin-bottom: 32px; align-items: start; }
+@media (max-width: 960px) { .work-stage { grid-template-columns: 1fr; gap: 28px; } }
+
+.stage-image {
+  aspect-ratio: 16 / 10; overflow: hidden; border-radius: 8px;
+  background: var(--paper-2); position: relative;
+}
+.stage-image img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: opacity 280ms ease;
+}
+.stage-counter {
+  position: absolute; top: 14px; left: 14px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--paper);
+  background: rgba(0,28,47,0.55);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  padding: 4px 10px; border-radius: 999px;
+}
+
+.stage-meta { display: flex; flex-direction: column; gap: 18px; padding-top: 0; }
+.stage-meta .kicker-row { margin-bottom: 0; }
+.stage-meta h3 {
+  font-family: var(--serif); font-weight: 400; font-size: clamp(28px, 3.4vw, 40px);
+  line-height: 1.05; letter-spacing: -0.02em; color: var(--ink); margin: 0;
+}
+.stage-body {
+  font-size: 15px; line-height: 1.6; color: var(--ink-2); margin: 0;
+}
+
+.stage-left { display: flex; flex-direction: column; gap: 14px; }
+.stage-controls { display: flex; gap: 8px; }
+.stage-btn {
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  background: transparent; border: 1px solid var(--rule-strong); border-radius: 999px;
+  padding: 8px 16px; color: var(--ink); transition: all 180ms;
+}
+.stage-btn:hover { border-color: var(--ink); }
+.stage-btn--primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.stage-btn--primary:hover { background: #0a2c45; }
+
+.thumb-rail {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 10px;
+  padding: 4px;
+  margin: -4px;
+}
+@media (max-width: 960px) {
+  .thumb-rail {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 30%;
+    overflow-x: auto;
+    margin: -4px -24px 0; padding: 4px 24px 8px;
+    scroll-padding: 4px 24px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .thumb-rail::-webkit-scrollbar { display: none; }
+  .thumb-rail { scrollbar-width: none; }
+}
+
+.thumb {
+  padding: 0; border: 0; background: transparent;
+  display: flex; flex-direction: column; gap: 8px; text-align: left;
+  opacity: 0.55; transition: opacity 200ms ease;
+}
+.thumb:hover { opacity: 0.85; }
+.thumb.is-active { opacity: 1; }
+.thumb-image {
+  aspect-ratio: 4 / 3; overflow: hidden; border-radius: 4px; background: var(--paper-2);
+  outline: 1px solid var(--rule); outline-offset: 0;
+  transition: outline 180ms ease, outline-offset 180ms ease;
+}
+.thumb-image img { width: 100%; height: 100%; object-fit: cover; }
+.thumb.is-active .thumb-image { outline: 2px solid var(--ink); outline-offset: 2px; }
+.thumb-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
+  color: var(--ink-3); line-height: 1.3;
+}
+.thumb.is-active .thumb-label { color: var(--ink); font-weight: 700; }
+
+/* ===== About ===== */
+.about-wrap { max-width: 760px; }
+.about-wrap p { font-size: 18px; line-height: 1.65; color: var(--ink-2); margin-bottom: 18px; }
+.about-wrap p strong { color: var(--ink); }
+.about-wrap a { color: var(--red); border-bottom: 1px solid currentColor; }
+.about-wrap a:hover { color: var(--red-deep); }
+
+.about__more {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows 420ms cubic-bezier(0.4, 0, 0.2, 1), opacity 320ms ease-out;
+  opacity: 0;
+}
+.about__more-inner { overflow: hidden; min-height: 0; }
+.about__more-inner h4 {
+  font-family: var(--serif); font-style: italic; font-weight: 400;
+  font-size: 24px; color: var(--ink); margin: 36px 0 16px; letter-spacing: -0.02em;
+}
+.about[data-expanded="true"] .about__more {
+  grid-template-rows: 1fr; opacity: 1;
+}
+.about__toggle {
+  appearance: none; background: transparent; border: 0;
+  margin-top: 32px; padding: 0;
+  font-family: var(--mono); font-weight: 400; font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-3);
+  display: inline-flex; align-items: center; gap: 12px;
+  cursor: pointer;
+  transition: color 180ms ease;
+}
+.about__toggle::before {
+  content: ''; width: 24px; height: 1px; background: currentColor; opacity: 0.6;
+  transition: width 220ms ease, opacity 220ms ease;
+}
+.about__toggle:hover { color: var(--ink); }
+.about__toggle:hover::before { width: 36px; opacity: 1; }
+.about__toggle .about__toggle-label { display: inline-flex; align-items: center; gap: 8px; }
+.about__toggle .about__toggle-label .dot { color: var(--red); font-family: var(--serif); font-size: 14px; line-height: 0; transform: translateY(1px); }
+.about__toggle-arrow {
+  display: inline-block; width: 8px; height: 8px;
+  border-right: 1px solid currentColor; border-bottom: 1px solid currentColor;
+  transform: rotate(45deg) translate(-1px, -1px);
+  transition: transform 280ms cubic-bezier(.4,0,.2,1);
+}
+.about[data-expanded="true"] .about__toggle-arrow { transform: rotate(-135deg) translate(-1px, -1px); }
+.about[data-expanded="true"] .about__toggle .collapsed-label { display: none; }
+.about:not([data-expanded="true"]) .about__toggle .expanded-label { display: none; }
+
+/* ===== Speaking — list with thumbs ===== */
+.speaking-list { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 36px; }
+@media (max-width: 720px) { .speaking-list { grid-template-columns: 1fr; } }
+.talk-card {
+  display: flex; gap: 18px; padding-bottom: 22px; border-bottom: 1px solid var(--rule);
+}
+.talk-thumb { flex-shrink: 0; width: 140px; height: 100px; background: var(--paper-2); border-radius: 4px; overflow: hidden; }
+.talk-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.talk-thumb--logo { background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 14px; }
+.talk-thumb--logo img { object-fit: contain; }
+.talk-body { flex: 1; min-width: 0; }
+.talk-body .kicker-row { margin-bottom: 8px; }
+.talk-body h3 {
+  font-family: var(--sans); font-weight: 600; font-size: 16px;
+  line-height: 1.3; letter-spacing: -0.005em; color: var(--ink); margin: 0 0 4px;
+}
+.talk-body p { font-size: 13px; color: var(--ink-3); line-height: 1.5; margin: 0; }
+
+/* ===== Photos — mosaic ===== */
+.photos-mosaic {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 170px;
+  grid-auto-flow: dense;
+  gap: 12px;
+}
+@media (max-width: 860px) {
+  .photos-mosaic { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 200px; }
+}
+.photo { margin: 0; overflow: hidden; border-radius: 4px; position: relative; background: var(--paper-2); }
+.photo img { width: 100%; height: 100%; object-fit: cover; }
+.photo-cap {
+  position: absolute; bottom: 12px; left: 12px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--paper);
+  text-transform: uppercase; text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+}
+.p-2x2 { grid-column: span 2; grid-row: span 2; }
+.p-1x2 { grid-column: span 1; grid-row: span 2; }
+.p-2x1 { grid-column: span 2; grid-row: span 1; }
+@media (max-width: 860px) {
+  .p-2x2 { grid-column: span 2; grid-row: span 2; }
+  .p-1x2, .p-2x1 { grid-column: span 1; grid-row: span 1; }
+}
+.photo-cta {
+  background: var(--paper-2);
+  padding: 0;
+}
+.photo-cta-link {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; height: 100%;
+  text-decoration: none; color: inherit;
+  transition: background 200ms ease;
+  padding: 16px;
+  min-height: 130px;
+}
+.photo-cta .ig-link {
+  font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--ink);
+  transition: color 200ms ease;
+}
+.photo-cta .note { font-family: var(--mono); font-size: 11px; color: var(--ink-3); transition: color 200ms ease; }
+.photo-cta .arrow { display: inline-block; transition: transform 200ms ease; }
+.photo-cta-link:hover .ig-link { color: var(--red); }
+.photo-cta-link:hover .note { color: var(--ink); }
+.photo-cta-link:hover .arrow { transform: translateX(3px); }
+
+/* ===== Contact ===== */
+.contact { text-align: left; }
+.contact p { font-size: 18px; color: var(--ink-2); line-height: 1.6; max-width: 560px; }
+.contact p a { color: var(--red); border-bottom: 1px solid currentColor; }
+.contact-socials { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 32px; }
+.social-link {
+  font-family: var(--sans); font-size: 14px; font-weight: 500; color: var(--ink);
+  padding: 12px 18px; border: 1px solid var(--rule-strong); border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: all 180ms;
+}
+.social-link:hover { border-color: var(--ink); transform: translateY(-1px); }
+
+/* ===== Footer ===== */
+.footer {
+  border-top: 1px solid var(--rule); padding: 40px 0;
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--mono); font-size: 11px; color: var(--ink-3); letter-spacing: 0.06em;
+}
+@media (max-width: 720px) { .footer { flex-direction: column; gap: 16px; text-align: center; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
 </head>
+<body>
 
-<body class="backround_tile sans-serif">
+<!-- ============ STICKY NAV ============ -->
+<nav class="stickynav" id="stickynav" aria-label="Section navigation">
+  <a href="#writing" data-nav="writing">Writing</a>
+  <a href="#work" data-nav="work">Work</a>
+  <a href="#about" data-nav="about">About</a>
+  <a href="#speaking" data-nav="speaking">Speaking</a>
+  <a href="#photos" data-nav="photos">Photos</a>
+  <a href="#contact" data-nav="contact">Contact</a>
+</nav>
 
-  <!--Fixed Header Nav-->
-  <div class="fixed w-100 h1 bbar mb6"></div> <!--Fixed dark blue bar at top of page-->
-  <header class="fixed w-100 mt3 headershadow z100 justify-between items-center">
-    <nav class="wrapper_large">
+<!-- ============ BRAND BAR ============ -->
+<div class="wrap">
+  <div class="brandbar">
+    <a class="logo" href="#top" aria-label="Home">
+      <span class="logo-mark"><img src="assets/logo_jtroll.png" alt=""/></span>
+      <span>J.T. Trollman</span>
+    </a>
+    <nav aria-label="Primary">
+      <ul>
+        <li><a href="#work">Work</a></li>
+        <li><a href="#writing">Writing</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#speaking">Speaking</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="brandbar-meta">SF BAY AREA · 2026</div>
+  </div>
+</div>
 
-      <!--Centered logo at small sizes-->
-      <a class="dn-ns flex justify-center v-mid link dim tc" href="http://www.jtroll.com" title="Home">
-        <img src="images/logo_jtroll.png" class="dib logo-s" alt="JTroll">
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Currently · Sr. Director of Design, SoFi</span>
+        <h1>Practically speaking, I try to solve <em>meaningful problems</em> for people<span class="dot">.</span></h1>
+        <p class="hero-lede">Decades of building useful 0&ndash;1 products and productive teams within global initiatives, scrappy startups and everything in between.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#work">See recent work <span aria-hidden="true">→</span></a>
+          <a class="btn btn-ghost" href="#writing">Read some writing</a>
+        </div>
+      </div>
+      <div class="avatar-block">
+        <div class="avatar-frame">
+          <img class="avatar-pose is-active" data-pose="wave" src="assets/jt_avatar_wave.webp" alt="J.T. Trollman avatar"/>
+          <img class="avatar-pose" data-pose="shrug" src="assets/jt_avatar_shrug.webp" alt="" aria-hidden="true"/>
+          <img class="avatar-pose" data-pose="pointdown" src="assets/jt_avatar_pointdown.webp" alt="" aria-hidden="true"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WRITING ============ -->
+<section class="section" id="writing">
+  <div class="wrap">
+    <header class="section-head">
+      <span class="section-num">01 / 06</span>
+      <h2 class="section-title">Selected Writing<span class="dot">.</span></h2>
+      <p class="section-lede" hidden></p>
+    </header>
+
+    <div class="writing-grid">
+      <a class="article-card" href="https://medium.com/facebook-design/six-questions-to-structure-great-projects-24a557cb11ab" target="_blank" rel="noopener">
+        <div class="article-card-image"><img src="assets/article_01.png" alt=""/></div>
+        <div class="article-card-body">
+          <div class="kicker-row">
+            <span class="kicker">Essay · Facebook Design</span>
+            <span class="year">9 MIN</span>
+          </div>
+          <h3>Six Questions to Structure Great Projects</h3>
+          <p class="article-card-excerpt">A simple intake framework I keep coming back to, written for the Facebook Design team.</p>
+          <span class="article-card-link">Read on Medium ↗</span>
+        </div>
       </a>
 
-      <!--Full-width nav at large and medium sizes-->
-      <div id="menu" class="flex static-ns mt0-ns mt6 w-100 bg-white-95-s justify-between absolute">
-        <div>
-          <a class="dim db-l db-m dn" href="http://www.jtroll.com" title="Home">
-            <img src="images/logo_jtroll.png" class="logo" alt="JTroll">
-          </a>
+      <a class="article-card" href="https://medium.com/facebook-design/two-lessons-for-using-feedback-318608d768c1" target="_blank" rel="noopener">
+        <div class="article-card-image"><img src="assets/article_04.jpg" alt=""/></div>
+        <div class="article-card-body">
+          <div class="kicker-row">
+            <span class="kicker">Essay · Facebook Design</span>
+            <span class="year">8 MIN</span>
+          </div>
+          <h3>Two Lessons For Using Feedback</h3>
+          <p class="article-card-excerpt">How to give and take feedback so it actually moves work forward.</p>
+          <span class="article-card-link">Read on Medium ↗</span>
         </div>
-        <ul class="flex-l flex-row-l flex-column-l mv0 list topnav dn"> <!--Added a bunch of classes here to hide the nav at anything but large screen sizes-->
-          <li>
-            <a class="navbutton link darken mr3" href="#selectedwriting">Selected Writing</a>
-          </li>
-          <li>
-            <a class="navbutton link darken mr3" href="#work">Work</a>
-          </li>
-          <li>
-            <a class="navbutton link darken mr3" href="#about">About</a>
-          </li>
-          <li>
-            <a class="navbutton link darken mr3" href="#speaking">Speaking</a>
-          </li>
-          <li>
-            <a class="navbutton link darken mr3" href="#photos">Photos</a>
-          </li>
-          <li>
-            <a class="navbutton link darken" href="#contact">Contact</a>
-          </li>
-        </ul>
-      </div>
+      </a>
 
-    </nav>
-  </header>
-  <!--End Fixed Header-->
+      <a class="article-card" href="https://medium.com/@jtroll/fueling-creativity-36cff6ffd35f" target="_blank" rel="noopener">
+        <div class="article-card-image"><img src="assets/article_03.jpg" alt=""/></div>
+        <div class="article-card-body">
+          <div class="kicker-row">
+            <span class="kicker">Essay · Medium</span>
+            <span class="year">13 MIN</span>
+          </div>
+          <h3>Fueling Creativity — Harley Earl & Reshaping Everything</h3>
+          <p class="article-card-excerpt">What an automotive design pioneer can still teach product teams.</p>
+          <span class="article-card-link">Read on Medium ↗</span>
+        </div>
+      </a>
 
+      <a class="article-card" href="https://medium.com/@jtroll/ai-should-take-offense-d6fbf2b3e930" target="_blank" rel="noopener">
+        <div class="article-card-image"><img src="assets/article_02.png" alt=""/></div>
+        <div class="article-card-body">
+          <div class="kicker-row">
+            <span class="kicker">Essay · Medium</span>
+            <span class="year">5 MIN</span>
+          </div>
+          <h3>AI Should Take Offense (Or We Risk Losing Politeness)</h3>
+          <p class="article-card-excerpt">A note on what we lose when our assistants are too agreeable.</p>
+          <span class="article-card-link">Read on Medium ↗</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
 
-  <div class="overflow-auto pt6">
-    <div class="wrapper_large pt4 flex flex-row-l flex-row-m flex-column">
-      <div class="flex inline-flex justify-center"> <!--Avatar positioning that only shows up on small screens-->
-        <img width="120" src="images/jt_avatar.png" class="dn-ns" alt="Hi!">
+<!-- ============ WORK — Stage + Rail ============ -->
+<section class="section section--paper2" id="work">
+  <div class="wrap">
+    <header class="section-head">
+      <span class="section-num">02 / 06</span>
+      <h2 class="section-title">Recent Work<span class="dot">.</span></h2>
+      <p class="section-lede" hidden></p>
+    </header>
+
+    <div class="work-stage">
+      <div class="stage-left">
+        <div class="stage-image">
+          <img id="stage-img" src="assets/work_sofi.png" alt=""/>
+          <div class="stage-counter" id="stage-counter">01 / 08</div>
+        </div>
+        <div class="stage-controls">
+          <button class="stage-btn" id="stage-prev">← Prev</button>
+          <button class="stage-btn stage-btn--primary" id="stage-next">Next →</button>
+        </div>
       </div>
-      <div class="flex flex-column w-70-l w-90-m w-100 ph0-l ph0-m ph3">
-        <p class="textsecondary f3 lh150">J.T. Trollman &mdash; I create useful products &amp; productive teams, building on decades of experience working across both global initiatives and scrappy startups.</p>
-        <p class="textprimary header header-s mt0">Practically speaking, I try to solve meaningful problems for people<span class="textred">.</span></p>
-      </div>
-      <div class="flex w-30-l inline-flex items-center">
-        <img width="200" height="238" src="images/jt_avatar.png" class="mla dn db-l" alt="Hi!">
+      <div class="stage-meta">
+        <div class="kicker-row">
+          <span class="kicker" id="stage-role">Sr. Director of Design · SoFi</span>
+          <span class="year" id="stage-year">2024 — NOW</span>
+        </div>
+        <h3 id="stage-title">SoFi, Member Group Business Unit</h3>
+        <p class="stage-body" id="stage-body">Leading product &amp; content design across SoFi's horizontal group business unit spanning AI-in-product, navigation, premium features, growth and personal finance management.</p>
       </div>
     </div>
 
-    <!--Social Media Buttons-->
-    <div class="wrapper_large flex flex-row">
-      <ul class="flex flex-wrap justify-start-l justify-start-m justify-center mv0 ph0 list">
-        <li>
-          <a class="navbutton link darken mr3 mv0-l mv2" target="_blank" href="https://www.threads.net/@jtroll">
-            <img src="images/logo_threads.png" width="32" class="v-mid">
-            Threads &#x2192;
-          </a>
-        </li>
-        <li>
-          <a class="navbutton link darken mr3 mv0-l mv2" target="_blank" href="https://medium.com/@jtroll">
-            <img src="images/logo_medium.png" width="20" class="v-mid ma0375">
-            Medium &#x2192;
-          </a>
-        </li>
-        <li>
-          <a class="navbutton link darken mr3 mv0-l mv2" target="_blank" href="https://www.instagram.com/jtroll/">
-            <img src="images/logo_ig.png" width="20" class="v-mid ma0375">
-            Instagram &#x2192;
-          </a>
-        </li>
-        <li>
-          <a class="navbutton link darken mr3 mv0-l mv2" target="_blank" href="https://www.linkedin.com/in/trollman/">
-            <img src="images/logo_linkedin.png" width="20" class="v-mid ma0375">
-            LinkedIn &#x2192;
-          </a>
-        </li>
+    <div class="thumb-rail" id="thumb-rail">
+      <!-- populated by JS -->
     </div>
-    <!--End Social Media Buttons-->
+  </div>
+</section>
 
-    <div class="wrapper_large flex flex-column">
-      <div class="line w-100 mt625 mb5"></div> <!--Divider line-->
+<!-- ============ ABOUT ============ -->
+<section class="section" id="about">
+  <div class="wrap">
+    <header class="section-head">
+      <span class="section-num">03 / 06</span>
+      <h2 class="section-title">About<span class="dot">.</span></h2>
+      <p class="section-lede" hidden></p>
+    </header>
 
-      <div class="page-section  " id="selectedwriting">
-      	<h3 class="textprimary f3 mb5 ph0-l ph0-m ph3"><strong>Selected Writing</strong></h3>
-      </div>
+    <div class="about-wrap about" data-expanded="false">
+      <p>I&rsquo;m a design leader focused on 0&ndash;1 product work in both hardware/software and pure software environments &mdash; making hard new things real and useful at scale.</p>
+      <p>Currently I&rsquo;m senior director of design for one of <a href="https://www.sofi.com/" target="_blank" rel="noopener">SoFi</a>&rsquo;s three business units, covering AI-in-product, membership, growth, premium features and personal finance. Before this I led design for Cruise&rsquo;s ridehail consumer experience, and spent 10 years at <a href="https://facebook.design/" target="_blank" rel="noopener">Meta</a> &mdash; most recently building the experience design org for neural interfaces in their AR division.</p>
+      <p>I&rsquo;m invested most in products that do the greatest amount of good I can manage &mdash; human connection, underserved communities, trust &amp; safety, public information, and creating access to the previously inaccessible. I&rsquo;ve also co-founded two startups, advised others, and spent a few years at <a href="https://www.ideo.com/" target="_blank" rel="noopener">IDEO</a>.</p>
 
-      <div class="masonry-articles ph0-l ph0-m ph3"> <!--Articles-->
+      <div id="about-more" class="about__more" aria-hidden="true">
+        <div class="about__more-inner">
+          <h4>The work, in more detail</h4>
+          <p>I joined SoFi because it&rsquo;s a company uniquely positioned to create a powerful AI-in-product experience that creates groundbreaking access to the right information &amp; products to help you in your personal finance journey. In a world with increasing divides between the haves and have-nots, I&rsquo;ve found meaning in giving everyday people power at their fingertips previously only available to the wealthy.</p>
+          <p>In 2023 I briefly served as head of product design for Cruise&rsquo;s ridehail consumer experiences, covering roughly 80% of their business. I joined with the goal of helping scale to 13 new cities in the next year, supporting three novel car platforms, all interior and exterior vehicle user experiences, and our full phone app experiences.</p>
+          <p>My decade at Meta was my longest chapter. I concluded with 2.5 years as head of experience design for a line of new &ldquo;neural interfaces&rdquo; products in the AR division &mdash; work that affected around 2,000 cross-functional employees, with 5 teams I built directly. Together we pushed the boundaries of novel input technology and filed over 12 patents in unique user interfaces.</p>
+          <p>Earlier at Meta I supported multiple &ldquo;0&ndash;1&rdquo; product teams within Facebook App&rsquo;s Community Incubator group, and was a product lead for Meta&rsquo;s company-wide design education initiatives. Before that I supported Facebook&rsquo;s Events products and Local app, helping people spend more time with close friends and family in the real world. Our standalone Facebook Local app (and sibling tab within the Facebook app) had greater retention and stickiness than Yelp in the US, just before the pandemic hit&hellip; and killed global local discovery intent for the next three years. Those were interesting times.</p>
+          <p>For years prior I was design lead on the Community Integrity team, building some of the industry&rsquo;s first mature social content moderation and help products &mdash; everything from AI/ML chatbot technology to redesigning our reporting and help center tools. Going further back: I was one of two designers to create Facebook&rsquo;s first Android design &amp; navigation system in service of better emerging-market support, and worked on News Feed and expression products. (I was the first to ship rich comments like stickers. Remember those?)</p>
 
-          <a href="https://medium.com/facebook-design/six-questions-to-structure-great-projects-24a557cb11ab" class="link articlerules" target="_blank">
-            <div class="fancy_card">
-              <img src="images/article_01.png" class="card_image">
-              <div class="card_text"><!--Card text bounds-->
-                <p class="textprimary"><strong>Six Questions to Structure Great Projects</strong></p>
-                <p class="meta">9 min read ‧ Meta Medium Article</p>
-            </div><!--end fancy_card-->
-          </div>
-          </a>
-
-          <a href="https://medium.com/facebook-design/two-lessons-for-using-feedback-318608d768c1" class="link articlerules" target="_blank">
-            <div class="fancy_card">
-              <img src="images/article_04.jpeg" class="card_image">
-              <div class="card_text"><!--Card text bounds-->
-                <p class="textprimary"><strong>Two Lessons For Using Feedback</strong></p>
-                <p class="meta">8 min read ‧ Meta Medium Article</p>
-              </div>
-            </div><!--end fancy_card-->
-          </a>
-
-          <a href="https://medium.com/@jtroll/fueling-creativity-36cff6ffd35f" class="link articlerules" target="_blank">
-            <div class="fancy_card">
-              <img src="images/article_03.jpeg" class="card_image">
-              <div class="card_text"><!--Card text bounds-->
-                <p class="textprimary"><strong>Fueling Creativity: How Harley Earl Taught Us Design Reshapes Everything</strong></p>
-                <p class="meta">13 min read ‧ Medium Article</p>
-              </div><!--end fancy_card-->
-            </div>
-          </a>
-
-          <a href="https://medium.com/@jtroll/ai-should-take-offense-d6fbf2b3e930" class="link articlerules" target="_blank">
-            <div class="fancy_card">
-              <img src="images/article_02.png" class="card_image">
-              <div class="card_text"><!--Card text bounds-->
-                <p class="textprimary"><strong>AI Should Take Offense (Or We Risk Losing All Our Politeness)</strong></p>
-                <p class="meta">5 min read ‧ Medium Article</p>
-              </div><!--end fancy_card-->
-          </div>
-          </a>
-      </div>
-
-      <div class="line w-100 mt625 mb5"></div> <!--Divider line-->
-
-      <div class="page-section  " id="work">
-      <h3 class="textprimary f3 ph0-l ph0-m ph3"><strong>Recent Work</strong></h3>
-      </div>
-<!--
-      <div class="ph0 list f3 w-75-l w-100 ph0-l ph0-m ph3">
-        <div class="mv3 flex flex-row items-center">
-          <img src="images/logo_meta.png" width="32" height="32" class="mr3">
-          <p class="textsecondary mv0"><a class="textred link" target="_blank" href="https://about.meta.com/realitylabs/">Meta</a> &mdash; Senior Product Design Manager, Reality Labs</p>
-        </div>
-
-        <div class="line w-20 mv4"></div>
-
-        <div class="mv3 flex flex-row items-center">
-          <img src="images/logo_mada.png" width="32" height="32" class="mr3">
-          <p class="textsecondary mv0"><a class="textred link" target="_blank" href="http://www.makeamericadinneragain.com/">Make America Dinner Again</a> &mdash; Founding Designer</p>
-        </div>
-        <div class="mv3 flex flex-row items-center">
-          <img src="images/logo_go.png" width="32" height="32" class="mr3">
-          <p class="textsecondary mv0"><a class="textred link" target="_blank" href="https://gosafeinsurance.com/">Go Insurance</a> &mdash; Advisor</p>
-        </div>
-        <div class="mv3 flex flex-row items-center">
-          <img src="images/logo_placeholder.png" width="32" height="32" class="mr3">
-          <p class="textsecondary mv0">Go Safe Labs &mdash; Secretary &amp; Treasurer</p>
+          <h4>Outside the day job</h4>
+          <p>I&rsquo;ve spoken both domestically and internationally about a number of issues I care about. After the 2016 US election I became the founding designer for <a href="http://www.makeamericadinneragain.com/" target="_blank" rel="noopener">Make America Dinner Again</a>, a passion project to facilitate understanding across the political divide. We grew to over 12 chapters nationwide, and were covered everywhere from The New York Times to the BBC to The Blaze. Somehow both Oprah and Glenn Beck love us.</p>
+          <p>Before all that I co-founded two startups in social media/creation and local discovery (B4UGO and Happiness Engines), piloted a small design consultancy, and tinkered on countless side projects. I&rsquo;ve also acted as an advisor and strategist for startups, and worked alongside great folks at IDEO for some years. I live in the Bay Area with my family, and outside of software tinkering I love woodworking, autocross, backpacking, and talking way more than is reasonable about automotive history and cartography.</p>
         </div>
       </div>
-    -->
 
-      <!--Work-->
-      <div class="mt5-l mt4 masonry-work2 ph0-l ph0-m ph3">
-          <div class="flex flex-column workrules2 mb4">
-            <div class="workimage-container">
-              <img src="images/work_01_cruise.png" class="workimage">
-            </div>
-            <p class="meta">2023</p>
-            <p class="textprimary"><strong>Cruise</strong></p>
-            <p class="textsecondary">Hired as head of product design for the ridehail consumer experience of Cruise, one of the world’s foremost autonomous vehicle companies. Responsible for 80% of the company's business, from in-car to app experiences.</p>
-          </div>
+      <button class="about__toggle" type="button" aria-expanded="false" aria-controls="about-more" data-about-toggle>
+        <span class="about__toggle-label">
+          <span class="dot" aria-hidden="true">•</span>
+          <span class="collapsed-label">Continue reading</span>
+          <span class="expanded-label">Collapse</span>
+        </span>
+        <span class="about__toggle-arrow" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</section>
 
-          <div class="flex flex-column workrules2 mb4">
-            <div class="workimage-container">
-              <img src="images/work_01_rl.png" class="workimage">
-            </div>
-            <p class="meta">2021&ndash;2023</p>
-            <p class="textprimary"><strong>Meta Reality Labs</strong></p>
-            <p class="textsecondary">Head of Experiences Design for new neural interfaces product lines &mdash; and new teams around them &mdash; within Meta’s Augmented Reality division, creating the next great input mechanic and consumer devices.</p>
-          </div>
+<!-- ============ SPEAKING ============ -->
+<section class="section section--paper2" id="speaking">
+  <div class="wrap">
+    <header class="section-head">
+      <span class="section-num">04 / 06</span>
+      <h2 class="section-title">Speaking, Teaching &amp; Mentoring<span class="dot">.</span></h2>
+      <p class="section-lede" hidden></p>
+    </header>
 
-          <div class="flex flex-column workrules2 mb4">
-            <div class="workimage-container">
-              <img src="images/work_02_campus.jpg" class="workimage">
-            </div>
-            <p class="meta">2020&ndash;2021</p>
-            <p class="textprimary"><strong>Facebook Campus</strong></p>
-            <p class="textsecondary">Founding design manager for a comprehensive new community product for college students. Launched its North American beta summer 2020 with 30 US universities, ramping to many more.</p>
-          </div>
+    <div class="speaking-list">
+      <a class="talk-card" href="#">
+        <div class="talk-thumb"><img src="assets/stm_mentorship.png" alt=""/></div>
+        <div class="talk-body">
+          <div class="kicker-row"><span class="kicker">Mentorship</span><span class="year">Ongoing</span></div>
+          <h3>External Mentorship</h3>
+          <p>I mentor 1&ndash;2 under-represented external designers each half, with the goal to create lasting relationships.</p>
+        </div>
+      </a>
+      <a class="talk-card" href="#">
+        <div class="talk-thumb talk-thumb--logo"><img src="assets/stm_sofi.png" alt=""/></div>
+        <div class="talk-body">
+          <div class="kicker-row"><span class="kicker">Speaking</span><span class="year">2025</span></div>
+          <h3>SF Design Week: Wrangling Navigation</h3>
+          <p>How SoFi resolved complex navigation for very different users.</p>
+        </div>
+      </a>
+      <a class="talk-card" href="#">
+        <div class="talk-thumb"><img src="assets/stm_dc.png" alt=""/></div>
+        <div class="talk-body">
+          <div class="kicker-row"><span class="kicker">Teaching</span><span class="year">2014&ndash;2023</span></div>
+          <h3>Meta Design Camp</h3>
+          <p>As product lead for Facebook&rsquo;s design education program, I crafted and taught the curriculum for a wide variety of classes geared toward thousands of company design team members.</p>
+        </div>
+      </a>
+      <a class="talk-card" href="#">
+        <div class="talk-thumb talk-thumb--logo"><img src="assets/stm_meta.png" alt=""/></div>
+        <div class="talk-body">
+          <div class="kicker-row"><span class="kicker">Mentorship</span><span class="year">2014&ndash;2023</span></div>
+          <h3>Meta Design Mentorship</h3>
+          <p>I created the senior mentorship circles program for the Facebook App org, and mentored 2&ndash;3 managers and designers each half.</p>
+        </div>
+      </a>
+      <a class="talk-card" href="#">
+        <div class="talk-thumb"><img src="assets/stm_bb20.png" alt=""/></div>
+        <div class="talk-body">
+          <div class="kicker-row"><span class="kicker">Speaking</span><span class="year">2020&ndash;2022</span></div>
+          <h3>Bridge Builders: What We Don&rsquo;t Talk About When We Talk About Product Design</h3>
+          <p>Grounding people in the soft skills of product design: proactivity, communication and humility.</p>
+        </div>
+      </a>
+      <a class="talk-card" href="#">
+        <div class="talk-thumb"><img src="assets/stm_bb19.png" alt=""/></div>
+        <div class="talk-body">
+          <div class="kicker-row"><span class="kicker">Speaking</span><span class="year">2019</span></div>
+          <h3>Bridge Builders: Product Thinking</h3>
+          <p>A primer on how Meta has a uniquely developed opinion on product thinking.</p>
+        </div>
+      </a>
+      <a class="talk-card" href="#">
+        <div class="talk-thumb"><img src="assets/stm_telaviv.png" alt=""/></div>
+        <div class="talk-body">
+          <div class="kicker-row"><span class="kicker">Speaking</span><span class="year">2016</span></div>
+          <h3>Tel Aviv Talks: Designing For Moments of Struggle</h3>
+          <p>Examples of how designers can and should consider how their products touch people in their most vulnerable moments.</p>
+        </div>
+      </a>
+      <a class="talk-card" href="#">
+        <div class="talk-thumb"><img src="assets/stm_hive.png" alt=""/></div>
+        <div class="talk-body">
+          <div class="kicker-row"><span class="kicker">Speaking</span><span class="year">2015</span></div>
+          <h3>HIVE: Designing For Empathy</h3>
+          <p>A talk grounded in three principles for designing for empathetic products.</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
 
-          <div class="flex flex-column workrules2 mb4">
-            <div class="workimage-container">
-              <img src="images/work_03_neighborhoods.jpg" class="workimage">
-            </div>
-            <p class="meta">2020</p>
-            <p class="textprimary"><strong>Facebook Neighborhoods</strong></p>
-            <p class="textsecondary">Founding design manager for another new community product, for local neighborhoods. Launched its North American beta fall 2020, and led to a more comprehensive tool set for all Facebook group admins.</p>
-          </div>
+<!-- ============ PHOTOS ============ -->
+<section class="section" id="photos">
+  <div class="wrap">
+    <header class="section-head">
+      <span class="section-num">05 / 06</span>
+      <h2 class="section-title">Photos<span class="dot">.</span></h2>
+      <p class="section-lede">I’m an amateur photographer with a great joy for people and the outdoors, slowly learning how much I respect videographers for the added dimensions of sound, motion and time they juggle. I’ve been lucky enough to have my work included in publications such as The New York Times.</p>
+    </header>
 
-          <div class="flex flex-column workrules2 mb4">
-            <div class="workimage-container">
-              <img src="images/work_04_events.jpg" class="workimage">
-            </div>
-            <p class="meta">2017&ndash;2019</p>
-            <p class="textprimary"><strong>Facebook Local</strong></p>
-            <p class="textsecondary">Design manager for the Facebook Local product ecosystem and the Facebook Local app. Oversaw an increase to 700M consumers per month using our products, as well as 120K creators per month.</p>
-          </div>
+    <div class="photos-mosaic">
+      <figure class="photo p-2x2">
+        <img src="assets/photo_01_lostcoast.jpg" alt="Lost Coast"/>
+      </figure>
+      <figure class="photo">
+        <img src="assets/photo_01_santorini.jpg" alt="Santorini"/>
+      </figure>
+      <figure class="photo p-1x2">
+        <img src="assets/photo_02_naxos.jpg" alt="Naxos"/>
+      </figure>
+      <figure class="photo">
+        <img src="assets/photo_06_naoshima.jpg" alt="Naoshima"/>
+      </figure>
+      <figure class="photo">
+        <img src="assets/photo_03_athens.jpg" alt="Athens"/>
+      </figure>
+      <figure class="photo">
+        <img src="assets/photo_04_monemvasia.jpg" alt="Monemvasia"/>
+      </figure>
+      <figure class="photo">
+        <img src="assets/photo_05_yosemite.jpg" alt="Yosemite"/>
+      </figure>
+      <figure class="photo photo-cta">
+        <a class="photo-cta-link" href="https://www.instagram.com/jtroll/" target="_blank" rel="noopener">
+          <span class="ig-link">More photos</span>
+          <span class="note">on Instagram <span class="arrow" aria-hidden="true">→</span></span>
+        </a>
+      </figure>
+    </div>
+  </div>
+</section>
 
-          <div class="flex flex-column workrules2 mb4">
-            <div class="workimage-container">
-              <img src="images/work_05_mada.jpg" class="workimage">
-            </div>
-            <p class="meta">2016&ndash;2021</p>
-            <p class="textprimary"><strong>Make America Dinner Again</strong></p>
-            <p class="textsecondary">Founding designer for this national volunteer organization, fostering better communication across the aisle leveraging over 12 national chapters in 20 cities.</p>
-          </div>
-
-          <div class="flex flex-column workrules2 mb4">
-            <div class="workimage-container">
-              <img src="images/work_06_communityintegrity.jpg" class="workimage">
-            </div>
-            <p class="meta">2014&ndash;2017</p>
-            <p class="textprimary"><strong>Community Integrity</strong></p>
-            <p class="textsecondary">Design lead across all Facebook Consumer Support tools, including reporting and the global Help Center. Established best practices that scaled across 120 languages and created all-new AI-powered content recognition &amp; response tools.</p>
-          </div>
-
-          <div class="flex flex-column workrules2 mb4">
-            <div class="workimage-container">
-              <img src="images/work_07_coreexperiences.jpeg" class="workimage">
-            </div>
-            <p class="meta">2013&ndash;2014</p>
-            <p class="textprimary"><strong>Core Experiences</strong></p>
-            <p class="textsecondary">Designed core systems for Facebook, including News Feed, rich engagement features, and emerging market features. Co-designed the first comprehensive, component-based design library for the Facebook app on Android.</p>
-          </div>
-
-          <div class="flex flex-column workrules2 mb4">
-            <div class="workimage-container">
-              <img src="images/work_08_prefacebook.png" class="workimage">
-            </div>
-            <p class="meta">Pre-2013</p>
-            <p class="textprimary"><strong>Pre-Meta</strong></p>
-            <p class="textsecondary">Co-founded two start-ups, ran a small design consultancy, and had a career in design agency life before that through places like IDEO.</p>
-          </div>
-        </div><!--end Work-->
-    </div><!--end wrapper_large container-->
-  </div><!--end overflow-auto container-->
-
-  <div class="overflow-auto pt5 pb625 background_reddish mt625 mb5">
-    <div class="wrapper_large flex flex-column f3 ph0-l ph0-m ph3">
-      <div class="w-75-l w-75-m w-100 lh150">
-        <div class="page-section  " id="about">
-        	<h3 class="textprimary f3 mb5 "><strong>About</strong></h3>
-	</div>
-        <p class="textsecondary">I’m a design leader primarily focused on 0&ndash;1 spaces, making hard things a reality. I’ve worked in both hardware/software and pure software environments, and most recently served as the head of product design for <a class="link textred" target="_blank" href="https://www.getcruise.com/">Cruise’s</a> ridehail consumer experiences. I supported 80% of Cruise's business, from in-car display strategy & execution across multiple vehicle lines & generations; to the entire consumer app experiences from hailing, pickup and dropoff in a way that feels intuitive, magical, safe and equitable.</p>
-        <p class="textsecondary">I am particularly invested in product design work that enables me to do the greatest amount of good I can manage for society, connecting and serving people at scale &mdash; with all the humbling responsibility and pitfalls that can entail. </p>
-        <p class="textsecondary">Previously I spent 10 years at Meta, concluding with 2.5 years as the head of experience design for a line of new “neural interfaces” products within Meta’s Augmented Reality division. I was responsible for work that affected around 2,000 cross-functional employees and I directly built 5 teams and over a dozen reports. Together we pushed the boundaries of what was possible with novel technology, and filed over 12 patents in unique user interfaces.</p>
-        <p class="textsecondary">Within the Facebook App I supported multiple “0&ndash;1” new product teams within their Community Incubator group, and I was a product lead for Meta’s company-wide design education initiatives.</p>
-        <p class="textsecondary">Prior to that I was the design manager for Facebook’s Events products and Local app, enabling people to spend more time with close friends and family in the real world. I also spent years on our Community Integrity team as the design lead for our content moderation and help products, touching everything from AI/ML chat bot technology to redesigning our reporting and help center tools. And winding the clock back even more, I was one of two designers to create our first Android design & navigation system in the process of initiating better emerging market support; and I worked on News Feed and expression products (like being the first to support rich comments like stickers. Remember that?).</p>
-        <p class="textsecondary">Key areas of interest for me include creating products for underserved communities; emerging-market enablement; privacy, trust & safety issues; community involvement and engagement; political engagement; public information access; automotive & transit technology; AI; and cartography. (I’m also a huge nerd for hiking, photography, travel, music, comics, videogames and <a class="link textred" target="_blank" href="https://www.pinterest.com/jtroll/automotive/">cars</a>.) And I somehow have <a class="link textred" target="_blank" href="https://www.pinterest.com/jtroll/">2.8M followers on Pinterest</a> for a couple of these topics.</p>
-        <p class="textsecondary">I've spoken internationally about issues I've mentioned. After the 2016 US election, I also became the founding designer for a passion project to facilitate understanding across the political divide at <a class="link textred" target="_blank" href="http://www.makeamericadinneragain.com/">Make America Dinner Again</a>. We have over 12 chapters nationwide, and have been covered everywhere from The New York Times to the BBC to The Blaze. Somehow both Oprah and Glenn Beck loved us.</p>
-        <p class="textsecondary">Before all that, I co-founded two start-ups (B4UGO and Happiness Engines), piloted a small design consultancy, and tinkered on countless other side projects with friends. I’ve also acted as an advisor and strategist for start-ups, and worked alongside great folks at <a class="link textred" target="_blank" href="https://www.ideo.com/">IDEO</a> for some years as well.</p>
+<!-- ============ CONTACT ============ -->
+<section class="section section--paper2" id="contact">
+  <div class="wrap">
+    <header class="section-head">
+      <span class="section-num">06 / 06</span>
+      <h2 class="section-title">Contact<span class="dot">.</span></h2>
+      <p class="section-lede" hidden></p>
+    </header>
+    <div class="contact">
+      <p>Drop me a line at <a href="mailto:jt@jtroll.com">jt@jtroll.com</a>, or through whichever social media you prefer. Thanks for reading.</p>
+      <div class="contact-socials">
+        <a class="social-link" href="https://www.threads.com/@jtroll" target="_blank" rel="noopener">Threads →</a>
+        <a class="social-link" href="https://medium.com/@jtroll" target="_blank" rel="noopener">Medium →</a>
+        <a class="social-link" href="https://www.linkedin.com/in/trollman/" target="_blank" rel="noopener">LinkedIn →</a>
+        <a class="social-link" href="https://www.instagram.com/jtroll/" target="_blank" rel="noopener">Instagram →</a>
       </div>
-    </div><!--end wrapper_large container-->
-  </div><!--end overflow-auto container-->
+    </div>
+  </div>
+</section>
 
-  <div class="overflow-auto mt625 mb5 ph0-l ph0-m ph3">
-    <div class="wrapper_large flex flex-column">
-      <div class="page-section  " id="speaking">
-      	<h3 class="textprimary f3 mb5"><strong>Speaking, Teaching &amp; Mentoring</strong></h3>
-      </div>
-	      
-      <div class="masonry-speaking"> <!--Items-->
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="wrap" style="display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap;">
+    <span>© J.T. TROLLMAN · MMXXVI</span>
+    <span>HAND- AND CLAUDE-CODED IN THE SF BAY AREA</span>
+  </div>
+</footer>
 
-            <div class="flex flex-column speakingrules gig">
-              <img src="images/stm_hive.png">
-              <p class="meta">Speaking ‧ 2015</p>
-              <p class="textprimary"><strong>HIVE: Designing For Empathy</strong></p>
-              <p class="textsecondary">A talk grounded in three principles for designing for empathetic products</p>
-            </div><!--end gig-->
+<script>
+  /* ===== Sticky nav: show after scrolling past hero ===== */
+  (function() {
+    var nav = document.getElementById('stickynav');
+    var hero = document.getElementById('top');
+    function update() {
+      var y = window.pageYOffset;
+      // Trigger when hero is mostly out of frame — give a little buffer so the pill never peeks at the top.
+      var heroBottom = hero.offsetTop + hero.offsetHeight - 40;
+      if (y > heroBottom) nav.classList.add('is-visible');
+      else nav.classList.remove('is-visible');
 
-            <div class="flex flex-column speakingrules gig">
-              <img src="images/stm_telaviv.png">
-              <p class="meta">Speaking ‧ 2016</p>
-              <p class="textprimary"><strong>Tel Aviv Talks: Designing For Moments of Struggle</strong></p>
-              <p class="textsecondary">Examples of how designers can and should consider how their products touch people in their most vulnerable moments</p>
-            </div><!--end gig-->
-
-            <div class="flex flex-column speakingrules gig">
-              <img src="images/stm_bb19.png">
-              <p class="meta">Speaking ‧ 2019</p>
-              <p class="textprimary"><strong>Bridge Builders 2019: Product Thinking</strong></p>
-              <p class="textsecondary">A primer on how Meta has a uniquely developed opinion on product thinking</p>
-            </div><!--end gig-->
-
-            <div class="flex flex-column speakingrules gig">
-              <img src="images/stm_bb20.png">
-              <p class="meta">Speaking ‧ 2020&ndash;2022</p>
-              <p class="textprimary"><strong>Bridge Builders 2020: What We Don’t Talk About When We Talk About Product Design</strong></p>
-              <p class="textsecondary">Grounding people in the soft skills of product design: proactivity, communication and humility</p>
-            </div><!--end gig-->
-
-            <div class="flex flex-column speakingrules gig">
-              <img src="images/stm_dc.png">
-              <p class="meta">Teaching ‧ 2014&ndash;2023</p>
-              <p class="textprimary"><strong>Meta Design Camp</strong></p>
-              <p class="textsecondary">As product lead for Meta’s design education, I crafted and taught the curriculum for a wide variety of classes</p>
-            </div><!--end gig-->
-
-            <div class="flex flex-column speakingrules gig">
-              <img src="images/stm_meta.png">
-              <p class="meta">Mentorship ‧ 2014&ndash;2023</p>
-              <p class="textprimary"><strong>Meta Design Mentorship</strong></p>
-              <p class="textsecondary">I created the senior mentorship circles program for the Facebook App org, ran the Design Circles program for Reality Labs, and personally mentored 2&ndash;3 managers and designers each half</p>
-            </div><!--end gig-->
-
-            <div class="flex flex-column speakingrules gig">
-              <img src="images/stm_mentorship.png">
-              <p class="meta">Mentorship ‧ Ongoing</p>
-              <p class="textprimary"><strong>External Mentorship</strong></p>
-              <p class="textsecondary">I mentor 1&ndash;2 under-represented external designers each half, with the goal to create lasting relationships</p>
-            </div><!--end gig-->
-      </div>
-
-        <div class="line w-100 mt625 mb5"></div> <!--Divider line-->
-
-        <div class="w-75-l w-75-m w-100 lh150 f3 ph0-l ph0-m ph3">
-          <div class="page-section  " id="photos">
-          	<h3 class="textprimary f3 mb5"><strong>Photos</strong></h3>
-          </div>
-	  <p class="textsecondary">I’m an amateur photographer with a great joy for people and the outdoors, slowly learning how much I respect videographers for the added dimensions of sound, motion and time they juggle. I've been lucky enough to have my work included in publications such as The New York Times.</p>
-        </div>
-
-        <div class="mt4-l mt3 masonry-photos ph0-l ph0-m ph3"> <!--Photos-->
-            <div class="photorules">
-		<div class="workimage-container">
-              	<img src="images/photo_01_lostcoast.jpg" class="workimage">
-		</div>
-            </div>
-
-            <div class="photorules">
-		<div class="workimage-container">
-              	<img src="images/photo_02_naxos.jpg" class="workimage">
-		</div>
-            </div>
-
-            <div class="photorules">
-              <div class="workimage-container">
-		<img src="images/photo_03_athens.jpg" class="workimage">
-	      </div>
-            </div>
-
-            <div class="photorules">
-              <div class="workimage-container">
-		    <img src="images/photo_04_monemvasia.jpg" class="workimage">
-	      </div>
-            </div>
-
-            <div class="photorules">
-              <div class="workimage-container">
-		    <img src="images/photo_05_yosemite.jpg" class="workimage">
-	      </div>
-            </div>
-
-            <div class="photorules">
-              <div class="workimage-container">
-		    <img src="images/photo_06_naoshima.jpg" class="workimage">
-	      </div>
-            </div>
-          </div><!--end Photos-->
-
-        <div class="flex justify-center mt25">
-          <a class="navbutton link darken mr3" target="_blank" href="https://www.instagram.com/jtroll/">
-            <img src="images/logo_ig.png" width="20" class="v-mid ma0375">
-            Investigate on Instagram &#x2192;
-          </a>
-        </div>
-
-        <div class="line w-100 mt625 mb5"></div> <!--Divider line-->
-
-        <div class="w-75-l w-75-m w-100 lh150 f3 ph0-l ph0-m ph3">
-          <div class="page-section  " id="contact">
-          	<h3 class="textprimary f3 mb5"><strong>Contact</strong></h3>
-	  </div>
-          <p class="textsecondary">Drop me a line at <a class="link textred" target="_blank" href="mailto:jt@jtroll.com">jt@jtroll.com</a>, or through social media of your choice. Thanks for your time!</p>
-        </div>
-
-        <!--Social Media Buttons-->
-        <div class="flex flex-row">
-          <ul class="flex flex-wrap justify-start-l justify-start-m justify-center mv0 ph0 list">
-            <li>
-              <a class="navbutton link darken mr3 mv0-l mv2" target="_blank" href="https://www.threads.net/@jtroll">
-                <img src="images/logo_threads.png" width="32" class="v-mid">
-                Threads &#x2192;
-              </a>
-            </li>
-            <li>
-              <a class="navbutton link darken mr3 mv0-l mv2" target="_blank" href="https://medium.com/@jtroll">
-                <img src="images/logo_medium.png" width="20" class="v-mid ma0375">
-                Medium &#x2192;
-              </a>
-            </li>
-            <li>
-              <a class="navbutton link darken mr3 mv0-l mv2" target="_blank" href="https://www.linkedin.com/in/trollman/">
-                <img src="images/logo_linkedin.png" width="20" class="v-mid ma0375">
-                LinkedIn &#x2192;
-              </a>
-            </li>
-        </div>
-        <!--End Social Media Buttons-->
-    </div><!--end wrapper_large container-->
-  </div><!--end overflow-auto container-->
-  <div class="w-100 h4 bbar"></div> <!--Fixed dark blue bar at top of page-->
-
-  <!--JavaScript to change header shadow on scroll-->
-  <script>
-    $(function(){
-     var pageScroll = 100;
-      $(window).scroll(function() {
-        var scroll = getCurrentScroll();
-          if ( scroll >= pageScroll ) {
-               $('.headershadow').addClass('headershadow_shrink');
-               $('.logo-s').addClass('logo_shrink');
-            }
-            else {
-                $('.headershadow').removeClass('headershadow_shrink');
-                $('.logo-s').removeClass('logo_shrink');
-            }
+      // active section
+      var sections = ['writing','work','about','speaking','photos','contact'];
+      var current = null;
+      for (var i = 0; i < sections.length; i++) {
+        var el = document.getElementById(sections[i]);
+        if (el && el.getBoundingClientRect().top <= 120) current = sections[i];
+      }
+      // Edge case: short trailing sections (e.g. Contact) may never reach the
+      // 120px threshold because the page bottoms out first. If the viewport is
+      // near the page bottom, force-activate the last section.
+      var nearBottom = (window.innerHeight + y) >= (document.documentElement.scrollHeight - 8);
+      if (nearBottom) current = sections[sections.length - 1];
+      var links = nav.querySelectorAll('a');
+      links.forEach(function(a) {
+        if (a.getAttribute('data-nav') === current) a.classList.add('is-active');
+        else a.classList.remove('is-active');
       });
-    function getCurrentScroll() {
-        return window.pageYOffset || document.documentElement.scrollTop;
-        }
+    }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  })();
+
+  /* ===== Smooth scroll ===== */
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      var id = a.getAttribute('href').slice(1);
+      if (!id) return;
+      var t = document.getElementById(id);
+      if (!t) return;
+      e.preventDefault();
+      window.scrollTo({ top: t.offsetTop - 24, behavior: 'smooth' });
+      history.replaceState(null, '', '#' + id);
     });
-  </script>
+  });
 
-  <!--Nav scrolling behavior 2.4 using Intersection Observer Logic-->
-  <script>
-$('a[href*="#"]:not([href="#"])').click(function(e) {
-    e.preventDefault();
-    var target = $(this.hash);
-    var menuOffset = 200; // Height of the fixed menu in pixels; adjust as needed
-    // Calculate the target offset position by subtracting the menuOffset
-    var targetOffset = target.offset().top - menuOffset;
-
-    $('html, body').animate({
-        scrollTop: targetOffset
-    }, 600, function() {
-        // Optional: Update the window location hash here, if desired.
-        // This can cause a slight jump depending on the browser's behavior with hash changes.
-        // Consider the UX impact before enabling it.
-        // window.location.hash = this.hash;
-    });
-});
-
-
-
-  // Initialize Intersection Observer
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        document.querySelectorAll('.navbutton').forEach((link) => {
-          link.classList.remove('active');
-          if (link.getAttribute('href') === '#' + entry.target.id) {
-            link.classList.add('active');
-          }
-        });
+  /* ===== About: Read more toggle ===== */
+  document.querySelectorAll('[data-about-toggle]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var section = btn.closest('.about');
+      var expanded = btn.getAttribute('aria-expanded') === 'true';
+      var next = !expanded;
+      btn.setAttribute('aria-expanded', String(next));
+      section.setAttribute('data-expanded', String(next));
+      section.querySelector('.about__more').setAttribute('aria-hidden', String(!next));
+      if (!next) {
+        var about = document.getElementById('about');
+        window.scrollTo({ top: about.offsetTop - 24, behavior: 'smooth' });
       }
     });
-  }, { rootMargin: "-10% 0px -10% 0px", threshold: 0.1 });
-
-  // Observe each section
-  document.querySelectorAll('.page-section').forEach((section) => {
-    observer.observe(section);
   });
-</script>
 
+  /* ===== Work: Stage + Rail ===== */
+  (function() {
+    var projects = [
+      { img: 'assets/work_sofi.png', year: '2024 — NOW', role: 'Sr. Director of Design', title: 'SoFi, Member Group Business Unit', short: 'SoFi', body: "Leading product & content design across SoFi's horizontal group business unit spanning AI-in-product, navigation, premium features, growth and personal finance management." },
+      { img: 'assets/work_cruise.png', year: '2023', role: 'Head of Ridehail Design', title: 'Cruise', short: 'Cruise', body: "Head of product design for the ridehail consumer experience of Cruise, one of the foremost autonomous vehicle companies at the time. Responsible for 80% of the company's business, from in-car to app experiences. Spanned three vehicle platforms, a 13-city scaling plan, our apps and IVI. Represented 80% of the business." },
+      { img: 'assets/work_rl.png', year: '2021–23', role: 'Head of XD', title: 'Neural interfaces (AR)', short: 'AR', body: "Head of Experiences Design for new neural interfaces product lines — and 5 new teams around them — within Meta's Augmented Reality division, creating the next great input mechanic and consumer devices. 12+ patents in novel inputs." },
+      { img: 'assets/work_campus.jpg', year: '2020–21', role: 'Founding Design Manager', title: 'Facebook Campus', short: 'Campus', body: "Supported a comprehensive new community product for college students within Facebook's Community Incubator. Launched its North American beta summer 2020 with 30 US universities, ramping to many more and exceeding our launch metric goals." },
+      { img: 'assets/work_neighborhoods.jpg', year: '2020', role: 'Founding Design Manager', title: 'Facebook Neighborhoods', short: '\u2018Hoods', body: "Founding design manager for another new community product, for local neighborhoods. Launched its North American beta fall 2020, and in the process build several novel features comprising a more comprehensive tool set for all Facebook group admins." },
+      { img: 'assets/work_events.jpg', year: '2017–19', role: 'Design Manager', title: 'Events & Local', short: 'Local', body: "Design manager for the Facebook Local product ecosystem and the Facebook Local app. Oversaw an increase to 700M consumers & 120K creators per month as the world's largest events and \"things to do\" platform." },
+      { img: 'assets/work_communityintegrity.jpg', year: '2014–17', role: 'Design Lead', title: 'Community Integrity', short: 'Integrity', body: "Design lead across all Facebook Consumer Support tools, including reporting and the global Help Center. Established industry-leading best practices for the time that scaled across 120 languages and created all-new ML-powered content recognition, response, and chatbot help products." },
+      { img: 'assets/work_coreexperiences.jpeg', year: '2013–14', role: 'Designer', title: 'Core Experiences', short: 'Core', body: "Designed core systems for Facebook — News Feed, rich engagement features, emerging-market support. Co-designed the first comprehensive component-based design library for the Facebook app on Android, and shipped the first rich comments (stickers)." },
+      { img: 'assets/work_mada.png', year: '2016–2021', role: 'Founding Designer', title: 'Make America Dinner Again', short: 'MADA', body: "Founding designer for this national volunteer organization, fostering better communication across the aisle leveraging over 12 national chapters in 20 cities. Coverage in NYT, the BBC, Glenn Beck, Oprah, CNN, NPR, and other national & international media." },
+      { img: 'assets/work_08_prefacebook.png', year: 'Pre-2013', role: 'IDEO + startups', title: 'Pre-Meta', short: 'Older', body: "Co-founded two start-ups in local discovery and social creation tools, ran a small design consultancy, and had a career in design agency life before that through places like IDEO." }
+    ];
+
+    var rail = document.getElementById('thumb-rail');
+    var stageImg = document.getElementById('stage-img');
+    var stageRole = document.getElementById('stage-role');
+    var stageYear = document.getElementById('stage-year');
+    var stageTitle = document.getElementById('stage-title');
+    var stageBody = document.getElementById('stage-body');
+    var stageCounter = document.getElementById('stage-counter');
+    var prevBtn = document.getElementById('stage-prev');
+    var nextBtn = document.getElementById('stage-next');
+    var active = 0;
+
+    function render() {
+      var p = projects[active];
+      stageImg.style.opacity = '0';
+      setTimeout(function() {
+        stageImg.src = p.img;
+        stageImg.style.opacity = '1';
+      }, 140);
+      stageRole.textContent = p.role;
+      stageYear.textContent = p.year;
+      stageTitle.textContent = p.title;
+      stageBody.textContent = p.body;
+      stageCounter.textContent = String(active + 1).padStart(2, '0') + ' / ' + String(projects.length).padStart(2, '0');
+      Array.from(rail.children).forEach(function(el, i) {
+        el.classList.toggle('is-active', i === active);
+      });
+      // Bring active thumb into view in the horizontal rail (small viewports).
+      if (rail.scrollWidth > rail.clientWidth) {
+        var activeEl = rail.children[active];
+        if (activeEl) {
+          var target = activeEl.offsetLeft - (rail.clientWidth - activeEl.offsetWidth) / 2;
+          var max = rail.scrollWidth - rail.clientWidth;
+          target = Math.max(0, Math.min(max, target));
+          rail.scrollTo({ left: target, behavior: 'smooth' });
+        }
+      }
+    }
+
+    projects.forEach(function(p, i) {
+      var btn = document.createElement('button');
+      btn.className = 'thumb';
+      var label = p.short || p.title.split('—')[0].split('(')[0].trim();
+      btn.innerHTML = '<div class="thumb-image"><img src="' + p.img + '" alt=""/></div>' +
+                      '<span class="thumb-label">' + String(i + 1).padStart(2, '0') + ' · ' + label + '</span>';
+      btn.addEventListener('click', function() { active = i; render(); });
+      rail.appendChild(btn);
+    });
+    rail.scrollLeft = 0;
+
+    prevBtn.addEventListener('click', function() { active = (active - 1 + projects.length) % projects.length; render(); });
+    nextBtn.addEventListener('click', function() { active = (active + 1) % projects.length; render(); });
+
+    render();
+  })();
+
+  /* ===== Avatar pose hot-swap on scroll ===== */
+  (function() {
+    var poses = document.querySelectorAll('.avatar-pose');
+    if (!poses.length) return;
+    var order = ['wave', 'shrug', 'pointdown'];
+    // Thresholds: scrollY values (in px) at which to switch.
+    // Pose 0 below T1, pose 1 between T1–T2, pose 2 above T2.
+    var T1 = 60, T2 = 160;
+    var current = 0;
+    function update() {
+      var y = window.scrollY || window.pageYOffset || 0;
+      var next = y < T1 ? 0 : (y < T2 ? 1 : 2);
+      if (next === current) return;
+      current = next;
+      poses.forEach(function(el) {
+        el.classList.toggle('is-active', el.getAttribute('data-pose') === order[next]);
+      });
+    }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  })();
+</script>
 
 </body>
 </html>

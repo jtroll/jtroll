@@ -83,7 +83,7 @@ h3 {
     display: block;
     position: relative;
     top: -12rem;
-    /*visibility: hidden;*/
+    visibility: hidden;
 }
 
 /*CSS FOR ANY BREAKPOINTS SMALLER THAN 30EM - i.e. PHONES*/
@@ -165,7 +165,6 @@ h3 {
   -webkit-transition: all 0.2s ease;
   -moz-transition: all 0.2s ease;
   transition: all 0.2s ease;
-  z-index: 1000;
 }
 
 .headershadow_shrink {
@@ -183,12 +182,8 @@ h3 {
 .workimage {
   object-fit: cover;
   width: 100%;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  transform-origin: center center;
   /*max-height: 386px;*/
 }
-
-
 
 /*CSS FOR ANY BREAKPOINTS ABOVE 60EM - i.e. NOT PHONES*/
 @media screen and (min-width: 60em) {
@@ -269,9 +264,9 @@ h3 {
 }
 
 .fancy_card:hover {
-  transform: scale(1.05); /* move up slightly and zoom in */
-  transform-style: preserve-3d;
-  transform: translate(0, -2px);
+  /*transform: scale(1.005); */ /* move up slightly and zoom in */
+  /*transform-style: preserve-3d;
+  transform: translate(0, -2px);*/
   box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.15), 0px 1px 4px rgba(0, 0, 0, 0.2);
   transition: all .4s ease; /* zoom in */
 }
@@ -431,4 +426,89 @@ h3 {
 
 .mt25 {
   margin-top: 2.5rem;
+}
+
+
+/*-----------------------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////
+	About — Read More disclosure
+/////////////////////////////////////////////////////////////////////////////////////
+-----------------------------------------------------------------------------------*/
+
+/* Smooth auto-height animation via grid-template-rows 0fr -> 1fr */
+.about__more {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 420ms cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 320ms ease-out;
+  opacity: 0;
+}
+
+.about__more-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.about[data-expanded="true"] .about__more {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+/* Toggle button — styled to feel like a stronger textred link */
+.about__toggle {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0.5rem 0;
+  margin-top: 1.25rem;
+  font: inherit;
+  font-weight: 700;
+  color: #D1293D; /* JTroll Red */
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-bottom: 1px solid currentColor;
+  transition: color .15s ease;
+}
+
+.about__toggle:hover,
+.about__toggle:focus-visible {
+  color: #A92626; /* Darker JTroll Red */
+}
+
+.about__toggle:focus-visible {
+  outline: 2px solid #D1293D;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.about__toggle-arrow {
+  display: inline-block;
+  transition: transform .24s ease;
+}
+
+.about[data-expanded="true"] .about__toggle-arrow {
+  transform: rotate(180deg);
+}
+
+.about[data-expanded="true"] .about__toggle .about__toggle-collapsed { display: none; }
+.about:not([data-expanded="true"]) .about__toggle .about__toggle-expanded { display: none; }
+
+/* Accessibility: respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .about__more,
+  .about__toggle,
+  .about__toggle-arrow {
+    transition: none;
+  }
+}
+
+/* Print: always show the full bio */
+@media print {
+  .about__more {
+    grid-template-rows: 1fr !important;
+    opacity: 1 !important;
+  }
+  .about__toggle { display: none; }
 }
