@@ -1,0 +1,288 @@
+/* ============================================================
+   Article page styles
+   Shared by every self-hosted article under /writing/.
+   Mirrors the design system used in /index.html so articles
+   feel like they live in the same site.
+   ============================================================ */
+
+:root {
+  --ink: #001C2F;
+  --ink-2: #2B3A47;
+  --ink-3: #5C6B77;
+  --muted: #687B88;
+  --red: #D1293D;
+  --red-deep: #A92626;
+  --paper: #FAF8F5;
+  --paper-2: #F2EEE8;
+  --rule: rgba(0, 28, 47, 0.08);
+  --rule-strong: rgba(0, 28, 47, 0.16);
+  --sans: 'Archivo', system-ui, sans-serif;
+  --serif: 'Source Serif 4', Georgia, serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; }
+ul { margin: 0; padding: 0; }
+p { margin: 0; }
+h1, h2, h3, h4 { margin: 0; font-weight: 700; }
+
+/* ===== Layout ===== */
+.wrap { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 56px; }
+@media (max-width: 720px) { .wrap { padding: 0 24px; } }
+
+/* ===== Brand bar (matches home page) ===== */
+.brandbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 28px 0;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--sans); font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
+}
+.logo-mark {
+  width: 28px; height: 28px; border-radius: 0; background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.logo-mark img { width: 100%; height: 100%; object-fit: contain; }
+.brandbar-meta {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-3); letter-spacing: 0.08em;
+}
+.brandbar nav ul { display: flex; gap: 32px; font-size: 14px; color: var(--ink-3); list-style: none; }
+.brandbar nav a:hover { color: var(--ink); }
+@media (max-width: 860px) { .brandbar nav { display: none; } }
+
+/* ===== Article ===== */
+.article { padding: 24px 0 96px; }
+
+/* Hero image: spans the full inner wrap width (1168px max),
+   sits above the centered text column. Optional — omit the
+   <figure class="article-hero"> block if an article has none. */
+.article-hero {
+  margin: 0 0 64px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--paper-2);
+  aspect-ratio: 16 / 9;
+}
+.article-hero img { width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 720px) {
+  .article-hero { margin-bottom: 48px; border-radius: 6px; }
+}
+
+/* Text column — same width as the About section on the home page. */
+.article-column { max-width: 760px; margin: 0 auto; }
+
+.article-kicker {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3);
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-bottom: 24px;
+}
+.article-kicker::before {
+  content: ''; width: 18px; height: 1px; background: currentColor; opacity: 0.6;
+}
+
+.article-title {
+  font-family: var(--serif); font-weight: 400; font-style: normal;
+  font-size: clamp(40px, 5.5vw, 64px);
+  line-height: 1.05; letter-spacing: -0.025em; color: var(--ink);
+  margin: 0 0 28px;
+}
+.article-title em { font-style: italic; }
+.article-title .dot { color: var(--red); font-style: normal; }
+
+.article-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px; flex-wrap: wrap;
+  padding: 18px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 48px;
+}
+.article-date {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+  color: var(--ink-3); text-transform: uppercase;
+}
+
+.share-btn {
+  appearance: none; background: transparent;
+  border: 1px solid var(--rule-strong); border-radius: 999px;
+  padding: 8px 16px;
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  color: var(--ink); display: inline-flex; align-items: center; gap: 8px;
+  transition: all 180ms;
+}
+.share-btn:hover { border-color: var(--ink); }
+.share-btn.is-copied {
+  border-color: var(--ink); background: var(--ink); color: var(--paper);
+}
+.share-btn .share-icon { display: inline-block; transform: translateY(-1px); }
+
+/* ===== Article body typography ===== */
+.article-body { font-family: var(--serif); }
+.article-body p {
+  font-size: 19px; line-height: 1.7; color: var(--ink-2);
+  margin-bottom: 24px;
+}
+.article-body p strong { color: var(--ink); font-weight: 600; }
+.article-body a { color: var(--red); border-bottom: 1px solid currentColor; }
+.article-body a:hover { color: var(--red-deep); }
+.article-body em { font-style: italic; }
+.article-body h2 {
+  font-family: var(--serif); font-style: italic; font-weight: 400;
+  font-size: clamp(28px, 3.4vw, 36px);
+  line-height: 1.15; letter-spacing: -0.02em; color: var(--ink);
+  margin: 56px 0 20px;
+}
+.article-body h3 {
+  font-family: var(--sans); font-weight: 600;
+  font-size: 20px; letter-spacing: -0.01em; color: var(--ink);
+  margin: 40px 0 14px;
+}
+.article-body ul, .article-body ol {
+  font-size: 19px; line-height: 1.7; color: var(--ink-2);
+  margin: 0 0 24px; padding-left: 24px;
+}
+.article-body ul { list-style: disc; }
+.article-body ol { list-style: decimal; }
+.article-body li { margin-bottom: 8px; }
+.article-body blockquote {
+  margin: 36px 0;
+  padding: 4px 0 4px 24px;
+  border-left: 3px solid var(--red);
+  font-family: var(--serif); font-style: italic; font-weight: 400;
+  font-size: 22px; line-height: 1.45; color: var(--ink);
+}
+.article-body blockquote p { font-size: inherit; color: inherit; margin: 0 0 12px; }
+.article-body blockquote p:last-child { margin-bottom: 0; }
+.article-body hr {
+  border: 0; height: 1px; background: var(--rule);
+  margin: 56px auto; width: 80px;
+}
+
+/* Inline image. Wrap any inline image in <figure class="article-figure">. */
+.article-figure { margin: 40px 0; }
+.article-figure img {
+  width: 100%; border-radius: 6px; background: var(--paper-2);
+}
+.article-figure figcaption {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
+  color: var(--ink-3); margin-top: 12px; text-align: center;
+}
+/* Slightly wider inline image — breaks out of the text column a bit. */
+.article-figure--wide {
+  margin-left: -40px; margin-right: -40px;
+}
+@media (max-width: 860px) {
+  .article-figure--wide { margin-left: 0; margin-right: 0; }
+}
+
+/* ===== Back-home button (sits between the article body and the next-article block) ===== */
+.article-back {
+  max-width: 760px; margin: 64px auto 0;
+}
+.back-home {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  color: var(--ink-2);
+  padding: 8px 16px 8px 14px;
+  border: 1px solid var(--rule-strong); border-radius: 999px;
+  background: transparent;
+  white-space: nowrap;
+  transition: border-color 180ms ease, color 180ms ease, background 180ms ease;
+}
+.back-home:hover { border-color: var(--ink); color: var(--ink); }
+.back-home .back-arrow { display: inline-block; transition: transform 180ms ease; }
+.back-home:hover .back-arrow { transform: translateX(-3px); }
+
+/* ===== Next article (uses the home page article-card styling) ===== */
+.article-next {
+  margin-top: 96px;
+  padding-top: 24px;
+  border-top: 1px solid var(--ink);
+}
+.article-next-label {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+  color: var(--ink-3); text-transform: uppercase;
+  margin-bottom: 20px; display: block;
+}
+.article-next-card {
+  display: block;
+  background: #FFFFFF; border: 1px solid var(--rule); border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 200ms, transform 200ms;
+}
+.article-next-card:hover { border-color: var(--rule-strong); transform: translateY(-2px); }
+.article-next-card-image { aspect-ratio: 16 / 9; background: var(--paper-2); overflow: hidden; }
+.article-next-card-image img { width: 100%; height: 100%; object-fit: cover; }
+.article-next-card-body { padding: 22px 24px 26px; }
+.article-next-card .kicker-row {
+  display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;
+}
+.article-next-card .kicker {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.article-next-card .year {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--ink-3);
+}
+.article-next-card h3 {
+  font-family: var(--serif); font-weight: 400; font-size: 22px;
+  line-height: 1.2; letter-spacing: -0.015em; color: var(--ink); margin: 0 0 10px;
+}
+.article-next-card .excerpt {
+  font-family: var(--sans);
+  font-size: 14px; color: var(--ink-3); line-height: 1.55; margin: 0 0 16px;
+}
+/* Article-card CTA. Design system rule: mono CTA labels on article cards
+   are ALL CAPS. Mirrored in index.html (.writing-card-link). */
+.article-next-card .link {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--ink-3);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+/* Arrow behavior: local articles slide right, external articles wiggle.
+   Mirrored in index.html (.writing-card .arrow). */
+.article-next-card .link .arrow {
+  display: inline-block;
+  transition: transform 220ms cubic-bezier(0.2,0.7,0.3,1);
+  transform-origin: 50% 60%;
+}
+.article-next-card.is-local:hover .link .arrow { transform: translateX(4px); }
+.article-next-card.is-external:hover .link .arrow {
+  animation: writing-arrow-wiggle 520ms ease-in-out;
+}
+@keyframes writing-arrow-wiggle {
+  0%   { transform: rotate(0deg) translate(0,0); }
+  25%  { transform: rotate(-14deg) translate(-1px, 1px); }
+  55%  { transform: rotate(12deg) translate(1px, -1px); }
+  80%  { transform: rotate(-6deg) translate(0,0); }
+  100% { transform: rotate(0deg) translate(0,0); }
+}
+
+/* ===== Footer (matches home page) ===== */
+.footer {
+  border-top: 1px solid var(--rule); padding: 40px 0;
+  font-family: var(--mono); font-size: 11px; color: var(--ink-3); letter-spacing: 0.06em;
+}
+.footer .wrap {
+  display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap;
+}
+@media (max-width: 720px) {
+  .footer .wrap { flex-direction: column; gap: 16px; text-align: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

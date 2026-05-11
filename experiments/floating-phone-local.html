@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Floating Phone — Local</title>
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #FBF7F7;
+    --paper-dark: #EFE4E1;
+    --paper-darker: #E8D9D5;
+    --ink: #001C2F;
+    --muted: #687B88;
+    --red: #D1293D;
+    --red-deep: #A92626;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100%;
+  }
+
+  /* ====== STAGE: the darker paper panel that hosts the floating object ====== */
+  .stage {
+    background: var(--paper-dark);
+    padding: 64px 24px 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    perspective: 1600px;
+    perspective-origin: 50% 40%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* subtle vignette so the object reads against the panel */
+  .stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center 45%, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 55%, rgba(120,60,50,0.06) 100%);
+    pointer-events: none;
+  }
+
+  .caption {
+    text-align: center;
+    margin-top: 36px;
+    color: var(--ink);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .caption strong {
+    display: block;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    text-transform: none;
+    color: var(--ink);
+    margin-top: 4px;
+    opacity: 1;
+    font-weight: 700;
+  }
+
+  /* ====== FLOATER: handles the gentle vertical drift ====== */
+  .floater {
+    animation: float 7s ease-in-out infinite alternate;
+    will-change: transform;
+    filter: drop-shadow(0 36px 48px rgba(20, 10, 8, 0.18))
+            drop-shadow(0 12px 20px rgba(20, 10, 8, 0.10));
+  }
+  @keyframes float {
+    from { transform: translateY(-7px); }
+    to   { transform: translateY(7px); }
+  }
+
+  /* ====== PHONE: handles the subtle Y-axis rotation ====== */
+  .phone {
+    width: 280px;
+    height: 600px;
+    background: #0A0A0C;
+    border-radius: 38px;
+    padding: 8px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: rotateY 14s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+    will-change: transform;
+    box-shadow:
+      inset 0 0 0 1.5px #2a2a2e,
+      inset 0 0 0 3px #0A0A0C;
+  }
+  @keyframes rotateY {
+    from { transform: rotateY(-7deg); }
+    to   { transform: rotateY(7deg); }
+  }
+
+  /* notch */
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92px;
+    height: 22px;
+    background: #0A0A0C;
+    border-radius: 0 0 14px 14px;
+    z-index: 100;
+  }
+  /* side buttons hint (gives 3D feel during rotation) */
+  .phone::after {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 130px;
+    width: 3px;
+    height: 56px;
+    background: #1a1a1c;
+    border-radius: 2px 0 0 2px;
+  }
+
+  /* ====== SCREEN: holds the cycling Local UI states ====== */
+  .screen {
+    width: 100%;
+    height: 100%;
+    background: #FFFFFF;
+    border-radius: 30px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* iOS-style status bar */
+  .status-bar {
+    height: 30px;
+    padding: 8px 22px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: #000;
+    position: relative;
+    z-index: 50;
+  }
+  .status-bar .time { padding-left: 4px; }
+  .status-bar .icons { display: flex; gap: 4px; align-items: center; padding-right: 4px; }
+  .status-bar .signal,
+  .status-bar .wifi,
+  .status-bar .battery {
+    display: inline-block;
+    background: #000;
+  }
+  .status-bar .signal { width: 11px; height: 7px; -webkit-mask: linear-gradient(135deg, transparent 0 30%, #000 30%); mask: linear-gradient(135deg, transparent 0 30%, #000 30%); }
+  .status-bar .wifi { width: 10px; height: 7px; clip-path: polygon(50% 0%, 100% 50%, 75% 50%, 75% 100%, 25% 100%, 25% 50%, 0% 50%); }
+  .status-bar .battery { width: 18px; height: 8px; border: 1px solid #000; background: transparent; border-radius: 2px; position: relative; }
+  .status-bar .battery::after { content:''; position:absolute; inset: 1.5px; background:#000; border-radius:0.5px; }
+
+  /* ====== STATE LAYERS ====== */
+  .state {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 480ms ease;
+    pointer-events: none;
+  }
+  .state.active { opacity: 1; pointer-events: auto; z-index: 2; }
+
+  /* ====== MAP (shared visual) ====== */
+  .map {
+    position: relative;
+    background: #F1E9D7;
+    overflow: hidden;
+  }
+  .map svg { display: block; width: 100%; height: 100%; }
+  .map .park { fill: #C6DBC0; }
+  .map .road-main { stroke: #FBE48E; stroke-width: 10; fill: none; stroke-linecap: round; }
+  .map .road-sub { stroke: #FFFFFF; stroke-width: 4; fill: none; stroke-linecap: round; }
+  .map .road-thin { stroke: #FFFFFF; stroke-width: 2; fill: none; stroke-linecap: round; }
+
+  /* pins */
+  .pin {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    transform: translate(-50%, -100%);
+    z-index: 5;
+  }
+  .pin .dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 11px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    border: 1.5px solid #fff;
+  }
+  .pin .pin-label {
+    font-size: 8px;
+    font-weight: 700;
+    color: #1c1c1e;
+    text-align: center;
+    line-height: 1.1;
+    margin-top: 2px;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.9), 0 0 4px rgba(255,255,255,0.8);
+    max-width: 60px;
+  }
+  .pin .pin-label .sub { color: var(--muted); font-weight: 600; font-size: 7px; display:block; }
+  .pin.event .dot { background: #E5304A; }
+  .pin.bar .dot { background: #B23A8A; }
+  .pin.food .dot { background: #E58430; }
+  .pin.bowling .dot { background: #3FA4D9; }
+  .pin.landmark .dot { background: #7E5BD0; }
+  .pin.starred .dot { background: #2E6FE0; }
+  .pin.dance .dot { background: #E5304A; }
+  .pin.dot-only .dot { width: 9px; height: 9px; border-width: 1px; }
+  .pin.dot-only .dot::before { display:none; }
+
+  /* ====== STATE A: Default landing ====== */
+  .state-a .map {
+    height: 280px;
+  }
+  .state-a .city-row {
+    padding: 12px 16px 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .state-a .city {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .state-a .neighborhood {
+    font-size: 13px;
+    color: var(--muted);
+    padding: 0 16px 10px;
+  }
+  .state-a .actions {
+    padding: 6px 16px 14px;
+    display: flex;
+    gap: 8px;
+  }
+  .state-a .action-chip {
+    flex: 1;
+    height: 30px;
+    border: 1px solid #E2E2E5;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #0066E0;
+  }
+  .state-a .action-chip.gray { color: #1c1c1e; }
+  .state-a .action-chip svg { width: 11px; height: 11px; }
+
+  .state-a .events-header {
+    padding: 6px 16px 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1c1c1e;
+  }
+  .state-a .event-card {
+    padding: 0 16px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .state-a .event-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #2a1810, #6b2a1a);
+    flex-shrink: 0;
+    position: relative;
+  }
+  .state-a .event-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 35%, rgba(255,200,160,0.5), transparent 60%);
+    border-radius: 6px;
+  }
+  .state-a .event-meta {
+    flex: 1;
+    min-width: 0;
+  }
+  .state-a .event-date {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--red);
+    letter-spacing: 0.02em;
+  }
+  .state-a .event-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1c1c1e;
+    line-height: 1.2;
+  }
+  .state-a .event-venue {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .state-a .avatars {
+    display: flex;
+    margin-top: 4px;
+  }
+  .state-a .avatars span {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid #fff;
+    margin-left: -5px;
+    background: var(--muted);
+  }
+  .state-a .avatars span:first-child { margin-left: 0; }
+  .state-a .avatars span:nth-child(1) { background: linear-gradient(135deg, #E58430, #B23A8A); }
+  .state-a .avatars span:nth-child(2) { background: linear-gradient(135deg, #2E6FE0, #B23A8A); }
+  .state-a .avatars span:nth-child(3) { background: linear-gradient(135deg, #C2884A, #6B3A1A); }
+  .state-a .avatars span:nth-child(4) { background: linear-gradient(135deg, #E58430, #DA6F0F); }
+  .state-a .avatars span:nth-child(5) { background: linear-gradient(135deg, #2E6FE0, #1C4FA0); }
+
+  .state-a .section-divider {
+    padding: 14px 16px 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1c1c1e;
+  }
+
+  /* ====== STATE B: Typeahead (search active, suggestions) ====== */
+  .state-b .map {
+    height: 100px;
+  }
+  .state-b .search-bar {
+    margin: -22px 14px 0;
+    height: 44px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    position: relative;
+    z-index: 10;
+  }
+  .state-b .search-icon, .state-c .search-icon {
+    width: 14px; height: 14px;
+    border: 1.5px solid #888;
+    border-radius: 50%;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .state-b .search-icon::after, .state-c .search-icon::after {
+    content: '';
+    position: absolute;
+    width: 1.5px;
+    height: 5px;
+    background: #888;
+    bottom: -3px;
+    right: -1px;
+    transform: rotate(-45deg);
+    border-radius: 1px;
+  }
+  .state-b .search-input {
+    flex: 1;
+    padding: 0 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #000;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+  .state-b .typed-text {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .state-b.active .typed-text {
+    animation: type-br 0.7s steps(2, end) 0.2s both;
+  }
+  @keyframes type-br {
+    from { max-width: 0; }
+    to { max-width: 30px; }
+  }
+  .state-b .caret {
+    width: 1.5px;
+    height: 14px;
+    background: var(--red);
+    margin-left: 1px;
+    animation: blink 1s steps(2) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .state-b .loc-chip {
+    background: #F1F1F4;
+    border-radius: 5px;
+    font-size: 11px;
+    color: #000;
+    font-weight: 500;
+    padding: 4px 7px;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+  .state-b .close-x {
+    width: 16px; height: 16px;
+    background: #DADAE0;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .state-b .suggestions {
+    padding: 14px 0 0;
+  }
+  .state-b .sugg {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  .state-b.active .sugg {
+    animation: rise 0.4s ease-out forwards;
+  }
+  .state-b.active .sugg:nth-child(1) { animation-delay: 0.9s; }
+  .state-b.active .sugg:nth-child(2) { animation-delay: 1.0s; }
+  .state-b.active .sugg:nth-child(3) { animation-delay: 1.1s; }
+  .state-b.active .sugg:nth-child(4) { animation-delay: 1.2s; }
+  .state-b.active .sugg:nth-child(5) { animation-delay: 1.3s; }
+  .state-b.active .sugg:nth-child(6) { animation-delay: 1.4s; }
+  @keyframes rise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .state-b .sugg-icon {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #F1F1F4;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+  .state-b .sugg-icon.search { font-size: 0; position: relative; }
+  .state-b .sugg-icon.search::before {
+    content: ''; width: 12px; height: 12px; border: 1.5px solid #888;
+    border-radius: 50%; display: block;
+  }
+  .state-b .sugg-icon.search::after {
+    content: ''; position: absolute; width: 1.5px; height: 5px;
+    background: #888; bottom: 6px; right: 7px;
+    transform: rotate(-45deg); border-radius: 1px;
+  }
+  .state-b .sugg-icon.food { background: #E58430; color: #fff; }
+  .state-b .sugg-icon.theater { background: #B23A8A; color: #fff; }
+  .state-b .sugg-icon.event { background: #E5304A; color: #fff; }
+  .state-b .sugg-icon.music { background: #E5304A; color: #fff; }
+  .state-b .sugg-icon.list { background: #FFD23F; color: #1c1c1e; }
+  .state-b .sugg-text { flex: 1; min-width: 0; }
+  .state-b .sugg-date {
+    font-size: 9px; font-weight: 700;
+    color: var(--red); letter-spacing: 0.02em;
+  }
+  .state-b .sugg-title {
+    font-size: 13px; font-weight: 600; color: #1c1c1e;
+    line-height: 1.2;
+  }
+  .state-b .sugg-sub {
+    font-size: 11px; color: var(--muted);
+    line-height: 1.2;
+  }
+
+  /* ====== STATE C: Results ====== */
+  .state-c .map {
+    height: 240px;
+    position: relative;
+  }
+  .state-c .results-search {
+    position: absolute;
+    top: 38px; left: 14px; right: 14px;
+    height: 36px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 6px;
+    z-index: 10;
+  }
+  .state-c .results-search .typed {
+    font-size: 13px;
+    color: #000;
+    font-weight: 500;
+    flex: 1;
+  }
+  .state-c .results-search .loc-chip {
+    background: #F1F1F4;
+    border-radius: 5px;
+    font-size: 10px;
+    color: #000;
+    font-weight: 500;
+    padding: 3px 6px;
+    flex-shrink: 0;
+  }
+  .state-c .results-search .close-x {
+    width: 14px; height: 14px;
+    background: #DADAE0;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .state-c .tabs {
+    display: flex;
+    border-bottom: 1px solid #EFEFF2;
+    padding: 0 4px;
+    gap: 0;
+  }
+  .state-c .tab {
+    padding: 11px 10px 9px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    position: relative;
+  }
+  .state-c .tab.active {
+    color: #0066E0;
+  }
+  .state-c .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 8px;
+    right: 8px;
+    height: 2px;
+    background: #0066E0;
+    border-radius: 2px;
+  }
+
+  .state-c .result {
+    display: flex;
+    gap: 10px;
+    padding: 10px 16px;
+    border-bottom: 1px solid #F4F4F7;
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  .state-c.active .result {
+    animation: rise 0.4s ease-out forwards;
+  }
+  .state-c.active .result:nth-child(1) { animation-delay: 0.4s; }
+  .state-c.active .result:nth-child(2) { animation-delay: 0.55s; }
+  .state-c.active .result:nth-child(3) { animation-delay: 0.7s; }
+  .state-c .result-img {
+    width: 56px; height: 56px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .state-c .result-img.food { background: linear-gradient(135deg, #C2884A, #6B3A1A); }
+  .state-c .result-img.sushi { background: linear-gradient(135deg, #FFA0A8, #8B2A35); }
+  .state-c .result-img.music { background: linear-gradient(135deg, #E5304A, #6B0E1A); }
+  .state-c .result-meta { flex: 1; min-width: 0; }
+  .state-c .result-title {
+    font-size: 13px; font-weight: 700;
+    color: #1c1c1e; line-height: 1.2;
+  }
+  .state-c .rating-row {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    margin: 3px 0 2px;
+  }
+  .state-c .rating {
+    background: #4F86E5;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  .state-c .tags {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .state-c .result-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.3;
+    margin-top: 1px;
+  }
+  .state-c .result-date {
+    font-size: 9px; font-weight: 700;
+    color: var(--red); letter-spacing: 0.02em;
+    margin-bottom: 1px;
+  }
+
+  /* ====== TAB BAR (shared, A & C) ====== */
+  .tab-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 56px;
+    background: #fff;
+    border-top: 1px solid #EFEFF2;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: 14px;
+    z-index: 10;
+  }
+  .tab-bar .ticon {
+    width: 22px; height: 22px;
+    background: var(--muted);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    position: relative;
+  }
+  .tab-bar .ticon.pin-active { background: #0066E0; }
+  .tab-bar .ticon-home {
+    -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d='M12 3l9 8h-3v9h-12v-9h-3z'/></svg>");
+    mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d='M12 3l9 8h-3v9h-12v-9h-3z'/></svg>");
+  }
+  .tab-bar .ticon-pin {
+    -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d='M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z'/></svg>");
+    mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d='M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z'/></svg>");
+  }
+  .tab-bar .ticon-people {
+    -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><circle cx='8' cy='9' r='3.5'/><circle cx='16' cy='9' r='3'/><path d='M2 20c0-3 3-5 6-5s6 2 6 5v1H2zm12 1v-1c0-2 1-3 2.5-3.7C18.5 16 22 18 22 20v1z'/></svg>");
+    mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><circle cx='8' cy='9' r='3.5'/><circle cx='16' cy='9' r='3'/><path d='M2 20c0-3 3-5 6-5s6 2 6 5v1H2zm12 1v-1c0-2 1-3 2.5-3.7C18.5 16 22 18 22 20v1z'/></svg>");
+  }
+  .tab-bar .ticon-bell {
+    -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d='M12 3a6 6 0 00-6 6v4l-2 3v1h16v-1l-2-3V9a6 6 0 00-6-6zM10 19a2 2 0 004 0z'/></svg>");
+    mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d='M12 3a6 6 0 00-6 6v4l-2 3v1h16v-1l-2-3V9a6 6 0 00-6-6zM10 19a2 2 0 004 0z'/></svg>");
+  }
+  .tab-bar .ticon-menu {
+    -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><rect x='3' y='6' width='18' height='2'/><rect x='3' y='11' width='18' height='2'/><rect x='3' y='16' width='18' height='2'/></svg>");
+    mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><rect x='3' y='6' width='18' height='2'/><rect x='3' y='11' width='18' height='2'/><rect x='3' y='16' width='18' height='2'/></svg>");
+  }
+  .tab-bar .bell-wrap { position: relative; }
+  .tab-bar .badge {
+    position: absolute;
+    top: -3px; right: -4px;
+    background: var(--red);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 7px;
+    line-height: 1;
+  }
+
+  /* tap pulse for screen A → B transition */
+  .state-a .tap-search {
+    position: absolute;
+    top: 308px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(209, 41, 61, 0.25);
+    opacity: 0;
+    z-index: 30;
+    pointer-events: none;
+  }
+  .state-a.active .tap-search {
+    animation: pulse 1.2s ease-out 2.6s;
+  }
+  @keyframes pulse {
+    0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+    40% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(-50%) scale(2.4); }
+  }
+
+  /* home indicator at bottom of screen */
+  .home-indicator {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: #1c1c1e;
+    border-radius: 2px;
+    z-index: 60;
+    opacity: 0.85;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="floater">
+    <div class="phone">
+      <div class="screen">
+
+        <!-- STATE A: Default landing -->
+        <div class="state state-a active" data-state="a">
+          <div class="status-bar">
+            <span class="time">2:04</span>
+            <span class="icons">
+              <span class="signal"></span>
+              <span class="wifi"></span>
+              <span class="battery"></span>
+            </span>
+          </div>
+
+          <div class="map">
+            <svg viewBox="0 0 280 280" preserveAspectRatio="xMidYMid slice">
+              <!-- park -->
+              <rect class="park" x="0" y="0" width="80" height="60"/>
+              <rect class="park" x="200" y="200" width="80" height="80"/>
+              <!-- main roads -->
+              <path class="road-main" d="M -20 80 L 300 110"/>
+              <path class="road-main" d="M -20 180 L 300 210"/>
+              <path class="road-main" d="M 80 -20 L 100 300"/>
+              <path class="road-main" d="M 200 -20 L 220 300"/>
+              <!-- sub roads -->
+              <path class="road-sub" d="M 0 40 L 280 60"/>
+              <path class="road-sub" d="M 0 140 L 280 150"/>
+              <path class="road-sub" d="M 0 240 L 280 250"/>
+              <path class="road-sub" d="M 40 -20 L 50 300"/>
+              <path class="road-sub" d="M 140 -20 L 155 300"/>
+              <path class="road-sub" d="M 260 -20 L 270 300"/>
+              <!-- thin roads -->
+              <path class="road-thin" d="M 0 20 L 280 30"/>
+              <path class="road-thin" d="M 0 200 L 280 220"/>
+              <path class="road-thin" d="M 20 -20 L 24 300"/>
+              <path class="road-thin" d="M 240 -20 L 248 300"/>
+            </svg>
+
+            <!-- pins -->
+            <div class="pin landmark" style="left: 22%; top: 24%;">
+              <div class="dot">▲</div>
+              <div class="pin-label">Market Street<span class="sub">8.1 · Landmark</span></div>
+            </div>
+            <div class="pin bar" style="left: 70%; top: 38%;">
+              <div class="dot">■</div>
+              <div class="pin-label">The Chapel<span class="sub">9.1 · Bar</span></div>
+            </div>
+            <div class="pin starred" style="left: 90%; top: 33%;">
+              <div class="dot">★</div>
+            </div>
+            <div class="pin bar" style="left: 30%; top: 55%;">
+              <div class="dot">■</div>
+              <div class="pin-label">The Chapel<span class="sub">9.1 · Bar</span></div>
+            </div>
+            <div class="pin bowling" style="left: 56%; top: 70%;">
+              <div class="dot">▌</div>
+              <div class="pin-label">Mission Bowling Club<span class="sub">9.3 · Bowling</span></div>
+            </div>
+            <div class="pin food" style="left: 82%; top: 80%;">
+              <div class="dot">•</div>
+              <div class="pin-label">Tartine Manufactory<span class="sub">8.3 · Restaurant</span></div>
+            </div>
+            <div class="pin dot-only" style="left: 50%; top: 18%;"><div class="dot"></div></div>
+            <div class="pin dot-only" style="left: 16%; top: 40%;"><div class="dot"></div></div>
+            <div class="pin dot-only" style="left: 12%; top: 78%;"><div class="dot"></div></div>
+          </div>
+
+          <div class="city-row">
+            <div class="city">San Francisco
+              <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="#000" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>
+          </div>
+          <div class="neighborhood">Hayes Valley</div>
+
+          <div class="actions">
+            <div class="action-chip">
+              <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#0066E0" stroke-width="1.6"/><path d="M10 6v8M6 10h8" stroke="#0066E0" stroke-width="1.6" stroke-linecap="round"/></svg>
+              Create
+            </div>
+            <div class="action-chip gray">
+              <svg viewBox="0 0 20 20" fill="none" stroke="#1c1c1e" stroke-width="1.4"><rect x="3" y="5" width="14" height="12" rx="1"/><path d="M3 9h14M7 3v3M13 3v3"/></svg>
+              Calendar
+            </div>
+            <div class="action-chip gray">
+              <svg viewBox="0 0 20 20" fill="none" stroke="#1c1c1e" stroke-width="1.4"><path d="M10 2C7 2 5 4 5 7c0 4 5 9 5 9s5-5 5-9c0-3-2-5-5-5z"/><circle cx="10" cy="7" r="1.6" fill="#1c1c1e" stroke="none"/></svg>
+              Your Places
+            </div>
+          </div>
+
+          <div class="events-header">Your Upcoming Events</div>
+          <div class="event-card">
+            <div class="event-img"></div>
+            <div class="event-meta">
+              <div class="event-date">MAY 8 · 7:30PM</div>
+              <div class="event-title">Kendrick Lamar feat. Willow</div>
+              <div class="event-venue">The Warfield Auditorium</div>
+              <div class="avatars">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-divider">Find Things To Do</div>
+
+          <div class="tap-search"></div>
+
+          <div class="tab-bar">
+            <div class="ticon ticon-home"></div>
+            <div class="ticon ticon-pin pin-active"></div>
+            <div class="ticon ticon-people"></div>
+            <div class="bell-wrap">
+              <div class="ticon ticon-bell"></div>
+              <span class="badge">2</span>
+            </div>
+            <div class="ticon ticon-menu"></div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- STATE B: Typeahead suggestions -->
+        <div class="state state-b" data-state="b">
+          <div class="status-bar">
+            <span class="time">2:04</span>
+            <span class="icons">
+              <span class="signal"></span>
+              <span class="wifi"></span>
+              <span class="battery"></span>
+            </span>
+          </div>
+
+          <div class="map">
+            <svg viewBox="0 0 280 100" preserveAspectRatio="xMidYMid slice">
+              <rect class="park" x="0" y="0" width="80" height="40"/>
+              <path class="road-main" d="M -20 30 L 300 50"/>
+              <path class="road-main" d="M 80 -20 L 100 120"/>
+              <path class="road-main" d="M 200 -20 L 220 120"/>
+              <path class="road-sub" d="M 0 70 L 280 80"/>
+              <path class="road-sub" d="M 40 -20 L 50 120"/>
+              <path class="road-sub" d="M 140 -20 L 155 120"/>
+            </svg>
+            <div class="pin dot-only" style="left: 35%; top: 35%;"><div class="dot" style="background:#E5304A;"></div></div>
+            <div class="pin dot-only" style="left: 65%; top: 55%;"><div class="dot" style="background:#E58430;"></div></div>
+          </div>
+
+          <div class="search-bar">
+            <div class="search-icon"></div>
+            <div class="search-input">
+              <span class="typed-text">br</span>
+              <span class="caret"></span>
+            </div>
+            <div class="loc-chip">San Francisco</div>
+            <div class="close-x">×</div>
+          </div>
+
+          <div class="suggestions">
+            <div class="sugg">
+              <div class="sugg-icon search"></div>
+              <div class="sugg-text">
+                <div class="sugg-title">Breakfast Places</div>
+              </div>
+            </div>
+            <div class="sugg">
+              <div class="sugg-icon food">🍝</div>
+              <div class="sugg-text">
+                <div class="sugg-title">Brolognese</div>
+                <div class="sugg-sub">553 High St</div>
+              </div>
+            </div>
+            <div class="sugg">
+              <div class="sugg-icon theater">🎭</div>
+              <div class="sugg-text">
+                <div class="sugg-title">Brava Theater Center</div>
+                <div class="sugg-sub">2781 24th St</div>
+              </div>
+            </div>
+            <div class="sugg">
+              <div class="sugg-icon event">🎤</div>
+              <div class="sugg-text">
+                <div class="sugg-date">TODAY · 4:00PM</div>
+                <div class="sugg-title">Brasilia Lecture Series</div>
+              </div>
+            </div>
+            <div class="sugg">
+              <div class="sugg-icon search"></div>
+              <div class="sugg-text">
+                <div class="sugg-title">Brunch Places</div>
+              </div>
+            </div>
+            <div class="sugg">
+              <div class="sugg-icon music">♪</div>
+              <div class="sugg-text">
+                <div class="sugg-date">DEC 12 · 7:30PM</div>
+                <div class="sugg-title">Brockhampton at Elbow Room</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- STATE C: Results -->
+        <div class="state state-c" data-state="c">
+          <div class="status-bar">
+            <span class="time">2:04</span>
+            <span class="icons">
+              <span class="signal"></span>
+              <span class="wifi"></span>
+              <span class="battery"></span>
+            </span>
+          </div>
+
+          <div class="map">
+            <svg viewBox="0 0 280 240" preserveAspectRatio="xMidYMid slice">
+              <rect class="park" x="180" y="0" width="100" height="50"/>
+              <path class="road-main" d="M -20 50 L 300 70"/>
+              <path class="road-main" d="M -20 140 L 300 160"/>
+              <path class="road-main" d="M 80 -20 L 100 260"/>
+              <path class="road-main" d="M 200 -20 L 220 260"/>
+              <path class="road-sub" d="M 0 100 L 280 115"/>
+              <path class="road-sub" d="M 0 200 L 280 210"/>
+              <path class="road-sub" d="M 40 -20 L 50 260"/>
+              <path class="road-sub" d="M 140 -20 L 155 260"/>
+              <path class="road-sub" d="M 260 -20 L 270 260"/>
+            </svg>
+            <div class="pin food" style="left: 18%; top: 30%;">
+              <div class="dot">•</div>
+              <div class="pin-label">Broken Mexicana<span class="sub">4.4 · Mexican · $</span></div>
+            </div>
+            <div class="pin food" style="left: 70%; top: 22%;">
+              <div class="dot">🍕</div>
+              <div class="pin-label">Breakneck Pizza<span class="sub">3.4 · Pizza · $</span></div>
+            </div>
+            <div class="pin food" style="left: 48%; top: 48%;">
+              <div class="dot">•</div>
+              <div class="pin-label">Bray's Kitchen<span class="sub">4.7 · Brewery · $$</span></div>
+            </div>
+            <div class="pin dance" style="left: 80%; top: 58%;">
+              <div class="dot">♪</div>
+              <div class="pin-label">Bring it! Dance</div>
+            </div>
+            <div class="pin food" style="left: 22%; top: 74%;">
+              <div class="dot">•</div>
+              <div class="pin-label">Brek Fusion<span class="sub">4.1 · Sushi · $$$</span></div>
+            </div>
+            <div class="pin event" style="left: 55%; top: 78%;">
+              <div class="dot">▣</div>
+              <div class="pin-label">Brasilia Lectur...<span class="sub" style="color:var(--red);">TODAY · 4PM</span></div>
+            </div>
+
+            <div class="results-search">
+              <div class="search-icon"></div>
+              <div class="typed">br</div>
+              <div class="loc-chip">San Francisco</div>
+              <div class="close-x">×</div>
+            </div>
+          </div>
+
+          <div class="tabs">
+            <div class="tab active">All</div>
+            <div class="tab">Places</div>
+            <div class="tab">Events</div>
+            <div class="tab">Movies</div>
+            <div class="tab">Lists</div>
+          </div>
+
+          <div class="result">
+            <div class="result-img food"></div>
+            <div class="result-meta">
+              <div class="result-title">Bray's Kitchen</div>
+              <div class="rating-row">
+                <span class="rating">4.7</span>
+                <span class="tags">Brewery · $$</span>
+              </div>
+              <div class="result-desc">Craft beers, brunch, burgers</div>
+            </div>
+          </div>
+          <div class="result">
+            <div class="result-img sushi"></div>
+            <div class="result-meta">
+              <div class="result-title">Brek Fusion</div>
+              <div class="rating-row">
+                <span class="rating">4.1</span>
+                <span class="tags">Sushi · $$$</span>
+              </div>
+              <div class="result-desc">Maki, Japanese, Korean</div>
+            </div>
+          </div>
+          <div class="result">
+            <div class="result-img music"></div>
+            <div class="result-meta">
+              <div class="result-date">DEC 12 · 7:30PM</div>
+              <div class="result-title">Brockhampton at DNA</div>
+              <div class="result-desc">DNA Lounge</div>
+            </div>
+          </div>
+
+          <div class="tab-bar">
+            <div class="ticon ticon-home"></div>
+            <div class="ticon ticon-pin pin-active"></div>
+            <div class="ticon ticon-people"></div>
+            <div class="bell-wrap">
+              <div class="ticon ticon-bell"></div>
+              <span class="badge">2</span>
+            </div>
+            <div class="ticon ticon-menu"></div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="caption">
+    Project · Floating Phone
+    <strong>Facebook Local</strong>
+  </div>
+</div>
+
+<script>
+  // Cycle through the three Local states on a loop.
+  // Timing roughly matches the Y-rotation so each pose lands on a different beat.
+  const states = document.querySelectorAll('.state');
+  const order = ['a', 'b', 'c'];
+  const beats = { a: 3800, b: 3400, c: 3400 }; // ms per state
+  let idx = 0;
+
+  function show(name) {
+    states.forEach(s => {
+      if (s.dataset.state === name) {
+        // Restart by removing + reflowing + re-adding so animations replay.
+        s.classList.remove('active');
+        void s.offsetWidth;
+        s.classList.add('active');
+      } else {
+        s.classList.remove('active');
+      }
+    });
+  }
+
+  function next() {
+    idx = (idx + 1) % order.length;
+    const name = order[idx];
+    show(name);
+    setTimeout(next, beats[name]);
+  }
+
+  // Kick off after the initial A state's tap-pulse runs (~2.6s in)
+  show('a');
+  setTimeout(next, beats.a);
+</script>
+</body>
+</html>

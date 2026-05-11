@@ -196,29 +196,124 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   .section { padding: 72px 0; }
 }
 
-/* ===== Writing cards ===== */
-.writing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-@media (max-width: 720px) { .writing-grid { grid-template-columns: 1fr; } }
-
-.article-card {
-  display: block;
-  background: #FFFFFF; border: 1px solid var(--rule); border-radius: 8px;
-  overflow: hidden;
-  transition: border-color 200ms, transform 200ms;
-}
-.article-card:hover { border-color: var(--rule-strong); transform: translateY(-2px); }
-.article-card-image { aspect-ratio: 16 / 9; background: var(--paper-2); overflow: hidden; }
-.article-card-image img { width: 100%; height: 100%; object-fit: cover; }
-.article-card-body { padding: 22px 24px 26px; }
+/* ===== Shared meta type (used by Work section + writing list) ===== */
 .kicker-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
 .kicker { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); }
 .year { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--ink-3); }
-.article-card h3 {
-  font-family: var(--serif); font-weight: 400; font-size: 22px;
-  line-height: 1.2; letter-spacing: -0.015em; color: var(--ink); margin: 0 0 10px;
+.read {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-3);
 }
-.article-card-excerpt { font-size: 14px; color: var(--ink-3); line-height: 1.55; margin: 0 0 16px; }
-.article-card-link { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--ink); }
+
+/* ===== Writing — featured cards ===== */
+.writing-featured {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-bottom: 64px;
+}
+@media (max-width: 720px) { .writing-featured { grid-template-columns: 1fr; } }
+
+.writing-card {
+  display: flex; flex-direction: column;
+  background: #FFFFFF;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 200ms, transform 200ms;
+}
+.writing-card:hover { border-color: var(--rule-strong); transform: translateY(-2px); }
+.writing-card-image { aspect-ratio: 16 / 9; background: var(--paper-2); overflow: hidden; }
+.writing-card-image img { width: 100%; height: 100%; object-fit: cover; }
+.writing-card-body { padding: 24px 28px 28px; display: flex; flex-direction: column; gap: 10px; }
+.writing-card-meta {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 4px;
+}
+.writing-card-title {
+  font-family: var(--serif); font-weight: 400; font-size: 26px;
+  line-height: 1.18; letter-spacing: -0.015em; color: var(--ink);
+  margin: 0;
+}
+.writing-card-excerpt { font-size: 14.5px; line-height: 1.55; color: var(--ink-3); margin: 0; }
+.writing-latest {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--red);
+}
+
+/* Article-card CTA. Design system rule: mono CTA labels on article cards
+   are ALL CAPS. Mirrored in assets/article.css (.article-next-card .link). */
+.writing-card-link {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3); margin-top: 6px;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.writing-card-link .arrow {
+  display: inline-block;
+  transition: transform 220ms cubic-bezier(0.2,0.7,0.3,1);
+  transform-origin: 50% 60%;
+}
+.writing-card.is-local:hover .writing-card-link .arrow { transform: translateX(4px); }
+.writing-card.is-external:hover .writing-card-link .arrow {
+  animation: writing-arrow-wiggle 520ms ease-in-out;
+}
+
+/* ===== Writing — compact list ===== */
+.writing-list { display: flex; flex-direction: column; }
+.writing-row {
+  display: grid;
+  grid-template-columns: 88px 1fr 180px auto;
+  gap: 24px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--rule);
+  transition: transform 200ms;
+}
+.writing-row:hover { transform: translateX(10px); }
+.writing-row:last-child { border-bottom: 0; }
+.writing-row-thumb {
+  width: 88px; height: 62px;
+  background: var(--paper-2);
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.writing-row-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.writing-row-title {
+  font-family: var(--serif); font-weight: 400; font-size: 22px;
+  line-height: 1.25; letter-spacing: -0.01em; color: var(--ink);
+  margin: 0;
+}
+.writing-row-tag {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.writing-row-arrow {
+  font-family: var(--mono); font-size: 14px; color: var(--ink-3);
+  display: inline-block;
+  transition: color 200ms, transform 220ms cubic-bezier(0.2,0.7,0.3,1);
+  transform-origin: 50% 60%;
+}
+.writing-row:hover .writing-row-arrow { color: var(--ink); }
+.writing-row.is-local:hover .writing-row-arrow { transform: translateX(4px); }
+.writing-row.is-external:hover .writing-row-arrow {
+  animation: writing-arrow-wiggle 520ms ease-in-out;
+}
+
+@keyframes writing-arrow-wiggle {
+  0%   { transform: rotate(0deg) translate(0,0); }
+  25%  { transform: rotate(-14deg) translate(-1px, 1px); }
+  55%  { transform: rotate(12deg) translate(1px, -1px); }
+  80%  { transform: rotate(-6deg) translate(0,0); }
+  100% { transform: rotate(0deg) translate(0,0); }
+}
+
+@media (max-width: 720px) {
+  .writing-row { grid-template-columns: 72px 1fr auto; }
+  .writing-row-tag { display: none; }
+  .writing-row-thumb { width: 72px; height: 50px; }
+}
 
 /* ===== Work — Stage + Rail ===== */
 .work-stage { display: grid; grid-template-columns: 1.55fr 1fr; gap: 40px; margin-bottom: 32px; align-items: start; }
@@ -503,60 +598,64 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   <div class="wrap">
     <header class="section-head">
       <h2 class="section-title">Selected Writing<span class="dot">.</span></h2>
-      <p class="section-lede" hidden></p>
     </header>
 
-    <div class="writing-grid">
-      <a class="article-card" href="https://medium.com/facebook-design/six-questions-to-structure-great-projects-24a557cb11ab" target="_blank" rel="noopener">
-        <div class="article-card-image"><img src="assets/article_01.png" alt=""/></div>
-        <div class="article-card-body">
-          <div class="kicker-row">
+    <!-- Two-up featured cards: latest essay + one curated essay -->
+    <div class="writing-featured">
+      <a class="writing-card is-local" href="writing/stop-thinking-and-start-making.html">
+        <div class="writing-card-image"><img src="assets/article_05_monet.png" alt=""/></div>
+        <div class="writing-card-body">
+          <div class="writing-card-meta">
+            <span class="writing-latest">Latest essay</span>
+            <span class="read">4 MIN</span>
+          </div>
+          <h3 class="writing-card-title">Stop thinking and start making</h3>
+          <p class="writing-card-excerpt">Painting a bedroom mural 12 years ago has some weird parallels with how I approach Claude Code today. Hear me out.</p>
+          <span class="writing-card-link">
+            <span>Read essay</span>
+            <span class="arrow">→</span>
+          </span>
+        </div>
+      </a>
+
+      <a class="writing-card is-external" href="https://medium.com/facebook-design/six-questions-to-structure-great-projects-24a557cb11ab" target="_blank" rel="noopener">
+        <div class="writing-card-image"><img src="assets/article_01.png" alt=""/></div>
+        <div class="writing-card-body">
+          <div class="writing-card-meta">
             <span class="kicker">Essay · Facebook Design</span>
-            <span class="year">9 MIN</span>
+            <span class="read">9 MIN</span>
           </div>
-          <h3>Six Questions to Structure Great Projects</h3>
-          <p class="article-card-excerpt">A simple intake framework I keep coming back to, written for the Facebook Design team.</p>
-          <span class="article-card-link">Read on Medium ↗</span>
+          <h3 class="writing-card-title">Six Questions to Structure Great Projects</h3>
+          <p class="writing-card-excerpt">A simple intake framework I keep coming back to, written for the Facebook Design team.</p>
+          <span class="writing-card-link">
+            <span>Read on Facebook Design</span>
+            <span class="arrow">↗</span>
+          </span>
         </div>
       </a>
+    </div>
 
-      <a class="article-card" href="https://medium.com/facebook-design/two-lessons-for-using-feedback-318608d768c1" target="_blank" rel="noopener">
-        <div class="article-card-image"><img src="assets/article_04.jpg" alt=""/></div>
-        <div class="article-card-body">
-          <div class="kicker-row">
-            <span class="kicker">Essay · Facebook Design</span>
-            <span class="year">8 MIN</span>
-          </div>
-          <h3>Two Lessons For Using Feedback</h3>
-          <p class="article-card-excerpt">How to give and take feedback so it actually moves work forward.</p>
-          <span class="article-card-link">Read on Medium ↗</span>
-        </div>
+    <!-- Compact list of older essays -->
+    <div class="writing-list">
+      <a class="writing-row is-external" href="https://medium.com/facebook-design/two-lessons-for-using-feedback-318608d768c1" target="_blank" rel="noopener">
+        <div class="writing-row-thumb"><img src="assets/article_04.jpg" alt=""/></div>
+        <h4 class="writing-row-title">Two Lessons For Using Feedback</h4>
+        <span class="writing-row-tag">Facebook Design · 8 MIN</span>
+        <span class="writing-row-arrow">↗</span>
       </a>
 
-      <a class="article-card" href="https://medium.com/@jtroll/fueling-creativity-36cff6ffd35f" target="_blank" rel="noopener">
-        <div class="article-card-image"><img src="assets/article_03.jpg" alt=""/></div>
-        <div class="article-card-body">
-          <div class="kicker-row">
-            <span class="kicker">Essay · Medium</span>
-            <span class="year">13 MIN</span>
-          </div>
-          <h3>Fueling Creativity — Harley Earl & Reshaping Everything</h3>
-          <p class="article-card-excerpt">What an automotive design pioneer can still teach product teams.</p>
-          <span class="article-card-link">Read on Medium ↗</span>
-        </div>
+      <a class="writing-row is-external" href="https://medium.com/@jtroll/fueling-creativity-36cff6ffd35f" target="_blank" rel="noopener">
+        <div class="writing-row-thumb"><img src="assets/article_03.jpg" alt=""/></div>
+        <h4 class="writing-row-title">Fueling Creativity — Harley Earl &amp; Reshaping Everything</h4>
+        <span class="writing-row-tag">Medium · 13 MIN</span>
+        <span class="writing-row-arrow">↗</span>
       </a>
 
-      <a class="article-card" href="https://medium.com/@jtroll/ai-should-take-offense-d6fbf2b3e930" target="_blank" rel="noopener">
-        <div class="article-card-image"><img src="assets/article_02.png" alt=""/></div>
-        <div class="article-card-body">
-          <div class="kicker-row">
-            <span class="kicker">Essay · Medium</span>
-            <span class="year">5 MIN</span>
-          </div>
-          <h3>AI Should Take Offense (Or We Risk Losing Politeness)</h3>
-          <p class="article-card-excerpt">A note on what we lose when our assistants are too agreeable.</p>
-          <span class="article-card-link">Read on Medium ↗</span>
-        </div>
+      <a class="writing-row is-external" href="https://medium.com/@jtroll/ai-should-take-offense-d6fbf2b3e930" target="_blank" rel="noopener">
+        <div class="writing-row-thumb"><img src="assets/article_02.png" alt=""/></div>
+        <h4 class="writing-row-title">AI Should Take Offense (Or We Risk Losing Politeness)</h4>
+        <span class="writing-row-tag">Medium · 5 MIN</span>
+        <span class="writing-row-arrow">↗</span>
       </a>
     </div>
   </div>
