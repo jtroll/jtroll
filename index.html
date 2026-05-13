@@ -322,6 +322,9 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
 .stage-image {
   aspect-ratio: 3 / 2; overflow: hidden; border-radius: 8px;
   background: var(--paper-2); position: relative;
+  /* Faint inset hairline so the rounded corners stay visible on
+     work images whose background blends with the page paper color. */
+  box-shadow: inset 0 0 0 1px var(--rule);
 }
 .stage-image img {
   width: 100%; height: 100%; object-fit: cover;
