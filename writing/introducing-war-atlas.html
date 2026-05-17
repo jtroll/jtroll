@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Introducing War Atlas — J.T. Trollman</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="description" content="A 2009 conversation between friends, a decade of false starts, and a couple of months working nights and weekends with Claude. Introducing War Atlas — an interactive cartography of every named war in human history."/>
+
+<!-- Open Graph / Twitter -->
+<meta property="og:title" content="Introducing War Atlas"/>
+<meta property="og:description" content="A 2009 conversation between friends, a decade of false starts, and a couple of months working nights and weekends with Claude. Introducing War Atlas — an interactive cartography of every named war in human history."/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content="https://jtroll.com/writing/introducing-war-atlas.html"/>
+<meta property="og:image" content="https://jtroll.com/assets/waratlas_screenshot.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+
+<link rel="icon" href="../favicon.ico"/>
+<link rel="apple-touch-icon" href="../apple-touch-icon.png"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+<link rel="stylesheet" href="../assets/article.css"/>
+
+<!-- Umami analytics — privacy-respecting, cookieless. Mirrored from index.html. -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="f95f1251-9ac4-44df-8e37-a22d5716d189"></script>
+</head>
+<body>
+
+<!-- ============ BRAND BAR ============ -->
+<div class="wrap">
+  <div class="brandbar">
+    <a class="logo" href="../index.html" aria-label="Home">
+      <span class="logo-mark"><img src="../assets/logo_jtroll.png" alt=""/></span>
+      <span>J.T. Trollman</span>
+    </a>
+    <nav aria-label="Primary">
+      <ul>
+        <li><a href="../index.html#work">Work</a></li>
+        <li><a href="../index.html#writing">Writing</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#speaking">Speaking</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="brandbar-meta">SF BAY AREA · 2026</div>
+  </div>
+</div>
+
+<!-- ============ ARTICLE ============ -->
+<article class="article">
+  <div class="wrap">
+
+    <!-- Hero image -->
+    <figure class="article-hero">
+      <img src="../assets/waratlas_screenshot.png" alt="A wide screenshot of War Atlas in 229 BCE, spanning North Africa through India, with red conflict markers pinned to the Punic Wars (Rome vs Carthage), the Warring States Period in China, and the Maurya Empire Expansion across the Indian subcontinent."/>
+    </figure>
+
+    <header class="article-column">
+      <span class="article-kicker">Essay</span>
+      <h1 class="article-title">Introducing War Atlas<span class="dot">.</span></h1>
+      <div class="article-meta">
+        <time class="article-date" datetime="2026-05-15">May 15, 2026</time>
+        <button class="share-btn" type="button" data-share>
+          <span class="share-icon" aria-hidden="true">↗</span>
+          <span class="share-btn-label">Share</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="article-body article-column">
+      <p>You never know when inspiration will strike. In this case it struck in a conversation between friends in 2009.</p>
+
+      <p>I&rsquo;ve always been a bit of a cartography geek, and my thesis in college was about how visual and written communication together convey information more effectively. So when I started a tiny design studio in the late aughts and a friend kicked off a conversation about passion projects simply for the joy of making, I began merging those interests with my fascinations with history &mdash; and conflict.</p>
+
+      <p>I was raised idolizing my dad, who was born in 1942 and whose life was literally shaped by war. His father served in the Pacific Theater of World War II for much of his early life; his brother served the army too; his early career was designing nuclear reactors for naval submarines. Books in the guest bathroom detailed &ldquo;The History of Tanks&rdquo; and &ldquo;Air Combat of the 20th Century.&rdquo; I watched jingoist Looney Tunes episodes of &ldquo;gremlins from the Kremlin&rdquo; disassembling German bombers over breakfast cereal &mdash; stuff my dad watched when he was a kid, too.</p>
+
+      <p>But as I grew up, my view expanded. I saw the devastation of war. In college, I shot photos for our student newspaper of anti-war protests as America flew its troops to Afghanistan and Iraq. I had friends in war zones. I read Howard Zinn&rsquo;s clear-eyed history lessons showing, tale by tale, how power corrupts, driving despots to steamroll over populations in search of dominance. I saw how intertwined conflict was with the very fabric of our societies, and some of the darker sides of humanity.</p>
+
+      <p>War is devastating, and it drives the rise and fall of entire empires. So much of who we are has been forged by war over millennia, through dark ages, despots and death. I wanted you to see that play out over a map, and be able to scrub back and forth over a timeline to watch it happen before your eyes.</p>
+
+      <p>But in 2009, I couldn&rsquo;t figure out how to make it. I never quite had the right knowledge, tools or patience to wrangle the code, the geographic data, the research. So I sat on it. Until now.</p>
+
+      <p>Over the past couple of months, working nights and weekends with Claude Cowork, I made <a href="https://www.waratlas.org" target="_blank" rel="noopener">www.waratlas.org</a>.</p>
+
+      <p>I think of War Atlas less as a design exercise (though I did obsess over the design here and there) and more as the alpha version of a pet interest by a history buff and anthropology nerd who&hellip; finally got around to a project that&rsquo;s been rattling around in his head for a decade.</p>
+
+      <p>Under the hood, War Atlas pulls from a stack of public domain and openly licensed sources. Coastlines come from <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a>. Peer-reviewed era borders come from the <a href="https://github.com/aourednik/historical-basemaps" target="_blank" rel="noopener">historical-basemaps</a> project maintained by <a href="https://github.com/aourednik" target="_blank" rel="noopener">André Ourednik</a>. Lead summaries and citations come from Wikipedia. And where the open data ran thin, I traced polygons vertex by vertex from Cambridge atlases, Britannica historical maps, and <a href="https://www.worldhistorymaps.info/" target="_blank" rel="noopener">Talessman&rsquo;s Atlas of World History</a>. The current dataset covers 1,340 named conflicts, 372 empires with shifting borders, and roughly 700 historical city-name records that fade between names as you scrub the timeline (Byzantium becomes Constantinople becomes Istanbul, and so on). Along the way, Claude helped me wire it all up as a Next.js and React app, with Mapbox GL JS rendering the maps, TypeScript keeping things from falling over, Tailwind for styling, and Vercel hosting the whole thing&hellip; and honestly, though I know what those words mean, I couldn&rsquo;t tell you the first thing about how to do them. Claude just let me build.</p>
+
+      <p>Accuracy was (and still is in pockets) the hard part, and the place where working with an AI collaborator could go very sideways if you weren&rsquo;t paying close attention. About 40% of the empire borders are pinned to a canonical source and drawn as solid polygons. The rest are best-estimate approximations right now, and the map shows them as dashed outlines so you can see at a glance which is which. I built a validation pipeline that rejected any border match where the centroid drifted more than 15° from a known anchor, where the area was off by more than 5x, or where the source map&rsquo;s year fell outside the polity&rsquo;s actual lifespan. That alone caught some near-misses worth laughing about: the Qin Dynasty got matched to the Qing Empire (off by 2,000 years), Kyivan Rus got matched to Cyprus, Song Northern got matched to Songhai. Plenty of those would have shipped if I&rsquo;d trusted the first pass.</p>
+
+      <p>A lot of the actual work was pushing back on Claude when something felt off. Numbers that looked too clean, for example, or casualty figures presented as a single number when the historiography is a wide range. A polygon that suddenly extended across an ocean it had no business crossing. An &ldquo;obvious&rdquo; Wikipedia article that turned out to be a different polity with a similar name. I got into the habit of asking for the source on every factual claim, then re-verifying against a second source before letting it into the dataset. The <a href="https://www.waratlas.org/sources" target="_blank" rel="noopener">/sources</a> page in the app lists every dataset, every license, and the known caveats. The goal is for a reader to trust the things marked accurate, and to know exactly when they&rsquo;re looking at an approximation.</p>
+
+      <p>War Atlas is far from done. As pet projects go, you end up finding things to tweak on almost a daily basis. But I&rsquo;m excited to put it out into the world to see how it might help visualize a very real part of our past, peeling back some of the abstraction and showing the push and pull of conflict on societies over millennia. If you also geek out about historical data, cartography, or conflict studies, I&rsquo;d love your feedback on how to make it even more interesting.</p>
+    </div>
+
+    <!-- Back home -->
+    <div class="article-back">
+      <a class="back-home" href="../index.html" aria-label="Back to homepage">
+        <span class="back-arrow" aria-hidden="true">←</span>
+        <span>Back home</span>
+      </a>
+    </div>
+
+    <!-- ============ NEXT ARTICLE ============ -->
+    <footer class="article-column article-next">
+      <span class="article-next-label">Read next</span>
+      <a class="article-next-card is-local" href="stop-thinking-and-start-making.html">
+        <div class="article-next-card-image"><img src="../assets/article_05_monet.png" alt=""/></div>
+        <div class="article-next-card-body">
+          <div class="kicker-row">
+            <span class="kicker">Essay</span>
+            <span class="year">4 MIN</span>
+          </div>
+          <h3>Stop thinking and start making</h3>
+          <p class="excerpt">Painting a bedroom mural 12 years ago has some weird parallels with how I approach Claude Code today. Hear me out.</p>
+          <span class="link">
+            <span>Read essay</span>
+            <span class="arrow">→</span>
+          </span>
+        </div>
+      </a>
+    </footer>
+
+  </div>
+</article>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="wrap">
+    <span>© J.T. TROLLMAN · MMXXVI</span>
+    <span>HAND- AND CLAUDE-CODED IN THE SF BAY AREA</span>
+  </div>
+</footer>
+
+<script>
+  /* ===== Share button =====
+     Uses the native Web Share API when available (mobile, most modern
+     browsers), and falls back to copying the URL to the clipboard. */
+  (function() {
+    var btn = document.querySelector('[data-share]');
+    if (!btn) return;
+    var label = btn.querySelector('.share-btn-label');
+    var defaultLabel = label ? label.textContent : '';
+
+    btn.addEventListener('click', async function() {
+      var url = window.location.href;
+      var title = document.title;
+
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: title, url: url });
+          return;
+        } catch (e) { /* user cancelled or share failed — fall back to copy */ }
+      }
+
+      try {
+        await navigator.clipboard.writeText(url);
+        if (label) label.textContent = 'Link copied';
+        btn.classList.add('is-copied');
+        setTimeout(function() {
+          if (label) label.textContent = defaultLabel;
+          btn.classList.remove('is-copied');
+        }, 1800);
+      } catch (e) {
+        window.prompt('Copy this link:', url);
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>
