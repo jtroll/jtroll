@@ -332,7 +332,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
 }
 
 /* ===== Work — Stage + Rail ===== */
-.work-stage { display: grid; grid-template-columns: 1.55fr 1fr; gap: 40px; margin-bottom: 32px; align-items: start; }
+.work-stage { display: grid; grid-template-columns: 2.2fr 1fr; gap: 32px; margin-bottom: 48px; align-items: start; }
 @media (max-width: 960px) { .work-stage { grid-template-columns: 1fr; gap: 28px; } }
 
 .stage-image {
@@ -341,39 +341,85 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   /* Faint inset hairline so the rounded corners stay visible on
      work images whose background blends with the page paper color. */
   box-shadow: inset 0 0 0 1px var(--rule);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
 }
-.stage-image img {
+.stage-image .stage-layer {
+  position: absolute; inset: 0;
   width: 100%; height: 100%; object-fit: cover;
-  transition: opacity 280ms ease;
+  opacity: 0;
+  pointer-events: none;
 }
+.stage-image .stage-layer.is-current { opacity: 1; }
+/* Prime GPU layers only while the stage is being interacted with, so resting
+   pages don't hold full-frame composited bitmaps in VRAM. */
+.stage-image:hover .stage-layer { will-change: transform, opacity, filter; }
 .stage-counter {
   position: absolute; top: 14px; left: 14px;
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--paper);
   background: rgba(0,28,47,0.55);
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   padding: 4px 10px; border-radius: 999px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Hover-revealed nav overlays — one shows depending on cursor side */
+.stage-nav {
+  position: absolute; top: 50%;
+  width: 48px; height: 48px;
+  border: 0; padding: 0;
+  border-radius: 999px;
+  background: rgba(0,28,47,0.55);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  color: var(--paper);
+  font-family: var(--sans); font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 220ms ease,
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 200ms ease;
+}
+.stage-nav--prev { left: 16px; transform: translate(-12px, -50%) scale(0.9); }
+.stage-nav--next { right: 16px; transform: translate(12px, -50%) scale(0.9); }
+.stage-image[data-side="left"] .stage-nav--prev {
+  opacity: 1; transform: translate(0, -50%) scale(1);
+}
+.stage-image[data-side="right"] .stage-nav--next {
+  opacity: 1; transform: translate(0, -50%) scale(1);
+}
+.stage-image[data-side="left"]:active .stage-nav--prev,
+.stage-image[data-side="right"]:active .stage-nav--next {
+  background: var(--ink);
+  transform: translate(0, -50%) scale(0.94);
 }
 
 .stage-meta { display: flex; flex-direction: column; gap: 18px; padding-top: 0; }
 .stage-meta .kicker-row { margin-bottom: 0; }
 .stage-meta h3 {
-  font-family: var(--serif); font-weight: 400; font-size: clamp(28px, 3.4vw, 40px);
-  line-height: 1.05; letter-spacing: -0.02em; color: var(--ink); margin: 0;
+  font-family: var(--serif); font-weight: 400; font-size: clamp(26px, 2.8vw, 34px);
+  line-height: 1.08; letter-spacing: -0.02em; color: var(--ink); margin: 0;
+  transition: opacity 280ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .stage-body {
   font-size: 15px; line-height: 1.6; color: var(--ink-2); margin: 0;
+  transition: opacity 280ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 40ms;
+}
+.stage-meta.is-swapping h3,
+.stage-meta.is-swapping .stage-body {
+  opacity: 0;
+  transform: translateY(10px);
+  transition-duration: 220ms, 280ms;
+  transition-delay: 0ms;
 }
 
 .stage-left { display: flex; flex-direction: column; gap: 14px; }
-.stage-controls { display: flex; gap: 8px; }
-.stage-btn {
-  font-family: var(--sans); font-size: 13px; font-weight: 500;
-  background: transparent; border: 1px solid var(--rule-strong); border-radius: 999px;
-  padding: 8px 16px; color: var(--ink); transition: all 180ms;
-}
-.stage-btn:hover { border-color: var(--ink); }
-.stage-btn--primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.stage-btn--primary:hover { background: #0a2c45; }
 
 .thumb-rail {
   display: grid;
@@ -407,9 +453,26 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   aspect-ratio: 4 / 3; overflow: hidden; border-radius: 4px; background: var(--paper-2);
   outline: 1px solid var(--rule); outline-offset: 0;
   transition: outline 180ms ease, outline-offset 180ms ease;
+  position: relative;
 }
 .thumb-image img { width: 100%; height: 100%; object-fit: cover; }
 .thumb.is-active .thumb-image { outline: 2px solid var(--ink); outline-offset: 2px; }
+/* Ring pulse — emitted when a thumb becomes active. */
+.thumb-image::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 4px;
+  pointer-events: none;
+  box-shadow: 0 0 0 0 var(--red);
+  opacity: 0;
+}
+.thumb.is-just-active .thumb-image::after {
+  animation: thumb-ring 620ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes thumb-ring {
+  0%   { box-shadow: 0 0 0 0 var(--red); opacity: 0.7; }
+  100% { box-shadow: 0 0 0 12px var(--red); opacity: 0; }
+}
 .thumb-label {
   font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
   color: var(--ink-3); line-height: 1.3;
@@ -624,11 +687,27 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
 
     <!-- Two-up featured cards: latest essay + one curated essay -->
     <div class="writing-featured">
+      <a class="writing-card is-local" href="writing/introducing-war-atlas.html">
+        <div class="writing-card-image"><img src="assets/waratlas_screenshot.png" alt=""/></div>
+        <div class="writing-card-body">
+          <div class="writing-card-meta">
+            <span class="writing-latest">Latest essay</span>
+            <span class="read">6 MIN</span>
+          </div>
+          <h3 class="writing-card-title">Introducing War Atlas</h3>
+          <p class="writing-card-excerpt">A 2009 conversation between friends, a decade of false starts, and a couple of months working nights and weekends with Claude.</p>
+          <span class="writing-card-link">
+            <span>Read essay</span>
+            <span class="arrow">→</span>
+          </span>
+        </div>
+      </a>
+
       <a class="writing-card is-local" href="writing/stop-thinking-and-start-making.html">
         <div class="writing-card-image"><img src="assets/article_05_monet.png" alt=""/></div>
         <div class="writing-card-body">
           <div class="writing-card-meta">
-            <span class="writing-latest">Latest essay</span>
+            <span class="kicker">Essay</span>
             <span class="read">4 MIN</span>
           </div>
           <h3 class="writing-card-title">Stop thinking and start making</h3>
@@ -639,26 +718,17 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
           </span>
         </div>
       </a>
-
-      <a class="writing-card is-external" href="https://medium.com/facebook-design/six-questions-to-structure-great-projects-24a557cb11ab" target="_blank" rel="noopener">
-        <div class="writing-card-image"><img src="assets/article_01.png" alt=""/></div>
-        <div class="writing-card-body">
-          <div class="writing-card-meta">
-            <span class="kicker">Essay · Facebook Design</span>
-            <span class="read">9 MIN</span>
-          </div>
-          <h3 class="writing-card-title">Six Questions to Structure Great Projects</h3>
-          <p class="writing-card-excerpt">A simple intake framework I keep coming back to, written for the Facebook Design team.</p>
-          <span class="writing-card-link">
-            <span>Read on Facebook Design</span>
-            <span class="arrow">↗</span>
-          </span>
-        </div>
-      </a>
     </div>
 
     <!-- Compact list of older essays -->
     <div class="writing-list">
+      <a class="writing-row is-external" href="https://medium.com/facebook-design/six-questions-to-structure-great-projects-24a557cb11ab" target="_blank" rel="noopener">
+        <div class="writing-row-thumb"><img src="assets/article_01.png" alt=""/></div>
+        <h4 class="writing-row-title">Six Questions to Structure Great Projects</h4>
+        <span class="writing-row-tag">Facebook Design · 9 MIN</span>
+        <span class="writing-row-arrow">↗</span>
+      </a>
+
       <a class="writing-row is-external" href="https://medium.com/facebook-design/two-lessons-for-using-feedback-318608d768c1" target="_blank" rel="noopener">
         <div class="writing-row-thumb"><img src="assets/article_04.jpg" alt=""/></div>
         <h4 class="writing-row-title">Two Lessons For Using Feedback</h4>
@@ -693,16 +763,23 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
 
     <div class="work-stage">
       <div class="stage-left">
-        <div class="stage-image">
-          <img id="stage-img" src="assets/work_sofi.png" alt=""/>
-          <div class="stage-counter" id="stage-counter">01 / 08</div>
-        </div>
-        <div class="stage-controls">
-          <button class="stage-btn" id="stage-prev">← Prev</button>
-          <button class="stage-btn stage-btn--primary" id="stage-next">Next →</button>
+        <div class="stage-image" id="stage-image">
+          <img class="stage-layer is-current" id="stage-layer-a" src="assets/work_sofi.png" alt=""/>
+          <img class="stage-layer" id="stage-layer-b" alt=""/>
+          <div class="stage-counter" id="stage-counter">01 / 10</div>
+          <button class="stage-nav stage-nav--prev" id="stage-prev" type="button" aria-label="Previous project">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M9 2.5L4.5 7L9 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="stage-nav stage-nav--next" id="stage-next" type="button" aria-label="Next project">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M5 2.5L9.5 7L5 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
       </div>
-      <div class="stage-meta">
+      <div class="stage-meta" id="stage-meta">
         <div class="kicker-row">
           <span class="kicker" id="stage-role">Sr. Director of Design · SoFi</span>
           <span class="year" id="stage-year">2024 — NOW</span>
@@ -981,7 +1058,10 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
     ];
 
     var rail = document.getElementById('thumb-rail');
-    var stageImg = document.getElementById('stage-img');
+    var stageImage = document.getElementById('stage-image');
+    var layerA = document.getElementById('stage-layer-a');
+    var layerB = document.getElementById('stage-layer-b');
+    var stageMeta = document.getElementById('stage-meta');
     var stageRole = document.getElementById('stage-role');
     var stageYear = document.getElementById('stage-year');
     var stageTitle = document.getElementById('stage-title');
@@ -990,23 +1070,43 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
     var prevBtn = document.getElementById('stage-prev');
     var nextBtn = document.getElementById('stage-next');
     var active = 0;
+    var currentLayer = layerA;
+    var nextLayer = layerB;
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var IMG_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
-    function render() {
-      var p = projects[active];
-      stageImg.style.opacity = '0';
-      setTimeout(function() {
-        stageImg.src = p.img;
-        stageImg.style.opacity = '1';
-      }, 140);
+    // Warm the browser cache so subsequent decodes are instant.
+    function preload(src) {
+      var im = new Image();
+      im.src = src;
+      if (im.decode) im.decode().catch(function() {});
+    }
+    projects.forEach(function(p) { preload(p.img); });
+
+    function updateCounter() {
+      stageCounter.textContent = String(active + 1).padStart(2, '0') + ' / ' + String(projects.length).padStart(2, '0');
+    }
+
+    function setMetaText(p) {
       stageRole.textContent = p.role;
       stageYear.textContent = p.year;
       stageTitle.textContent = p.title;
       stageBody.textContent = p.body;
-      stageCounter.textContent = String(active + 1).padStart(2, '0') + ' / ' + String(projects.length).padStart(2, '0');
+    }
+
+    function pulseActiveThumb() {
       Array.from(rail.children).forEach(function(el, i) {
         el.classList.toggle('is-active', i === active);
+        el.classList.remove('is-just-active');
       });
-      // Bring active thumb into view in the horizontal rail (small viewports).
+      var activeEl = rail.children[active];
+      if (!activeEl) return;
+      // Force reflow so the keyframe animation re-triggers when re-adding the class.
+      void activeEl.offsetWidth;
+      activeEl.classList.add('is-just-active');
+    }
+
+    function scrollActiveIntoView() {
       if (rail.scrollWidth > rail.clientWidth) {
         var activeEl = rail.children[active];
         if (activeEl) {
@@ -1018,21 +1118,155 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
       }
     }
 
+    var swapToken = 0;
+    function swapImage(p) {
+      if (reduceMotion) {
+        nextLayer.src = p.img;
+        nextLayer.classList.add('is-current');
+        currentLayer.classList.remove('is-current');
+        var swap0 = currentLayer; currentLayer = nextLayer; nextLayer = swap0;
+        return;
+      }
+      var myToken = ++swapToken;
+
+      // Start the outgoing fade IMMEDIATELY so the swap feels snappy and
+      // text/image fade-outs stay in lockstep.
+      currentLayer.animate([
+        { transform: 'scale(1)',    opacity: 1, filter: 'blur(0)' },
+        { transform: 'scale(1.04)', opacity: 0, filter: 'blur(10px)' }
+      ], { duration: 520, easing: 'cubic-bezier(0.4, 0, 0.6, 1)', fill: 'forwards' });
+
+      // Load the incoming image. We must wait for THIS layer element's own
+      // decode to resolve before fading it in — until then, this <img>
+      // continues painting its previous src's pixels, which would flash as the
+      // prior project for a frame. Init-time preload makes this almost always a
+      // sub-frame wait; the 400ms timeout is just insurance.
+      nextLayer.src = p.img;
+      var decodePromise = nextLayer.decode
+        ? nextLayer.decode().catch(function() {})
+        : new Promise(function(resolve) {
+            if (nextLayer.complete) resolve();
+            else { nextLayer.onload = nextLayer.onerror = resolve; }
+          });
+
+      Promise.race([
+        decodePromise,
+        new Promise(function(r) { setTimeout(r, 400); })
+      ]).then(function() {
+        if (myToken !== swapToken) return; // superseded by a newer click
+
+        nextLayer.animate([
+          { transform: 'scale(1.06)', opacity: 0, filter: 'blur(12px)' },
+          { transform: 'scale(1)',    opacity: 1, filter: 'blur(0)' }
+        ], { duration: 720, easing: IMG_EASE, fill: 'both' });
+
+        nextLayer.classList.add('is-current');
+        currentLayer.classList.remove('is-current');
+
+        var swap = currentLayer; currentLayer = nextLayer; nextLayer = swap;
+      });
+    }
+
+    var textTimer = null;
+    function swapText(p) {
+      if (reduceMotion) { setMetaText(p); return; }
+      if (textTimer) clearTimeout(textTimer);
+      stageMeta.classList.add('is-swapping');
+      // After the fade-out completes, swap content while invisible, then
+      // remove the class on the next frame to fade the new text back in.
+      textTimer = setTimeout(function() {
+        setMetaText(p);
+        requestAnimationFrame(function() {
+          stageMeta.classList.remove('is-swapping');
+        });
+      }, 230);
+    }
+
+    function setProject(newIndex, direction) {
+      if (newIndex === active && direction !== 0) return;
+      var p = projects[newIndex];
+      active = newIndex;
+      updateCounter();
+      if (direction === 0) {
+        currentLayer.src = p.img;
+        currentLayer.classList.add('is-current');
+        setMetaText(p);
+      } else {
+        swapImage(p);
+        swapText(p);
+      }
+      pulseActiveThumb();
+      scrollActiveIntoView();
+    }
+
+    function next() { setProject((active + 1) % projects.length, 1); }
+    function prev() { setProject((active - 1 + projects.length) % projects.length, -1); }
+
+    // ----- Rail buttons -----
     projects.forEach(function(p, i) {
       var btn = document.createElement('button');
       btn.className = 'thumb';
       var label = p.short || p.title.split('—')[0].split('(')[0].trim();
       btn.innerHTML = '<div class="thumb-image"><img src="' + p.img + '" alt=""/></div>' +
                       '<span class="thumb-label">' + String(i + 1).padStart(2, '0') + ' · ' + label + '</span>';
-      btn.addEventListener('click', function() { active = i; render(); });
+      btn.addEventListener('click', function() {
+        if (i === active) return;
+        var direction = i > active ? 1 : -1;
+        setProject(i, direction);
+      });
       rail.appendChild(btn);
     });
     rail.scrollLeft = 0;
 
-    prevBtn.addEventListener('click', function() { active = (active - 1 + projects.length) % projects.length; render(); });
-    nextBtn.addEventListener('click', function() { active = (active + 1) % projects.length; render(); });
+    // ----- Stage hover + click navigation -----
+    // Cache the stage rect on enter so the high-frequency pointermove handler
+    // doesn't force a layout read every event, and only write data-side when
+    // the side actually changes (avoids needless style invalidations).
+    var stageRect = null;
+    var stageSide = null;
+    function updateSide(clientX) {
+      if (!stageRect) return;
+      var x = clientX - stageRect.left;
+      var side = x < stageRect.width / 2 ? 'left' : 'right';
+      if (side !== stageSide) {
+        stageSide = side;
+        stageImage.dataset.side = side;
+      }
+    }
+    stageImage.addEventListener('pointerenter', function(e) {
+      stageRect = stageImage.getBoundingClientRect();
+      updateSide(e.clientX);
+    });
+    stageImage.addEventListener('pointermove', function(e) {
+      updateSide(e.clientX);
+    });
+    stageImage.addEventListener('pointerleave', function() {
+      stageRect = null;
+      stageSide = null;
+      delete stageImage.dataset.side;
+    });
+    stageImage.addEventListener('click', function(e) {
+      // The nav buttons inside the stage have their own click handlers; this
+      // catches clicks on the image surface itself.
+      if (e.target.closest('.stage-nav')) return;
+      var r = stageImage.getBoundingClientRect();
+      var x = e.clientX - r.left;
+      if (x < r.width / 2) prev(); else next();
+    });
 
-    render();
+    prevBtn.addEventListener('click', function(e) { e.stopPropagation(); prev(); });
+    nextBtn.addEventListener('click', function(e) { e.stopPropagation(); next(); });
+
+    // ----- Keyboard support when section is on screen -----
+    document.addEventListener('keydown', function(e) {
+      var r = stageImage.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > window.innerHeight) return;
+      if (e.key === 'ArrowLeft')  { prev(); }
+      else if (e.key === 'ArrowRight') { next(); }
+    });
+
+    // Initial render — direction 0 skips the animation.
+    setProject(0, 0);
   })();
 
   /* ===== Avatar pose hot-swap on scroll ===== */
