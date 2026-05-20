@@ -21,12 +21,25 @@
 <meta name="twitter:image" content="https://www.jtroll.com/assets/og_image.png"/>
 
 <link rel="icon" href="/favicon.ico" sizes="any"/>
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" id="favicon" href="/favicon.svg" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+<script>
+(function(){
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  var link = document.getElementById('favicon');
+  function setIcon(){ link.href = mq.matches ? '/favicon-dark.svg' : '/favicon.svg'; }
+  setIcon();
+  mq.addEventListener('change', setIcon);
+})();
+</script>
 
 <link rel="preload" as="image" href="assets/jt_avatar_wave.webp"/>
 <link rel="preload" as="image" href="assets/jt_avatar_shrug.webp"/>
 <link rel="preload" as="image" href="assets/jt_avatar_pointdown.webp"/>
+<!-- Idle easter-egg poses: loaded eagerly so the swap is instant
+     when the cycle fires. Both are <90KB. -->
+<link rel="preload" as="image" href="assets/jt_avatar_lean.webp"/>
+<link rel="preload" as="image" href="assets/jt_avatar_whatshappening.webp"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -496,7 +509,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   opacity: 0;
 }
 .about__more-inner { overflow: hidden; min-height: 0; }
-.about__more-inner h4 {
+.about__more-inner h3 {
   font-family: var(--serif); font-style: italic; font-weight: 400;
   font-size: 24px; color: var(--ink); margin: 36px 0 16px; letter-spacing: -0.02em;
 }
@@ -654,107 +667,72 @@ body.is-loaded .hero-anim-item {
 
 /* ===== Per-word H1 reveal =====
    JS wraps each word in <span class="h1-word"><span>...</span></span>.
-   Inner span carries the transform so the outer span can keep
-   natural inline flow + word-wrap. */
+   Minimum-viable reveal: no movement, no blur — just a quiet,
+   sequential opacity fade. If even this is too much, delete this
+   whole block and remove the wrap call in the JS. */
 .h1-word {
   display: inline-block;
-  overflow: hidden;
   vertical-align: baseline;
-  padding-bottom: 0.05em; /* prevent descenders from clipping when blurred */
 }
 .h1-word > span {
   display: inline-block;
   opacity: 0;
-  transform: translateY(0.55em);
-  filter: blur(8px);
-  transition:
-    opacity 760ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 880ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 760ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 380ms ease-out;
   transition-delay: var(--word-delay, 0ms);
-  will-change: opacity, transform, filter;
 }
 body.is-loaded .h1-word > span {
   opacity: 1;
-  transform: none;
-  filter: blur(0);
+}
+
+/* ===== Avatar wipe-in =====
+   The circular frame fades in via .hero-anim-item on .avatar-block,
+   so the empty circle shows up on its own first. The character inside
+   is clipped to nothing at start (inset 100% from the top, so the
+   visible region collapses against the bottom edge), then a beat
+   later wipes upward — making him appear to rise into the frame.
+   A very subtle blur + fade rides along with the wipe so its leading
+   edge is soft rather than a hard cut.
+
+   Notes:
+   - This selector intentionally overrides the original
+     `.avatar-frame .avatar-pose` transition; the 220ms opacity
+     transition is restated so the pose-swap behavior is preserved.
+   - The fade uses the filter's opacity() function, NOT the CSS
+     `opacity` property — that keeps it from colliding with the
+     pose-swap mechanism, which owns CSS `opacity`. */
+.avatar-frame .avatar-pose {
+  clip-path: inset(100% 0 0 0);
+  filter: blur(4px) opacity(0);
+  transition:
+    opacity 220ms ease,
+    clip-path 470ms cubic-bezier(0.22, 1, 0.36, 1) 700ms,
+    filter 470ms cubic-bezier(0.22, 1, 0.36, 1) 700ms;
+}
+body.is-loaded .avatar-frame .avatar-pose {
+  clip-path: inset(0);
+  filter: blur(0) opacity(1);
 }
 
 /* ===== Red dot signature animations =====
-   One-time pulse on the hero H1 dot at first paint; quiet breathing
-   on each section-title dot while in view (toggled by IntersectionObserver). */
+   One-time pulse on the hero H1 dot at first paint. transform-origin
+   is dead-center so the pulse expands symmetrically around the period.
+   The dot is held back (opacity 0) until the H1 words next to it have
+   settled, then fades in and pulses. */
 @keyframes dot-pulse {
   0%   { transform: scale(1); }
-  35%  { transform: scale(1.55); }
+  40%  { transform: scale(1.2); }
   100% { transform: scale(1); }
+}
+.hero h1 .dot {
+  opacity: 0;
+  transition: opacity 320ms ease-out;
+  transition-delay: 620ms;
 }
 body.is-loaded .hero h1 .dot {
   display: inline-block;
-  transform-origin: 40% 75%;
-  animation: dot-pulse 1100ms cubic-bezier(0.22, 1, 0.36, 1) 900ms 1 both;
-}
-@keyframes dot-breathe {
-  0%, 100% { transform: scale(1);    opacity: 1; }
-  50%      { transform: scale(1.12); opacity: 0.92; }
-}
-.section-title .dot {
-  display: inline-block;
-  transform-origin: 40% 75%;
-}
-.section-title .dot.is-breathing {
-  animation: dot-breathe 4200ms ease-in-out infinite;
-}
-
-/* ===== Custom cursor inside the Work stage ===== */
-.stage-image { cursor: none; }
-.stage-image .stage-nav { cursor: pointer; }
-.stage-cursor {
-  position: absolute;
-  top: 0; left: 0;
-  width: 64px; height: 64px;
-  margin: -32px 0 0 -32px;
-  border-radius: 999px;
-  background: rgba(250, 248, 245, 0.92);
-  color: var(--ink);
-  font-family: var(--mono);
-  font-size: 9.5px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  display: flex; align-items: center; justify-content: center;
-  pointer-events: none;
-  opacity: 0;
-  transform: scale(0.72);
-  transition:
-    opacity 180ms ease,
-    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
-    background 200ms ease,
-    color 200ms ease;
-  box-shadow:
-    0 1px 2px rgba(0, 28, 47, 0.10),
-    0 12px 32px rgba(0, 28, 47, 0.16);
-  z-index: 4;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  user-select: none;
-}
-.stage-cursor .stage-cursor-arrow {
-  display: inline-block;
-  margin-right: 4px;
-  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-.stage-image[data-side] .stage-cursor { opacity: 1; transform: scale(1); }
-.stage-image[data-side="left"]  .stage-cursor .stage-cursor-arrow { transform: translateX(-1px) rotate(180deg); }
-.stage-image[data-side="right"] .stage-cursor .stage-cursor-arrow { transform: translateX(1px); }
-.stage-image:active .stage-cursor {
-  background: var(--ink);
-  color: var(--paper);
-  transform: scale(0.92);
-}
-/* On touch devices the side-snap arrows already handle navigation,
-   and a "follow" cursor makes no sense on a tap. */
-@media (hover: none) {
-  .stage-image { cursor: pointer; }
-  .stage-cursor { display: none; }
+  transform-origin: 50% 50%;
+  opacity: 1;
+  animation: dot-pulse 720ms cubic-bezier(0.22, 1, 0.36, 1) 980ms 1 both;
 }
 
 /* ===== Photos: parallax + clickable affordance ===== */
@@ -863,8 +841,8 @@ body.is-loaded .hero h1 .dot {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
   .hero-anim-item, .h1-word > span { opacity: 1 !important; transform: none !important; filter: none !important; }
-  .stage-image { cursor: pointer; }
-  .stage-cursor { display: none; }
+  .hero h1 .dot { opacity: 1 !important; }
+  .avatar-frame .avatar-pose { clip-path: none !important; filter: none !important; }
   .photo:not(.photo-cta) img { transform: none !important; }
 }
 </style>
@@ -921,6 +899,8 @@ body.is-loaded .hero h1 .dot {
           <img class="avatar-pose is-active" data-pose="wave" src="assets/jt_avatar_wave.webp" alt="J.T. Trollman avatar"/>
           <img class="avatar-pose" data-pose="shrug" src="assets/jt_avatar_shrug.webp" alt="" aria-hidden="true"/>
           <img class="avatar-pose" data-pose="pointdown" src="assets/jt_avatar_pointdown.webp" alt="" aria-hidden="true"/>
+          <img class="avatar-pose" data-pose="lean" src="assets/jt_avatar_lean.webp" alt="" aria-hidden="true"/>
+          <img class="avatar-pose" data-pose="whatshappening" src="assets/jt_avatar_whatshappening.webp" alt="" aria-hidden="true"/>
         </div>
       </div>
     </div>
@@ -1016,9 +996,6 @@ body.is-loaded .hero h1 .dot {
           <img class="stage-layer is-current" id="stage-layer-a" src="assets/work_sofi.png" alt=""/>
           <img class="stage-layer" id="stage-layer-b" alt=""/>
           <div class="stage-counter" id="stage-counter">01 / 10</div>
-          <div class="stage-cursor" id="stage-cursor" aria-hidden="true">
-            <span class="stage-cursor-arrow">→</span><span class="stage-cursor-label">Next</span>
-          </div>
           <button class="stage-nav stage-nav--prev" id="stage-prev" type="button" aria-label="Previous project">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <path d="M9 2.5L4.5 7L9 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1062,14 +1039,14 @@ body.is-loaded .hero h1 .dot {
 
       <div id="about-more" class="about__more" aria-hidden="true">
         <div class="about__more-inner">
-          <h4>The work, in more detail</h4>
+          <h3>The work, in more detail</h3>
           <p>I joined SoFi because it&rsquo;s a company uniquely positioned to create a powerful AI-in-product experience that creates groundbreaking access to the right information &amp; products to help you in your personal finance journey. In a world with increasing divides between the haves and have-nots, I&rsquo;ve found meaning in giving everyday people power at their fingertips previously only available to the wealthy.</p>
           <p>In 2023 I briefly served as head of product design for Cruise&rsquo;s ridehail consumer experiences, covering roughly 80% of their business. I joined with the goal of helping scale to 13 new cities in the next year, supporting three novel car platforms, all interior and exterior vehicle user experiences, and our full phone app experiences.</p>
           <p>My decade at Meta was my longest chapter. I concluded with 2.5 years as head of experience design for a line of new &ldquo;neural interfaces&rdquo; products in the AR division &mdash; work that affected around 2,000 cross-functional employees, with 5 teams I built directly. Together we pushed the boundaries of novel input technology and filed over 12 patents in unique user interfaces.</p>
           <p>Earlier at Meta I supported multiple &ldquo;0&ndash;1&rdquo; product teams within Facebook App&rsquo;s Community Incubator group, and was a product lead for Meta&rsquo;s company-wide design education initiatives. Before that I supported Facebook&rsquo;s Events products and Local app, helping people spend more time with close friends and family in the real world. Our standalone Facebook Local app (and sibling tab within the Facebook app) had greater retention and stickiness than Yelp in the US, just before the pandemic hit&hellip; and killed global local discovery intent for the next three years. Those were interesting times.</p>
           <p>For years prior I was design lead on the Community Integrity team, building some of the industry&rsquo;s first mature social content moderation and help products &mdash; everything from AI/ML chatbot technology to redesigning our reporting and help center tools. Going further back: I was one of two designers to create Facebook&rsquo;s first Android design &amp; navigation system in service of better emerging-market support, and worked on News Feed and expression products. (I was the first to ship rich comments like stickers. Remember those?)</p>
 
-          <h4>Outside the day job</h4>
+          <h3>Outside the day job</h3>
           <p>I&rsquo;ve spoken both domestically and internationally about a number of issues I care about. After the 2016 US election I became the founding designer for <a href="http://www.makeamericadinneragain.com/" target="_blank" rel="noopener">Make America Dinner Again</a>, a passion project to facilitate understanding across the political divide. We grew to over 12 chapters nationwide, and were covered everywhere from The New York Times to the BBC to The Blaze. Somehow both Oprah and Glenn Beck love us.</p>
           <p>Before all that I co-founded two startups in social media/creation and local discovery (B4UGO and Happiness Engines), piloted a small design consultancy, and tinkered on countless side projects. I&rsquo;ve also acted as an advisor and strategist for startups, and worked alongside great folks at IDEO for some years. I live in the Bay Area with my family, and outside of software tinkering I love woodworking, autocross, backpacking, and talking way more than is reasonable about automotive history and cartography.</p>
         </div>
@@ -1550,26 +1527,109 @@ body.is-loaded .hero h1 .dot {
     setProject(0, 0);
   })();
 
-  /* ===== Avatar pose hot-swap on scroll ===== */
+  /* ===== Avatar pose system =====
+     Two coordinated behaviors share one pose state:
+
+       1. Scroll-driven swap (the original behavior).
+          Pose 0 (wave) below T1, pose 1 (shrug) between T1–T2,
+          pose 2 (pointdown) above T2.
+
+       2. Idle easter-egg cycle (new).
+          If the viewer sits at the very top of the page (scrollY ≈ 0)
+          without any input for IDLE_MS, the avatar cycles through
+          a small story on STEP_MS beats:
+            lean → whatshappening → wave
+          After the cycle completes, the avatar settles back on wave
+          for PAUSE_MS before starting the cycle over. Any activity
+          (move, scroll, key, touch, click) snaps the avatar back to
+          whatever the scroll position calls for, and the idle timer
+          restarts.
+  */
   (function() {
     var poses = document.querySelectorAll('.avatar-pose');
     if (!poses.length) return;
-    var order = ['wave', 'shrug', 'pointdown'];
-    // Thresholds: scrollY values (in px) at which to switch.
-    // Pose 0 below T1, pose 1 between T1–T2, pose 2 above T2.
+
+    var scrollOrder = ['wave', 'shrug', 'pointdown'];
     var T1 = 60, T2 = 160;
-    var current = 0;
-    function update() {
-      var y = window.scrollY || window.pageYOffset || 0;
-      var next = y < T1 ? 0 : (y < T2 ? 1 : 2);
-      if (next === current) return;
-      current = next;
+
+    // Timing (ms). Easy to tune.
+    var IDLE_MS  = 12000;        // wait before the cycle kicks in for the first time
+    var STEP_MS  = 4000;         // each easter-egg pose dwells this long
+    var PAUSE_MS = 30000;        // after a full cycle, hold on `wave` this long
+    var idleSequence = ['lean', 'whatshappening', 'wave'];
+
+    var currentPose = null;
+    var idleTimer  = null;
+    var cycleTimer = null;
+    var idleActive = false;
+    var idleIndex  = 0;
+
+    function applyPose(name) {
+      if (name === currentPose) return;
+      currentPose = name;
       poses.forEach(function(el) {
-        el.classList.toggle('is-active', el.getAttribute('data-pose') === order[next]);
+        el.classList.toggle('is-active', el.getAttribute('data-pose') === name);
       });
     }
-    window.addEventListener('scroll', update, { passive: true });
-    update();
+
+    function scrollPose() {
+      var y = window.scrollY || window.pageYOffset || 0;
+      var idx = y < T1 ? 0 : (y < T2 ? 1 : 2);
+      return scrollOrder[idx];
+    }
+
+    function isAtTop() { return (window.scrollY || window.pageYOffset || 0) === 0; }
+
+    function advanceIdle() {
+      applyPose(idleSequence[idleIndex]);
+      idleIndex++;
+      // When we've just shown the last pose in the sequence, hold there
+      // for PAUSE_MS before starting the cycle over. Otherwise step to
+      // the next pose after STEP_MS.
+      var justFinishedCycle = idleIndex >= idleSequence.length;
+      if (justFinishedCycle) idleIndex = 0;
+      cycleTimer = setTimeout(advanceIdle, justFinishedCycle ? PAUSE_MS : STEP_MS);
+    }
+
+    function startIdle() {
+      if (!isAtTop()) return;
+      idleActive = true;
+      idleIndex  = 0;
+      advanceIdle();
+    }
+
+    function stopIdle() {
+      if (cycleTimer) { clearTimeout(cycleTimer); cycleTimer = null; }
+      idleActive = false;
+    }
+
+    function onActivity() {
+      if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+      if (idleActive) {
+        stopIdle();
+        // Snap back to whatever the scroll position calls for.
+        applyPose(scrollPose());
+      }
+      if (isAtTop()) {
+        idleTimer = setTimeout(startIdle, IDLE_MS);
+      }
+    }
+
+    function onScroll() {
+      // Scroll counts as activity — and it also drives the base pose.
+      onActivity();
+      if (!idleActive) applyPose(scrollPose());
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    ['mousemove', 'keydown', 'touchstart', 'click', 'pointerdown'].forEach(function(ev) {
+      window.addEventListener(ev, onActivity, { passive: true });
+    });
+
+    // Initial state: set the scroll-correct pose, and start the idle timer
+    // if we're loading at the top.
+    applyPose(scrollPose());
+    if (isAtTop()) idleTimer = setTimeout(startIdle, IDLE_MS);
   })();
 
   /* ===== Per-word H1 reveal =====
@@ -1582,7 +1642,7 @@ body.is-loaded .hero h1 .dot {
     if (!h1) return;
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    var step = 60;   // ms between words
+    var step = 22;   // ms between words
     var index = 0;
 
     function wrapTextNode(node) {
@@ -1640,58 +1700,6 @@ body.is-loaded .hero h1 .dot {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', go, { once: true });
     } else { go(); }
-  })();
-
-  /* ===== Section-title dot breathing =====
-     Toggle a class only when each section title is on screen, so the
-     animation doesn't run for every dot at once. */
-  (function() {
-    var dots = document.querySelectorAll('.section-title .dot');
-    if (!dots.length || !('IntersectionObserver' in window)) {
-      dots.forEach(function(d) { d.classList.add('is-breathing'); });
-      return;
-    }
-    var io = new IntersectionObserver(function(entries) {
-      entries.forEach(function(e) {
-        e.target.classList.toggle('is-breathing', e.isIntersecting);
-      });
-    }, { rootMargin: '-10% 0px -10% 0px' });
-    dots.forEach(function(d) { io.observe(d); });
-  })();
-
-  /* ===== Custom cursor inside the Work stage =====
-     Reuses the existing pointer tracking on .stage-image — we only
-     position our disc on pointermove, and label it based on which
-     half the cursor is in. */
-  (function() {
-    var stage = document.getElementById('stage-image');
-    var cursor = document.getElementById('stage-cursor');
-    if (!stage || !cursor) return;
-    if (window.matchMedia('(hover: none)').matches) return;
-
-    var label = cursor.querySelector('.stage-cursor-label');
-    var rect = null;
-
-    function place(e) {
-      if (!rect) rect = stage.getBoundingClientRect();
-      var x = e.clientX - rect.left;
-      var y = e.clientY - rect.top;
-      // Position via top/left so the CSS keeps ownership of `transform`
-      // (which encodes the [data-side] / :active scale state).
-      // The element's negative margin: -32px centers it on the cursor.
-      cursor.style.left = x + 'px';
-      cursor.style.top  = y + 'px';
-      if (label) label.textContent = x < rect.width / 2 ? 'Prev' : 'Next';
-    }
-    stage.addEventListener('pointerenter', function(e) {
-      rect = stage.getBoundingClientRect();
-      place(e);
-    });
-    stage.addEventListener('pointermove', place);
-    stage.addEventListener('pointerleave', function() { rect = null; });
-    // Invalidate the cached rect on layout-changing events.
-    window.addEventListener('resize', function() { rect = null; }, { passive: true });
-    window.addEventListener('scroll',  function() { rect = null; }, { passive: true });
   })();
 
   /* ===== Photos: subtle y-parallax =====
