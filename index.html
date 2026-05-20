@@ -43,7 +43,8 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'"/>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap"/></noscript>
 
 <style>
 :root {
@@ -614,7 +615,9 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
 /* ===== Contact ===== */
 .contact { text-align: left; }
 .contact p { font-size: 18px; color: var(--ink-2); line-height: 1.6; max-width: 560px; }
-.contact p a { color: var(--red); border-bottom: 1px solid currentColor; }
+/* --red-deep (not --red) so the link clears WCAG 4.5:1 on the
+   paper-2 background of the Contact section. */
+.contact p a { color: var(--red-deep); border-bottom: 1px solid currentColor; }
 .contact-socials { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 32px; }
 .social-link {
   font-family: var(--sans); font-size: 14px; font-weight: 500; color: var(--ink);
@@ -866,7 +869,7 @@ body.is-loaded .hero h1 .dot {
 <div class="wrap">
   <div class="brandbar">
     <a class="logo" href="#top" aria-label="Home">
-      <span class="logo-mark"><img src="assets/logo_jtroll.png" alt=""/></span>
+      <span class="logo-mark"><img src="assets/logo_jtroll.png" alt="" width="300" height="300"/></span>
       <span>J.T. Trollman</span>
     </a>
     <nav aria-label="Primary">
@@ -896,11 +899,11 @@ body.is-loaded .hero h1 .dot {
       </div>
       <div class="avatar-block hero-anim-item" style="--anim-delay: 280ms">
         <div class="avatar-frame">
-          <img class="avatar-pose is-active" data-pose="wave" src="assets/jt_avatar_wave.webp" alt="J.T. Trollman avatar"/>
-          <img class="avatar-pose" data-pose="shrug" src="assets/jt_avatar_shrug.webp" alt="" aria-hidden="true"/>
-          <img class="avatar-pose" data-pose="pointdown" src="assets/jt_avatar_pointdown.webp" alt="" aria-hidden="true"/>
-          <img class="avatar-pose" data-pose="lean" src="assets/jt_avatar_lean.webp" alt="" aria-hidden="true"/>
-          <img class="avatar-pose" data-pose="whatshappening" src="assets/jt_avatar_whatshappening.webp" alt="" aria-hidden="true"/>
+          <img class="avatar-pose is-active" data-pose="wave" src="assets/jt_avatar_wave.webp" alt="J.T. Trollman avatar" width="800" height="800"/>
+          <img class="avatar-pose" data-pose="shrug" src="assets/jt_avatar_shrug.webp" alt="" aria-hidden="true" width="800" height="800"/>
+          <img class="avatar-pose" data-pose="pointdown" src="assets/jt_avatar_pointdown.webp" alt="" aria-hidden="true" width="800" height="800"/>
+          <img class="avatar-pose" data-pose="lean" src="assets/jt_avatar_lean.webp" alt="" aria-hidden="true" width="800" height="800"/>
+          <img class="avatar-pose" data-pose="whatshappening" src="assets/jt_avatar_whatshappening.webp" alt="" aria-hidden="true" width="800" height="800"/>
         </div>
       </div>
     </div>
@@ -917,7 +920,7 @@ body.is-loaded .hero h1 .dot {
     <!-- Two-up featured cards: latest essay + one curated essay -->
     <div class="writing-featured">
       <a class="writing-card is-local" href="writing/introducing-war-atlas.html">
-        <div class="writing-card-image"><img src="assets/waratlas_screenshot.png" alt=""/></div>
+        <div class="writing-card-image"><img src="assets/waratlas_screenshot.png" alt="" width="2598" height="1489" loading="lazy"/></div>
         <div class="writing-card-body">
           <div class="writing-card-meta">
             <span class="writing-latest">Latest essay</span>
@@ -933,7 +936,7 @@ body.is-loaded .hero h1 .dot {
       </a>
 
       <a class="writing-card is-local" href="writing/stop-thinking-and-start-making.html">
-        <div class="writing-card-image"><img src="assets/article_05_monet.png" alt=""/></div>
+        <div class="writing-card-image"><img src="assets/article_05_monet.png" alt="" width="1672" height="941" loading="lazy"/></div>
         <div class="writing-card-body">
           <div class="writing-card-meta">
             <span class="kicker">Essay</span>
@@ -952,28 +955,28 @@ body.is-loaded .hero h1 .dot {
     <!-- Compact list of older essays -->
     <div class="writing-list">
       <a class="writing-row is-external" href="https://medium.com/facebook-design/six-questions-to-structure-great-projects-24a557cb11ab" target="_blank" rel="noopener">
-        <div class="writing-row-thumb"><img src="assets/article_01.png" alt=""/></div>
+        <div class="writing-row-thumb"><img src="assets/article_01.png" alt="" width="3600" height="1350" loading="lazy"/></div>
         <h4 class="writing-row-title">Six Questions to Structure Great Projects</h4>
         <span class="writing-row-tag">Facebook Design · 9 MIN</span>
         <span class="writing-row-arrow">↗</span>
       </a>
 
       <a class="writing-row is-external" href="https://medium.com/facebook-design/two-lessons-for-using-feedback-318608d768c1" target="_blank" rel="noopener">
-        <div class="writing-row-thumb"><img src="assets/article_04.jpg" alt=""/></div>
+        <div class="writing-row-thumb"><img src="assets/article_04.jpg" alt="" width="1024" height="678" loading="lazy"/></div>
         <h4 class="writing-row-title">Two Lessons For Using Feedback</h4>
         <span class="writing-row-tag">Facebook Design · 8 MIN</span>
         <span class="writing-row-arrow">↗</span>
       </a>
 
       <a class="writing-row is-external" href="https://medium.com/@jtroll/fueling-creativity-36cff6ffd35f" target="_blank" rel="noopener">
-        <div class="writing-row-thumb"><img src="assets/article_03.jpg" alt=""/></div>
+        <div class="writing-row-thumb"><img src="assets/article_03.jpg" alt="" width="1500" height="1071" loading="lazy"/></div>
         <h4 class="writing-row-title">Fueling Creativity — Harley Earl &amp; Reshaping Everything</h4>
         <span class="writing-row-tag">Medium · 13 MIN</span>
         <span class="writing-row-arrow">↗</span>
       </a>
 
       <a class="writing-row is-external" href="https://medium.com/@jtroll/ai-should-take-offense-d6fbf2b3e930" target="_blank" rel="noopener">
-        <div class="writing-row-thumb"><img src="assets/article_02.png" alt=""/></div>
+        <div class="writing-row-thumb"><img src="assets/article_02.png" alt="" width="3200" height="1200" loading="lazy"/></div>
         <h4 class="writing-row-title">AI Should Take Offense (Or We Risk Losing Politeness)</h4>
         <span class="writing-row-tag">Medium · 5 MIN</span>
         <span class="writing-row-arrow">↗</span>
@@ -993,8 +996,8 @@ body.is-loaded .hero h1 .dot {
     <div class="work-stage">
       <div class="stage-left">
         <div class="stage-image" id="stage-image">
-          <img class="stage-layer is-current" id="stage-layer-a" src="assets/work_sofi.png" alt=""/>
-          <img class="stage-layer" id="stage-layer-b" alt=""/>
+          <img class="stage-layer is-current" id="stage-layer-a" src="assets/work_sofi.webp" alt="" width="1162" height="776" loading="lazy"/>
+          <img class="stage-layer" id="stage-layer-b" alt="" width="1162" height="776"/>
           <div class="stage-counter" id="stage-counter">01 / 10</div>
           <button class="stage-nav stage-nav--prev" id="stage-prev" type="button" aria-label="Previous project">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -1074,7 +1077,7 @@ body.is-loaded .hero h1 .dot {
 
     <div class="speaking-list">
       <div class="talk-card">
-        <div class="talk-thumb talk-thumb--illustration"><img src="assets/stm_mentorshipchair.svg" alt=""/></div>
+        <div class="talk-thumb talk-thumb--illustration"><img src="assets/stm_mentorshipchair.svg" alt="" width="2048" height="2048" loading="lazy"/></div>
         <div class="talk-body">
           <div class="kicker-row"><span class="kicker">Mentorship</span><span class="year">Ongoing</span></div>
           <h3>External Mentorship</h3>
@@ -1082,7 +1085,7 @@ body.is-loaded .hero h1 .dot {
         </div>
       </div>
       <div class="talk-card">
-        <div class="talk-thumb talk-thumb--logo"><img src="assets/stm_sofi.png" alt=""/></div>
+        <div class="talk-thumb talk-thumb--logo"><img src="assets/stm_sofi.png" alt="" width="1112" height="537" loading="lazy"/></div>
         <div class="talk-body">
           <div class="kicker-row"><span class="kicker">Speaking</span><span class="year">2025</span></div>
           <h3>SF Design Week: Wrangling Navigation</h3>
@@ -1090,7 +1093,7 @@ body.is-loaded .hero h1 .dot {
         </div>
       </div>
       <div class="talk-card">
-        <div class="talk-thumb"><img src="assets/stm_dc.webp" alt=""/></div>
+        <div class="talk-thumb"><img src="assets/stm_dc.webp" alt="" width="480" height="360" loading="lazy"/></div>
         <div class="talk-body">
           <div class="kicker-row"><span class="kicker">Teaching</span><span class="year">2014&ndash;2023</span></div>
           <h3>Meta Design Camp</h3>
@@ -1098,7 +1101,7 @@ body.is-loaded .hero h1 .dot {
         </div>
       </div>
       <div class="talk-card">
-        <div class="talk-thumb talk-thumb--logo"><img src="assets/stm_meta.webp" alt=""/></div>
+        <div class="talk-thumb talk-thumb--logo"><img src="assets/stm_meta.webp" alt="" width="480" height="360" loading="lazy"/></div>
         <div class="talk-body">
           <div class="kicker-row"><span class="kicker">Mentorship</span><span class="year">2014&ndash;2023</span></div>
           <h3>Meta Design Mentorship</h3>
@@ -1106,7 +1109,7 @@ body.is-loaded .hero h1 .dot {
         </div>
       </div>
       <div class="talk-card">
-        <div class="talk-thumb"><img src="assets/stm_bb20.webp" alt=""/></div>
+        <div class="talk-thumb"><img src="assets/stm_bb20.webp" alt="" width="480" height="360" loading="lazy"/></div>
         <div class="talk-body">
           <div class="kicker-row"><span class="kicker">Speaking</span><span class="year">2020&ndash;2022</span></div>
           <h3>Bridge Builders: What We Don&rsquo;t Talk About When We Talk About Product Design</h3>
@@ -1114,7 +1117,7 @@ body.is-loaded .hero h1 .dot {
         </div>
       </div>
       <div class="talk-card">
-        <div class="talk-thumb"><img src="assets/stm_bb19.webp" alt=""/></div>
+        <div class="talk-thumb"><img src="assets/stm_bb19.webp" alt="" width="480" height="360" loading="lazy"/></div>
         <div class="talk-body">
           <div class="kicker-row"><span class="kicker">Speaking</span><span class="year">2019</span></div>
           <h3>Bridge Builders: Product Thinking</h3>
@@ -1122,7 +1125,7 @@ body.is-loaded .hero h1 .dot {
         </div>
       </div>
       <div class="talk-card">
-        <div class="talk-thumb"><img src="assets/stm_telaviv.png" alt=""/></div>
+        <div class="talk-thumb"><img src="assets/stm_telaviv.png" alt="" width="160" height="120" loading="lazy"/></div>
         <div class="talk-body">
           <div class="kicker-row"><span class="kicker">Speaking</span><span class="year">2016</span></div>
           <h3>Tel Aviv Talks: Designing For Moments of Struggle</h3>
@@ -1130,7 +1133,7 @@ body.is-loaded .hero h1 .dot {
         </div>
       </div>
       <div class="talk-card">
-        <div class="talk-thumb"><img src="assets/stm_hive.png" alt=""/></div>
+        <div class="talk-thumb"><img src="assets/stm_hive.png" alt="" width="160" height="120" loading="lazy"/></div>
         <div class="talk-body">
           <div class="kicker-row"><span class="kicker">Speaking</span><span class="year">2015</span></div>
           <h3>HIVE: Designing For Empathy</h3>
@@ -1151,25 +1154,25 @@ body.is-loaded .hero h1 .dot {
 
     <div class="photos-mosaic">
       <figure class="photo p-2x2" data-photo data-caption="Lost Coast, California">
-        <img src="assets/photo_01_lostcoast.jpg" alt="Lost Coast"/>
+        <img src="assets/photo_01_lostcoast.webp" alt="Lost Coast" width="1160" height="773" loading="lazy"/>
       </figure>
       <figure class="photo" data-photo data-caption="Santorini, Greece">
-        <img src="assets/photo_01_santorini.jpg" alt="Santorini"/>
+        <img src="assets/photo_01_santorini.webp" alt="Santorini" width="1160" height="772" loading="lazy"/>
       </figure>
       <figure class="photo p-1x2" data-photo data-caption="Naxos, Greece">
-        <img src="assets/photo_02_naxos.jpg" alt="Naxos"/>
+        <img src="assets/photo_02_naxos.webp" alt="Naxos" width="1160" height="772" loading="lazy"/>
       </figure>
       <figure class="photo" data-photo data-caption="Naoshima, Japan">
-        <img src="assets/photo_06_naoshima.jpg" alt="Naoshima"/>
+        <img src="assets/photo_06_naoshima.webp" alt="Naoshima" width="1160" height="772" loading="lazy"/>
       </figure>
       <figure class="photo" data-photo data-caption="Athens, Greece">
-        <img src="assets/photo_03_athens.jpg" alt="Athens"/>
+        <img src="assets/photo_03_athens.webp" alt="Athens" width="1160" height="772" loading="lazy"/>
       </figure>
       <figure class="photo" data-photo data-caption="Monemvasia, Greece">
-        <img src="assets/photo_04_monemvasia.jpg" alt="Monemvasia"/>
+        <img src="assets/photo_04_monemvasia.webp" alt="Monemvasia" width="1160" height="772" loading="lazy"/>
       </figure>
       <figure class="photo" data-photo data-caption="Yosemite, California">
-        <img src="assets/photo_05_yosemite.jpg" alt="Yosemite"/>
+        <img src="assets/photo_05_yosemite.webp" alt="Yosemite" width="1160" height="772" loading="lazy"/>
       </figure>
       <figure class="photo photo-cta">
         <a class="photo-cta-link" href="https://www.instagram.com/jtroll/" target="_blank" rel="noopener">
@@ -1300,16 +1303,16 @@ body.is-loaded .hero h1 .dot {
   /* ===== Work: Stage + Rail ===== */
   (function() {
     var projects = [
-      { img: 'assets/work_sofi.png', year: '2024 — NOW', role: 'Sr. Director of Design', title: 'SoFi, Member Group Business Unit', short: 'SoFi', body: "Leading product & content design across SoFi's horizontal group business unit spanning AI-in-product, navigation, premium features, growth and personal finance management." },
-      { img: 'assets/work_cruise.png', year: '2023', role: 'Head of Ridehail Design', title: 'Cruise', short: 'Cruise', body: "Head of product design for the ridehail consumer experience of Cruise, one of the foremost autonomous vehicle companies at the time. Responsible for 80% of the company's business, from in-car to app experiences. Spanned three vehicle platforms, a 13-city scaling plan, our apps and IVI." },
-      { img: 'assets/work_rl.png', year: '2021–23', role: 'Head of XD', title: 'Neural interfaces (AR)', short: 'AR', body: "Head of Experiences Design for new neural interfaces product lines — and 5 new teams around them — within Meta's Augmented Reality division, creating the next great input mechanic and consumer devices. 12+ patents in novel inputs." },
-      { img: 'assets/work_campus.png', year: '2020–21', role: 'Founding Design Manager', title: 'Facebook Campus', short: 'Campus', body: "Supported a comprehensive new community product for college students within Facebook's Community Incubator. Launched its North American beta summer 2020 with 30 US universities, ramping to many more and exceeding our launch metric goals." },
-      { img: 'assets/work_neighborhoods.png', year: '2020', role: 'Founding Design Manager', title: 'Facebook Neighborhoods', short: '\u2018Hoods', body: "Founding design manager for another new community product, for local neighborhoods. Launched its North American beta fall 2020, and in the process build several novel features comprising a more comprehensive tool set for all Facebook group admins." },
-      { img: 'assets/work_events.png', year: '2017–19', role: 'Design Manager', title: 'Events & Local', short: 'Local', body: "For 3 years I supported the Facebook Local product ecosystem and the Facebook Local app. Oversaw an increase to 700M consumers & 120K creators per month as the world's largest events and \"things to do\" platform. I oversaw 12+ major new feature & service launches, including an all-new social map & data later still used company-wide. Before the pandemic Facebook Local eclipsed Yelp in the US for stickiness and MAU." },
-      { img: 'assets/work_communityintegrity.png', year: '2014–17', role: 'Design Lead', title: 'Community Integrity', short: 'Integrity', body: "Design lead across all Facebook Consumer Support tools, including reporting and the global Help Center. Established industry-leading best practices for the time that scaled across 120 languages and created all-new ML-powered content recognition, response, and chatbot help products." },
-      { img: 'assets/work_coreexperiences.png', year: '2013–14', role: 'Designer', title: 'Core Experiences', short: 'Core', body: "Designed core systems for Facebook — News Feed, rich engagement features, emerging-market support. Co-designed the first comprehensive component-based design library for the Facebook app on Android, and shipped the first rich comments (stickers)." },
-      { img: 'assets/work_mada.png', year: '2016–2021', role: 'Founding Designer', title: 'Make America Dinner Again', short: 'MADA', body: "Founding designer for this national volunteer organization, fostering better communication across the aisle leveraging over 12 national chapters in 20 cities. Coverage in NYT, the BBC, Glenn Beck, Oprah, CNN, NPR, and other national & international media." },
-      { img: 'assets/work_08_prefacebook.png', year: 'Pre-2013', role: 'IDEO + startups', title: 'Pre-Meta', short: 'Older', body: "Co-founded two start-ups in local discovery and social creation tools, ran a small design consultancy, and had a career in design agency life before that through places like IDEO." }
+      { img: 'assets/work_sofi.webp', year:'2024 — NOW', role: 'Sr. Director of Design', title: 'SoFi, Member Group Business Unit', short: 'SoFi', body: "Leading product & content design across SoFi's horizontal group business unit spanning AI-in-product, navigation, premium features, growth and personal finance management." },
+      { img: 'assets/work_cruise.webp', year:'2023', role: 'Head of Ridehail Design', title: 'Cruise', short: 'Cruise', body: "Head of product design for the ridehail consumer experience of Cruise, one of the foremost autonomous vehicle companies at the time. Responsible for 80% of the company's business, from in-car to app experiences. Spanned three vehicle platforms, a 13-city scaling plan, our apps and IVI." },
+      { img: 'assets/work_rl.webp', year:'2021–23', role: 'Head of XD', title: 'Neural interfaces (AR)', short: 'AR', body: "Head of Experiences Design for new neural interfaces product lines — and 5 new teams around them — within Meta's Augmented Reality division, creating the next great input mechanic and consumer devices. 12+ patents in novel inputs." },
+      { img: 'assets/work_campus.webp', year:'2020–21', role: 'Founding Design Manager', title: 'Facebook Campus', short: 'Campus', body: "Supported a comprehensive new community product for college students within Facebook's Community Incubator. Launched its North American beta summer 2020 with 30 US universities, ramping to many more and exceeding our launch metric goals." },
+      { img: 'assets/work_neighborhoods.webp', year:'2020', role: 'Founding Design Manager', title: 'Facebook Neighborhoods', short: '\u2018Hoods', body: "Founding design manager for another new community product, for local neighborhoods. Launched its North American beta fall 2020, and in the process build several novel features comprising a more comprehensive tool set for all Facebook group admins." },
+      { img: 'assets/work_events.webp', year:'2017–19', role: 'Design Manager', title: 'Events & Local', short: 'Local', body: "For 3 years I supported the Facebook Local product ecosystem and the Facebook Local app. Oversaw an increase to 700M consumers & 120K creators per month as the world's largest events and \"things to do\" platform. I oversaw 12+ major new feature & service launches, including an all-new social map & data later still used company-wide. Before the pandemic Facebook Local eclipsed Yelp in the US for stickiness and MAU." },
+      { img: 'assets/work_communityintegrity.webp', year:'2014–17', role: 'Design Lead', title: 'Community Integrity', short: 'Integrity', body: "Design lead across all Facebook Consumer Support tools, including reporting and the global Help Center. Established industry-leading best practices for the time that scaled across 120 languages and created all-new ML-powered content recognition, response, and chatbot help products." },
+      { img: 'assets/work_coreexperiences.webp', year:'2013–14', role: 'Designer', title: 'Core Experiences', short: 'Core', body: "Designed core systems for Facebook — News Feed, rich engagement features, emerging-market support. Co-designed the first comprehensive component-based design library for the Facebook app on Android, and shipped the first rich comments (stickers)." },
+      { img: 'assets/work_mada.webp', year:'2016–2021', role: 'Founding Designer', title: 'Make America Dinner Again', short: 'MADA', body: "Founding designer for this national volunteer organization, fostering better communication across the aisle leveraging over 12 national chapters in 20 cities. Coverage in NYT, the BBC, Glenn Beck, Oprah, CNN, NPR, and other national & international media." },
+      { img: 'assets/work_08_prefacebook.webp', year:'Pre-2013', role: 'IDEO + startups', title: 'Pre-Meta', short: 'Older', body: "Co-founded two start-ups in local discovery and social creation tools, ran a small design consultancy, and had a career in design agency life before that through places like IDEO." }
     ];
 
     var rail = document.getElementById('thumb-rail');
@@ -1462,7 +1465,7 @@ body.is-loaded .hero h1 .dot {
       var btn = document.createElement('button');
       btn.className = 'thumb';
       var label = p.short || p.title.split('—')[0].split('(')[0].trim();
-      btn.innerHTML = '<div class="thumb-image"><img src="' + p.img + '" alt=""/></div>' +
+      btn.innerHTML = '<div class="thumb-image"><img src="' + p.img + '" alt="" width="1160" height="772" loading="lazy"/></div>' +
                       '<span class="thumb-label">' + String(i + 1).padStart(2, '0') + ' · ' + label + '</span>';
       btn.addEventListener('click', function() {
         if (i === active) return;

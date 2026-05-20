@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>404 · Took a wrong turn — J.T. Trollman</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="description" content="This page isn't here. Let's get you back somewhere useful."/>
+<meta name="robots" content="noindex"/>
+
+<link rel="icon" href="/favicon.ico" sizes="any"/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'"/>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap"/></noscript>
+
+<style>
+:root {
+  --ink: #001C2F;
+  --ink-2: #2B3A47;
+  --ink-3: #5C6B77;
+  --red: #D1293D;
+  --red-deep: #A92626;
+  --paper: #FAF8F5;
+  --paper-2: #F2EEE8;
+  --rule: rgba(0, 28, 47, 0.08);
+  --rule-strong: rgba(0, 28, 47, 0.16);
+  --sans: 'Archivo', system-ui, sans-serif;
+  --serif: 'Source Serif 4', Georgia, serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--paper);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; }
+ul { margin: 0; padding: 0; list-style: none; }
+h1, h2 { margin: 0; font-weight: 400; }
+
+::selection { background: rgba(209, 41, 61, 0.22); color: var(--ink); }
+::-moz-selection { background: rgba(209, 41, 61, 0.22); color: var(--ink); }
+html { scrollbar-width: thin; scrollbar-color: rgba(0, 28, 47, 0.22) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0, 28, 47, 0.18); border: 2px solid var(--paper); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 28, 47, 0.34); }
+
+/* ===== Brand bar (mirrors home page) ===== */
+.wrap { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 56px; }
+@media (max-width: 720px) { .wrap { padding: 0 24px; } }
+.brandbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 28px 0;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--sans); font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
+}
+.logo-mark { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.logo-mark img { width: 100%; height: 100%; object-fit: contain; }
+.brandbar-meta {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-3); letter-spacing: 0.08em;
+}
+
+/* ===== Stage ===== */
+.lost {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 80px;
+  align-items: center;
+  padding: 80px 0 120px;
+}
+@media (max-width: 960px) { .lost { grid-template-columns: 1fr; gap: 48px; padding: 56px 0 88px; } }
+
+/* The big 404. Type-set, not iconic — feels like a magazine drop-cap.
+   This element also serves as the page's <h1>, so the default browser
+   h1 margins/weight need to be explicitly reset. */
+.code {
+  font-family: var(--serif); font-weight: 400; font-style: italic;
+  font-size: clamp(120px, 22vw, 240px);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  margin: 0 0 32px;
+  display: flex; align-items: baseline; gap: 0;
+}
+.code .digit { display: inline-block; }
+.code .zero {
+  color: var(--red);
+  position: relative;
+}
+/* A tiny offset so the zero feels like a missing puzzle piece, not just colored. */
+.code .zero { transform: translateY(0.02em); }
+
+.lede {
+  font-size: 17px; line-height: 1.6; color: var(--ink-2);
+  max-width: 46ch; margin: 0 0 32px;
+}
+
+/* The "address" — a mono pseudo-terminal line.
+   Quietly reassures: yes, we know the URL is broken. */
+.addr {
+  display: inline-flex; align-items: center; gap: 12px;
+  font-family: var(--mono); font-size: 12px; color: var(--ink-3);
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 0 0 36px;
+  max-width: 100%; overflow: hidden;
+}
+.addr .addr-prompt { color: var(--red); }
+.addr .addr-path { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.addr .addr-cursor {
+  display: inline-block; width: 7px; height: 14px;
+  background: var(--ink);
+  vertical-align: middle;
+  animation: addr-blink 1.05s steps(1) infinite;
+}
+@keyframes addr-blink { 50% { opacity: 0; } }
+
+.cta-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.btn {
+  font-family: var(--sans); font-weight: 600; font-size: 15px;
+  padding: 14px 22px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: all 180ms ease;
+  border: 1px solid transparent;
+}
+.btn-primary { background: var(--ink); color: var(--paper); }
+.btn-primary:hover { background: #0a2c45; transform: translateY(-1px); }
+.btn-ghost { color: var(--ink); padding: 14px 16px; }
+.btn-ghost:hover { color: var(--red); }
+
+/* Avatar side */
+.dizzy {
+  display: flex; justify-content: center;
+}
+.dizzy-frame {
+  background: var(--paper-2);
+  border-radius: 50%;
+  width: 100%; max-width: 380px; aspect-ratio: 1 / 1;
+  display: flex; align-items: flex-end; justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+/* A slow, gentle sway — the avatar is dizzy, so it tilts and drifts. */
+@keyframes dizzy-sway {
+  0%, 100% { transform: translateX(calc(-50% - 4px)) rotate(-1.2deg); }
+  50%      { transform: translateX(calc(-50% + 4px)) rotate( 1.2deg); }
+}
+.dizzy-frame img {
+  position: absolute; left: 50%; bottom: 0;
+  width: 92%; object-fit: contain; object-position: bottom;
+  transform: translateX(-50%);
+  transform-origin: 50% 90%;
+  animation: dizzy-sway 5200ms ease-in-out infinite;
+}
+@media (max-width: 960px) { .dizzy-frame { max-width: 280px; } }
+@media (max-width: 540px) { .dizzy { display: none; } }
+
+/* ===== Useful links ===== */
+.elsewhere {
+  margin-top: 16px;
+  padding-top: 22px;
+  border-top: 1px solid var(--rule);
+  max-width: 520px;
+}
+.elsewhere-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--ink-3);
+  margin-bottom: 14px; display: block;
+}
+.elsewhere-list { display: flex; flex-direction: column; }
+.elsewhere-list a {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink); font-family: var(--serif); font-size: 19px; letter-spacing: -0.01em;
+  transition: transform 200ms, color 200ms;
+}
+.elsewhere-list a:last-child { border-bottom: 0; }
+.elsewhere-list a:hover { transform: translateX(6px); color: var(--red); }
+.elsewhere-list a .tag {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+
+/* ===== Footer ===== */
+.footer {
+  border-top: 1px solid var(--rule); padding: 36px 0;
+  font-family: var(--mono); font-size: 11px; color: var(--ink-3); letter-spacing: 0.06em;
+}
+.footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+@media (max-width: 720px) { .footer .wrap { flex-direction: column; gap: 16px; text-align: center; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  .dizzy-frame img { transform: translateX(-50%); }
+  .addr .addr-cursor { animation: none; }
+}
+</style>
+
+<!-- Umami analytics — privacy-respecting, cookieless. Mirrored from index.html. -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="f95f1251-9ac4-44df-8e37-a22d5716d189"></script>
+</head>
+<body>
+
+<!-- ============ BRAND BAR ============ -->
+<div class="wrap">
+  <div class="brandbar">
+    <a class="logo" href="/" aria-label="Home">
+      <span class="logo-mark"><img src="/assets/logo_jtroll.png" alt="" width="300" height="300"/></span>
+      <span>J.T. Trollman</span>
+    </a>
+    <div class="brandbar-meta">SF BAY AREA · 2026</div>
+  </div>
+</div>
+
+<!-- ============ STAGE ============ -->
+<main class="wrap">
+  <section class="lost">
+    <div>
+      <h1 class="code" aria-label="Four oh four">
+        <span class="digit">4</span><span class="digit zero">0</span><span class="digit">4</span>
+      </h1>
+
+      <p class="lede">The URL you followed doesn&rsquo;t exist (or doesn&rsquo;t anymore). It happens. Let&rsquo;s get you somewhere useful.</p>
+
+      <div class="addr" aria-hidden="true">
+        <span class="addr-prompt">~ /</span>
+        <span class="addr-path" id="addr-path">jtroll.com</span>
+        <span class="addr-cursor"></span>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/">Back home <span aria-hidden="true">→</span></a>
+        <a class="btn btn-ghost" href="/#writing">Read some writing</a>
+      </div>
+
+      <div class="elsewhere">
+        <span class="elsewhere-label">Or try one of these</span>
+        <ul class="elsewhere-list">
+          <li><a href="/#work"><span>Recent work</span><span class="tag">Portfolio</span></a></li>
+          <li><a href="/#writing"><span>Essays &amp; talks</span><span class="tag">Writing</span></a></li>
+          <li><a href="/#about"><span>About me</span><span class="tag">Bio</span></a></li>
+          <li><a href="/#contact"><span>Get in touch</span><span class="tag">Contact</span></a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="dizzy">
+      <div class="dizzy-frame">
+        <img src="/assets/jt_avatar_dizzy.webp" alt="J.T. Trollman looking dizzy." width="800" height="800"/>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="wrap">
+    <span>© J.T. TROLLMAN · MMXXVI</span>
+    <span>HAND- AND CLAUDE-CODED IN THE SF BAY AREA</span>
+  </div>
+</footer>
+
+<script>
+  /* Show the actual path the visitor tried — so we acknowledge the mistake
+     rather than waving it away. Clipped to a sensible length. */
+  (function() {
+    var el = document.getElementById('addr-path');
+    if (!el) return;
+    var p = (window.location.pathname || '/') + (window.location.search || '');
+    if (p.length > 56) p = p.slice(0, 53) + '…';
+    el.textContent = 'jtroll.com' + p;
+  })();
+
+  /* ===== Console easter egg — mirrors index.html ===== */
+  (function() {
+    if (window.__jt_greeted) return; window.__jt_greeted = true;
+    var ink = '#001C2F', red = '#D1293D', mute = '#5C6B77';
+    try {
+      console.log('%c 404.%c But hi.', 'color:' + red + ';font-weight:700;', 'color:' + ink + ';');
+      console.log('%c Wrong door, right neighborhood. Try the homepage, or say hello at jt@jtroll.com.', 'color:' + mute + ';font-style:italic;');
+    } catch (e) {}
+  })();
+</script>
+
+</body>
+</html>

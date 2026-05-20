@@ -6,20 +6,31 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="description" content="A 2009 conversation between friends, a decade of false starts, and a couple of months working nights and weekends with Claude. Introducing War Atlas — an interactive cartography of every named war in human history."/>
 
-<!-- Open Graph / Twitter -->
+<!-- Open Graph / Twitter — per-article so shared URLs get their own hero,
+     not the site default. -->
 <meta property="og:title" content="Introducing War Atlas"/>
 <meta property="og:description" content="A 2009 conversation between friends, a decade of false starts, and a couple of months working nights and weekends with Claude. Introducing War Atlas — an interactive cartography of every named war in human history."/>
 <meta property="og:type" content="article"/>
 <meta property="og:url" content="https://jtroll.com/writing/introducing-war-atlas.html"/>
 <meta property="og:image" content="https://jtroll.com/assets/waratlas_screenshot.png"/>
+<meta property="og:image:width" content="1600"/>
+<meta property="og:image:height" content="900"/>
+<meta property="og:image:alt" content="A wide screenshot of War Atlas in 229 BCE, spanning North Africa through India, with red conflict markers pinned to the Punic Wars, the Warring States Period, and the Maurya Empire."/>
+<meta property="article:author" content="J.T. Trollman"/>
+<meta property="article:published_time" content="2026-05-15"/>
 <meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Introducing War Atlas"/>
+<meta name="twitter:description" content="A 2009 conversation between friends, a decade of false starts, and a couple of months working nights and weekends with Claude."/>
+<meta name="twitter:image" content="https://jtroll.com/assets/waratlas_screenshot.png"/>
+<meta name="twitter:image:alt" content="A wide screenshot of War Atlas in 229 BCE."/>
 
 <link rel="icon" href="../favicon.ico"/>
 <link rel="apple-touch-icon" href="../apple-touch-icon.png"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'"/>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap"/></noscript>
 
 <link rel="stylesheet" href="../assets/article.css"/>
 
@@ -28,11 +39,14 @@
 </head>
 <body>
 
+<!-- ============ READING PROGRESS BAR ============ -->
+<div class="reading-progress" aria-hidden="true"><div class="reading-progress__bar" id="reading-progress-bar"></div></div>
+
 <!-- ============ BRAND BAR ============ -->
 <div class="wrap">
   <div class="brandbar">
     <a class="logo" href="../index.html" aria-label="Home">
-      <span class="logo-mark"><img src="../assets/logo_jtroll.png" alt=""/></span>
+      <span class="logo-mark"><img src="../assets/logo_jtroll.png" alt="" width="300" height="300"/></span>
       <span>J.T. Trollman</span>
     </a>
     <nav aria-label="Primary">
@@ -54,7 +68,7 @@
 
     <!-- Hero image -->
     <figure class="article-hero">
-      <img src="../assets/waratlas_screenshot.png" alt="A wide screenshot of War Atlas in 229 BCE, spanning North Africa through India, with red conflict markers pinned to the Punic Wars (Rome vs Carthage), the Warring States Period in China, and the Maurya Empire Expansion across the Indian subcontinent."/>
+      <img src="../assets/waratlas_screenshot.png" alt="A wide screenshot of War Atlas in 229 BCE, spanning North Africa through India, with red conflict markers pinned to the Punic Wars (Rome vs Carthage), the Warring States Period in China, and the Maurya Empire Expansion across the Indian subcontinent." width="2598" height="1489"/>
     </figure>
 
     <header class="article-column">
@@ -107,7 +121,7 @@
     <footer class="article-column article-next">
       <span class="article-next-label">Read next</span>
       <a class="article-next-card is-local" href="stop-thinking-and-start-making.html">
-        <div class="article-next-card-image"><img src="../assets/article_05_monet.png" alt=""/></div>
+        <div class="article-next-card-image"><img src="../assets/article_05_monet.png" alt="" width="1672" height="941" loading="lazy"/></div>
         <div class="article-next-card-body">
           <div class="kicker-row">
             <span class="kicker">Essay</span>
@@ -167,6 +181,40 @@
         window.prompt('Copy this link:', url);
       }
     });
+  })();
+
+  /* ===== Reading progress bar =====
+     Tracks scroll progress through the article body. We measure
+     against the <article> element so the bar reaches 100% as you
+     finish the body, not the bottom of the footer. */
+  (function() {
+    var bar = document.getElementById('reading-progress-bar');
+    var article = document.querySelector('article.article');
+    if (!bar || !article) return;
+    var raf = null;
+    function update() {
+      raf = null;
+      var rect = article.getBoundingClientRect();
+      var total = rect.height - window.innerHeight;
+      // How much of the article have we scrolled past?
+      var scrolled = -rect.top;
+      var pct = total > 0 ? Math.max(0, Math.min(1, scrolled / total)) : 0;
+      bar.style.width = (pct * 100).toFixed(2) + '%';
+    }
+    function schedule() { if (raf == null) raf = requestAnimationFrame(update); }
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    update();
+  })();
+
+  /* ===== Console easter egg — mirrors index.html ===== */
+  (function() {
+    if (window.__jt_greeted) return; window.__jt_greeted = true;
+    var paper = '#FAF8F5', ink = '#001C2F', red = '#D1293D', mute = '#5C6B77';
+    try {
+      console.log('%c Hi.%c If you\'re peeking under the hood — welcome.', 'color:' + red + ';font-weight:700;', 'color:' + ink + ';');
+      console.log('%c Hand- and Claude-coded in the SF Bay Area. Say hello at jt@jtroll.com.', 'color:' + mute + ';font-style:italic;');
+    } catch (e) {}
   })();
 </script>
 
