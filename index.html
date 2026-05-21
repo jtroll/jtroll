@@ -686,6 +686,13 @@ body.is-loaded .hero-anim-item {
 body.is-loaded .h1-word > span {
   opacity: 1;
 }
+/* Keeps the final word and the red period on the same line. Each word
+   the splitter produces is an inline-block, and a line break is allowed
+   between any two adjacent inline-blocks — so without this the period
+   can drop to its own line at narrow (phone) widths. */
+.h1-end {
+  white-space: nowrap;
+}
 
 /* ===== Avatar wipe-in =====
    The circular frame fades in via .hero-anim-item on .avatar-block,
@@ -890,7 +897,7 @@ body.is-loaded .hero h1 .dot {
   <div class="wrap">
     <div class="hero-grid">
       <div>
-        <h1 class="hero-anim-item" id="hero-h1" style="--anim-delay: 0ms">Practically speaking, I try to solve <em>meaningful problems</em> for people<span class="dot">.</span></h1>
+        <h1 class="hero-anim-item" id="hero-h1" style="--anim-delay: 0ms">Practically speaking, I try to solve <em>meaningful problems</em> for <span class="h1-end">people<span class="dot">.</span></span></h1>
         <p class="hero-lede hero-anim-item" style="--anim-delay: 480ms">Decades of building useful 0&ndash;1 products and productive teams within global initiatives, scrappy startups and everything in between.</p>
         <div class="cta-row hero-anim-item" style="--anim-delay: 600ms">
           <a class="btn btn-primary" href="#work">See recent work <span aria-hidden="true">→</span></a>
