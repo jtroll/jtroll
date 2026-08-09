@@ -152,15 +152,14 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
 }
 
 /* ===== Card text ===== */
+/* Captions never fade during the morph — they ride their card, like the
+   reference. The kicker's width follows the animating card so the year
+   glides with the card's edge; the title's width is snapped (inline, no
+   transition) to the card's TARGET width the instant a move starts, so any
+   rewrap happens once, invisibly, as everything begins sliding. */
 .card-text {
   margin-top: 18px;
-  transition: opacity 180ms ease 30ms;
-}
-/* While the widths are morphing (or a finger is scrubbing), every caption
-   fades out so text never visibly rewraps; it fades back in at the new width. */
-.carousel.is-moving .card-text {
-  opacity: 0;
-  transition: opacity 90ms ease;
+  transition: opacity 180ms ease;
 }
 /* Mobile slivers stay image-only, like the reference; captions belong to
    the open card. Desktop keeps kicker + title on the collapsed neighbor. */
@@ -173,7 +172,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
 }
 .card-role {
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
-  text-transform: uppercase; color: var(--ink-3);
+  text-transform: uppercase; color: var(--ink-3); white-space: nowrap;
 }
 .card-year { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--ink-3); white-space: nowrap; }
 .card-title {
@@ -185,16 +184,12 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
 .card-body {
   font-size: 14px; line-height: 1.6; color: var(--ink-2); max-width: 62ch;
   opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 140ms ease, transform 180ms var(--ease);
+  transition: opacity 100ms ease;
 }
-/* The description belongs to the open card only; collapsed cards keep
-   just their kicker + title, like the reference. */
-.slide.is-open .card-body {
-  opacity: 1;
-  transform: none;
-  transition: opacity 220ms ease 60ms, transform 280ms var(--ease) 60ms;
-}
+/* The description belongs to the open card only. It vanishes instantly when
+   a move starts and snaps in the moment the card lands — no slow fades. */
+.slide.is-open .card-body { opacity: 1; }
+.carousel.is-moving .card-body { opacity: 0; transition: opacity 60ms ease; }
 
 /* ===== Entrance cascade ===== */
 .anim-item {
@@ -208,8 +203,8 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
 /* ===== Reduced motion ===== */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
-  .card-text, .card-body { opacity: 1 !important; transform: none !important; }
-  .carousel.is-moving .card-text { opacity: 1 !important; }
+  .card-text { opacity: 1 !important; }
+  .slide.is-open .card-body { opacity: 1 !important; }
   .anim-item { opacity: 1 !important; transform: none !important; }
 }
 </style>
@@ -292,6 +287,7 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
   }).join('');
 
   var slides = Array.prototype.slice.call(track.children);
+  var titles = slides.map(function(s) { return s.querySelector('.card-title'); });
   var N = slides.length;
   var index = 0;
 
@@ -336,7 +332,10 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
      the content below. The viewport's overflow:hidden clips the layout-only
      (invisible) description text of collapsed cards. */
   function lockHeight() {
-    for (var i = 0; i < N; i++) slides[i].style.width = m.exp + 'px';
+    for (var i = 0; i < N; i++) {
+      slides[i].style.width = m.exp + 'px';
+      titles[i].style.width = m.exp + 'px';
+    }
     var h = 0;
     for (var i = 0; i < N; i++) h = Math.max(h, slides[i].offsetHeight);
     viewport.style.height = (h + 16) + 'px'; // + track's vertical padding
@@ -363,6 +362,9 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
   function render() {
     for (var i = 0; i < N; i++) {
       slides[i].style.width = widthFor(i) + 'px';
+      // Title wrap width snaps straight to the target (no transition), so the
+      // one possible rewrap happens the instant motion starts, not during it.
+      titles[i].style.width = widthFor(i) + 'px';
       slides[i].classList.toggle('is-open', i === index);
     }
     track.style.transform = 'translate3d(' + offsetFor(index) + 'px, 0, 0)';
