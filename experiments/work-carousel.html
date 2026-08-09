@@ -329,10 +329,12 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
       var gutter = Math.max(56, (vw - 1280) / 2 + 56);
       var inner = vw - gutter * 2;
       m.gap = 24;
-      m.exp = Math.round(inner * 0.56);         // main card
-      m.col = Math.round(inner * 0.27);         // full second card + sliver of third
+      m.exp = Math.round(inner * 0.63);         // main card: one primary + one secondary in view
+      m.col = Math.round(inner * 0.31);         // the secondary; third card is a bare hint
       m.pad = Math.round(gutter);               // open card sits on the grid's left edge
-      m.mediaH = Math.min(470, Math.round(m.exp * 0.58));
+      // Native 3:2 frame, so the open card shows the full picture uncropped;
+      // collapsed cards are center crops of that same rendering.
+      m.mediaH = Math.round(m.exp / 1.5);
     }
     m.step = m.col + m.gap;                     // how far the track shifts per index
     carousel.style.setProperty('--gap', m.gap + 'px');
