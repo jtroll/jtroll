@@ -141,6 +141,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   transition: opacity 420ms ease;
   -webkit-user-drag: none;
   user-select: none;
+  will-change: transform;
 }
 .slide.is-active .card-media { transform: scale(1); }
 .slide.is-active .card-media img { opacity: 1; }
@@ -207,7 +208,7 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
   .card-kicker, .card-title, .card-body { opacity: 1 !important; transform: none !important; }
   .card-media { transform: none !important; }
-  .card-media img { opacity: 1 !important; }
+  .card-media img { opacity: 1 !important; transform: none !important; }
   .anim-item { opacity: 1 !important; transform: none !important; }
   .track { scroll-behavior: auto; }
 }
@@ -291,6 +292,14 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
   }).join('');
 
   var slides = Array.prototype.slice.call(track.children);
+  var imgs = slides.map(function(s) { return s.querySelector('img'); });
+
+  // Scroll-driven image motion: content pans inside its frame slower than the
+  // card travels (window-parallax) and relaxes from a slight zoom as the card
+  // centers. Zoom overscan (16%/2 = 8% per side) always exceeds max pan (7%),
+  // so panning never exposes the frame edge.
+  var PAN = 7;      // max horizontal shift, % of card width
+  var ZOOM = 0.16;  // extra scale at full off-center
 
   // Warm the cache for the first offscreen cards so the initial swipe is instant.
   [1, 2].forEach(function(i) {
@@ -333,12 +342,23 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
     ticking = false;
     var viewL = track.scrollLeft;
     var viewR = viewL + track.clientWidth;
+    var viewC = viewL + track.clientWidth / 2;
+    var reduce = reduceMotion.matches;
 
     for (var i = 0; i < slides.length; i++) {
       var s = slides[i];
       var overlap = Math.min(s.offsetLeft + s.offsetWidth, viewR) - Math.max(s.offsetLeft, viewL);
       var frac = overlap / s.offsetWidth;
       s.classList.toggle('is-active', frac >= 0.6);
+
+      if (reduce) {
+        imgs[i].style.transform = '';
+      } else {
+        var t = (s.offsetLeft + s.offsetWidth / 2 - viewC) / track.clientWidth;
+        t = Math.max(-1, Math.min(1, t));
+        imgs[i].style.transform =
+          'translateX(' + (-PAN * t).toFixed(3) + '%) scale(' + (1 + ZOOM * Math.abs(t)).toFixed(4) + ')';
+      }
     }
 
     var n = nearestIndex();
