@@ -113,8 +113,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   will-change: transform;
 }
 .carousel.no-anim .track,
-.carousel.no-anim .slide,
-.carousel.no-anim .progress-fill { transition: none; }
+.carousel.no-anim .slide { transition: none; }
 
 .slide {
   flex: 0 0 auto;
@@ -139,9 +138,12 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   max-width: none;
   height: 100%;
   object-fit: cover;
+  opacity: 0.9;
+  transition: opacity 320ms ease;
   -webkit-user-drag: none;
   user-select: none;
 }
+.slide.is-open .card-media img { opacity: 1; }
 .card-media::after {
   /* hairline inset, kept off the img so it never clips the reveal */
   content: ""; position: absolute; inset: 0;
@@ -152,13 +154,13 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
 /* ===== Card text ===== */
 .card-text {
   margin-top: 18px;
-  transition: opacity 340ms ease 200ms;
+  transition: opacity 180ms ease 30ms;
 }
 /* While the widths are morphing (or a finger is scrubbing), every caption
    fades out so text never visibly rewraps; it fades back in at the new width. */
 .carousel.is-moving .card-text {
   opacity: 0;
-  transition: opacity 130ms ease;
+  transition: opacity 90ms ease;
 }
 /* Mobile slivers stay image-only, like the reference; captions belong to
    the open card. Desktop keeps kicker + title on the collapsed neighbor. */
@@ -183,28 +185,15 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
 .card-body {
   font-size: 14px; line-height: 1.6; color: var(--ink-2); max-width: 62ch;
   opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 200ms ease, transform 240ms var(--ease);
+  transform: translateY(8px);
+  transition: opacity 140ms ease, transform 180ms var(--ease);
 }
 /* The description belongs to the open card only; collapsed cards keep
    just their kicker + title, like the reference. */
 .slide.is-open .card-body {
   opacity: 1;
   transform: none;
-  transition: opacity 460ms ease 260ms, transform 600ms var(--ease) 260ms;
-}
-
-/* ===== Progress ===== */
-.progress {
-  height: 2px; background: var(--rule);
-  margin-top: 32px;
-  border-radius: 999px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%; background: var(--red);
-  transform-origin: left; transform: scaleX(0.04);
-  transition: transform var(--morph) var(--ease);
+  transition: opacity 220ms ease 60ms, transform 280ms var(--ease) 60ms;
 }
 
 /* ===== Entrance cascade ===== */
@@ -256,9 +245,6 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
         <!-- slides injected by JS -->
       </ul>
     </div>
-    <div class="wrap">
-      <div class="progress"><div class="progress-fill" id="progress"></div></div>
-    </div>
   </div>
 </section>
 
@@ -281,7 +267,6 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
   var viewport = document.getElementById('viewport');
   var track = document.getElementById('track');
   var counter = document.getElementById('counter');
-  var progressFill = document.getElementById('progress');
   var prevBtn = document.getElementById('prev');
   var nextBtn = document.getElementById('next');
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -346,6 +331,17 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
 
   function offsetFor(i) { return m.pad - i * m.step; }
 
+  /* The unit's height is fixed to the tallest card measured at the EXPANDED
+     width, so paginating between long and short descriptions never shifts
+     the content below. The viewport's overflow:hidden clips the layout-only
+     (invisible) description text of collapsed cards. */
+  function lockHeight() {
+    for (var i = 0; i < N; i++) slides[i].style.width = m.exp + 'px';
+    var h = 0;
+    for (var i = 0; i < N; i++) h = Math.max(h, slides[i].offsetHeight);
+    viewport.style.height = (h + 16) + 'px'; // + track's vertical padding
+  }
+
   function widthFor(i) { return i === index ? m.exp : m.col; }
 
   /* ----- Settle / moving state ------------------------------------------- */
@@ -371,7 +367,6 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
     }
     track.style.transform = 'translate3d(' + offsetFor(index) + 'px, 0, 0)';
     counter.textContent = String(index + 1).padStart(2, '0') + ' / ' + String(N).padStart(2, '0');
-    progressFill.style.transform = 'scaleX(' + Math.max(0.04, index / (N - 1)) + ')';
     prevBtn.disabled = index === 0;
     nextBtn.disabled = index === N - 1;
   }
@@ -513,6 +508,7 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
       resizeRaf = null;
       measure();
       carousel.classList.add('no-anim');
+      lockHeight();
       render();
       void track.offsetWidth;
       carousel.classList.remove('no-anim');
@@ -521,9 +517,21 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
 
   measure();
   carousel.classList.add('no-anim');
+  lockHeight();
   render();
   void track.offsetWidth;
   carousel.classList.remove('no-anim');
+
+  // Text metrics shift once the webfonts arrive; re-lock the height then.
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function() {
+      carousel.classList.add('no-anim');
+      lockHeight();
+      render();
+      void track.offsetWidth;
+      carousel.classList.remove('no-anim');
+    });
+  }
 
   // Warm neighbors so the first morph reveals decoded pixels.
   [1, 2].forEach(function(i) {
