@@ -329,8 +329,8 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
       var gutter = Math.max(56, (vw - 1280) / 2 + 56);
       var inner = vw - gutter * 2;
       m.gap = 24;
-      m.exp = Math.round(inner * 0.63);         // main card: one primary + one secondary in view
-      m.col = Math.round(inner * 0.31);         // the secondary; third card is a bare hint
+      m.exp = Math.round(inner * 0.70);         // main card: one dominant primary
+      m.col = Math.round(inner * 0.30);         // the secondary; third card barely peeks
       m.pad = Math.round(gutter);               // open card sits on the grid's left edge
       // Native 3:2 frame, so the open card shows the full picture uncropped;
       // collapsed cards are center crops of that same rendering.
