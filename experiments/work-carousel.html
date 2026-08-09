@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Work Carousel — Experiment</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'"/>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap"/></noscript>
+
+<style>
+:root {
+  --ink: #001C2F;
+  --ink-2: #2B3A47;
+  --ink-3: #5C6B77;
+  --muted: #687B88;
+  --red: #D1293D;
+  --red-deep: #A92626;
+  --paper: #FAF8F5;
+  --paper-2: #F2EEE8;
+  --rule: rgba(0, 28, 47, 0.08);
+  --rule-strong: rgba(0, 28, 47, 0.16);
+  --sans: 'Archivo', system-ui, sans-serif;
+  --serif: 'Source Serif 4', Georgia, serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --gutter: 24px;
+  --slide-w: 78vw;
+  --slide-gap: 16px;
+}
+@media (min-width: 721px) {
+  :root {
+    --gutter: max(56px, calc((100vw - 1280px) / 2 + 56px));
+    --slide-w: clamp(340px, 36vw, 500px);
+    --slide-gap: 24px;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--paper-2);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; }
+ul { margin: 0; padding: 0; list-style: none; }
+p { margin: 0; }
+h1, h2, h3, h4 { margin: 0; font-weight: 700; }
+
+.wrap { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 56px; }
+@media (max-width: 720px) { .wrap { padding: 0 24px; } }
+
+/* ===== Page head ===== */
+.page-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-top: 28px; padding-bottom: 28px;
+}
+.back { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--ink-3); }
+.back:hover { color: var(--red); }
+.page-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--ink-3); text-transform: uppercase; }
+
+/* ===== Section head ===== */
+.work { padding: 48px 0 96px; }
+@media (max-width: 860px) { .work { padding: 32px 0 72px; } }
+
+.section-head {
+  display: flex; justify-content: space-between; align-items: flex-end; gap: 16px;
+  border-top: 1px solid var(--ink); padding-top: 24px;
+  margin-bottom: 40px;
+}
+.section-title {
+  font-family: var(--serif); font-weight: 400; font-style: italic;
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1.0; letter-spacing: -0.025em; color: var(--ink);
+}
+.section-title .dot { color: var(--red); font-style: normal; }
+
+.head-controls { display: flex; align-items: center; gap: 14px; }
+.counter {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.nav-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--rule-strong); background: transparent; color: var(--ink);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background 200ms ease, color 200ms ease, opacity 200ms ease, border-color 200ms ease;
+}
+.nav-btn:hover:not(:disabled) { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.nav-btn:disabled { opacity: 0.3; cursor: default; }
+@media (max-width: 720px) { .nav-btn { display: none; } }
+
+/* ===== Track + snap ===== */
+.track {
+  display: flex;
+  gap: var(--slide-gap);
+  overflow-x: auto;
+  padding: 8px var(--gutter);
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  cursor: grab;
+}
+.track::-webkit-scrollbar { display: none; }
+.track.is-dragging { scroll-snap-type: none; cursor: grabbing; user-select: none; }
+.track:focus-visible { outline: 2px solid var(--red); outline-offset: -2px; border-radius: 4px; }
+
+.slide {
+  flex: 0 0 var(--slide-w);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+@media (min-width: 721px) { .slide { scroll-snap-stop: normal; } }
+/* Trailing space so the last card can reach the reading position. */
+.slide:last-child { margin-right: max(0px, calc(100vw - var(--slide-w) - 2 * var(--gutter))); }
+
+.card { margin: 0; }
+.card-media {
+  aspect-ratio: 3 / 2;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--rule);
+  transform: scale(0.96);
+  transform-origin: 50% 100%;
+  transition: transform 640ms var(--ease);
+}
+.card-media img {
+  width: 100%; height: 100%; object-fit: cover;
+  opacity: 0.45;
+  transition: opacity 420ms ease;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+.slide.is-active .card-media { transform: scale(1); }
+.slide.is-active .card-media img { opacity: 1; }
+
+/* ===== Card text ===== */
+.card-text { margin-top: 18px; }
+.card-kicker {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  margin-bottom: 10px;
+}
+.card-role {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.card-year { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--ink-3); white-space: nowrap; }
+.card-title {
+  font-family: var(--serif); font-weight: 400;
+  font-size: clamp(22px, 2.2vw, 27px);
+  line-height: 1.12; letter-spacing: -0.02em; color: var(--ink);
+  margin-bottom: 10px;
+}
+.card-body { font-size: 14px; line-height: 1.6; color: var(--ink-2); max-width: 60ch; }
+
+/* Text rises in when the slide becomes active; drops out fast when it leaves. */
+.card-kicker, .card-title, .card-body {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 220ms ease, transform 260ms var(--ease);
+}
+.slide.is-active .card-kicker,
+.slide.is-active .card-title,
+.slide.is-active .card-body {
+  opacity: 1;
+  transform: none;
+  transition: opacity 480ms ease, transform 620ms var(--ease);
+}
+.slide.is-active .card-kicker { transition-delay: 40ms; }
+.slide.is-active .card-title  { transition-delay: 110ms; }
+.slide.is-active .card-body   { transition-delay: 190ms; }
+
+/* ===== Progress ===== */
+.progress {
+  height: 2px; background: var(--rule);
+  margin-top: 32px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: var(--red);
+  transform-origin: left; transform: scaleX(0.04);
+}
+
+/* ===== Entrance cascade ===== */
+.anim-item {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 640ms ease, transform 760ms var(--ease);
+  transition-delay: var(--anim-delay, 0ms);
+}
+body.is-loaded .anim-item { opacity: 1; transform: none; }
+
+/* ===== Reduced motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  .card-kicker, .card-title, .card-body { opacity: 1 !important; transform: none !important; }
+  .card-media { transform: none !important; }
+  .card-media img { opacity: 1 !important; }
+  .anim-item { opacity: 1 !important; transform: none !important; }
+  .track { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+
+<header class="wrap page-head">
+  <a class="back" href="../index.html">&larr; jtroll.com</a>
+  <span class="page-tag">Experiment &mdash; Work Carousel</span>
+</header>
+
+<section class="work" aria-label="Selected work">
+  <div class="wrap section-head anim-item" style="--anim-delay: 0ms">
+    <h2 class="section-title">Work<span class="dot">.</span></h2>
+    <div class="head-controls">
+      <span class="counter" id="counter" aria-live="polite">01 / 10</span>
+      <button class="nav-btn" id="prev" type="button" aria-label="Previous project" disabled>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M9 2.5L4.5 7L9 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="nav-btn" id="next" type="button" aria-label="Next project">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M5 2.5L9.5 7L5 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="carousel anim-item" style="--anim-delay: 120ms">
+    <ul class="track" id="track" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Work projects">
+      <!-- slides injected by JS -->
+    </ul>
+    <div class="wrap">
+      <div class="progress"><div class="progress-fill" id="progress"></div></div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+  var projects = [
+    { img: '../assets/work_sofi.webp', w: 1162, h: 776, year: '2024 — NOW', role: 'Sr. Director of Design', title: 'SoFi, Member Group Business Unit', body: "Leading product & content design across SoFi's horizontal group business unit spanning AI-in-product, navigation, premium features, growth and personal finance management." },
+    { img: '../assets/work_cruise.webp', w: 1160, h: 772, year: '2023', role: 'Head of Ridehail Design', title: 'Cruise', body: "Head of product design for the ridehail consumer experience of Cruise, one of the foremost autonomous vehicle companies at the time. Responsible for 80% of the company's business, from in-car to app experiences. Spanned three vehicle platforms, a 13-city scaling plan, our apps and IVI." },
+    { img: '../assets/work_rl.webp', w: 1740, h: 1158, year: '2021–23', role: 'Head of XD', title: 'Neural interfaces (AR)', body: "Head of Experiences Design for new neural interfaces product lines — and 5 new teams around them — within Meta's Augmented Reality division, creating the next great input mechanic and consumer devices. 12+ patents in novel inputs." },
+    { img: '../assets/work_campus.webp', w: 1740, h: 1158, year: '2020–21', role: 'Founding Design Manager', title: 'Facebook Campus', body: "Supported a comprehensive new community product for college students within Facebook's Community Incubator. Launched its North American beta summer 2020 with 30 US universities, ramping to many more and exceeding our launch metric goals." },
+    { img: '../assets/work_neighborhoods.webp', w: 1740, h: 1158, year: '2020', role: 'Founding Design Manager', title: 'Facebook Neighborhoods', body: "Founding design manager for another new community product, for local neighborhoods. Launched its North American beta fall 2020, and in the process build several novel features comprising a more comprehensive tool set for all Facebook group admins." },
+    { img: '../assets/work_events.webp', w: 1740, h: 1158, year: '2017–19', role: 'Design Manager', title: 'Events & Local', body: "For 3 years I supported the Facebook Local product ecosystem and the Facebook Local app. Oversaw an increase to 700M consumers & 120K creators per month as the world's largest events and \"things to do\" platform. I oversaw 12+ major new feature & service launches, including an all-new social map & data later still used company-wide. Before the pandemic Facebook Local eclipsed Yelp in the US for stickiness and MAU." },
+    { img: '../assets/work_communityintegrity.webp', w: 1740, h: 1158, year: '2014–17', role: 'Design Lead', title: 'Community Integrity', body: "Design lead across all Facebook Consumer Support tools, including reporting and the global Help Center. Established industry-leading best practices for the time that scaled across 120 languages and created all-new ML-powered content recognition, response, and chatbot help products." },
+    { img: '../assets/work_coreexperiences.webp', w: 1740, h: 1158, year: '2013–14', role: 'Designer', title: 'Core Experiences', body: "Designed core systems for Facebook — News Feed, rich engagement features, emerging-market support. Co-designed the first comprehensive component-based design library for the Facebook app on Android, and shipped the first rich comments (stickers)." },
+    { img: '../assets/work_mada.webp', w: 1160, h: 772, year: '2016–2021', role: 'Founding Designer', title: 'Make America Dinner Again', body: "Founding designer for this national volunteer organization, fostering better communication across the aisle leveraging over 12 national chapters in 20 cities. Coverage in NYT, the BBC, Glenn Beck, Oprah, CNN, NPR, and other national & international media." },
+    { img: '../assets/work_08_prefacebook.webp', w: 1740, h: 1158, year: 'Pre-2013', role: 'IDEO + startups', title: 'Pre-Meta', body: "Co-founded two start-ups in local discovery and social creation tools, ran a small design consultancy, and had a career in design agency life before that through places like IDEO." }
+  ];
+
+  var track = document.getElementById('track');
+  var counter = document.getElementById('counter');
+  var progressFill = document.getElementById('progress');
+  var prevBtn = document.getElementById('prev');
+  var nextBtn = document.getElementById('next');
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  }
+
+  track.innerHTML = projects.map(function(p, i) {
+    var loadAttrs = i === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
+    return '<li class="slide" role="group" aria-roledescription="slide" aria-label="' + (i + 1) + ' of ' + projects.length + '">' +
+      '<figure class="card">' +
+        '<div class="card-media">' +
+          '<img src="' + p.img + '" alt="' + esc(p.title) + '" width="' + p.w + '" height="' + p.h + '" ' + loadAttrs + ' decoding="async" draggable="false"/>' +
+        '</div>' +
+        '<figcaption class="card-text">' +
+          '<p class="card-kicker"><span class="card-role">' + esc(p.role) + '</span><span class="card-year">' + esc(p.year) + '</span></p>' +
+          '<h3 class="card-title">' + esc(p.title) + '</h3>' +
+          '<p class="card-body">' + esc(p.body) + '</p>' +
+        '</figcaption>' +
+      '</figure>' +
+    '</li>';
+  }).join('');
+
+  var slides = Array.prototype.slice.call(track.children);
+
+  // Warm the cache for the first offscreen cards so the initial swipe is instant.
+  [1, 2].forEach(function(i) {
+    if (!projects[i]) return;
+    var im = new Image();
+    im.src = projects[i].img;
+    if (im.decode) im.decode().catch(function() {});
+  });
+
+  function padLeft() {
+    return parseFloat(getComputedStyle(track).scrollPaddingLeft) || 0;
+  }
+
+  function nearestIndex() {
+    var x = track.scrollLeft + padLeft();
+    var best = 0, bestD = Infinity;
+    for (var i = 0; i < slides.length; i++) {
+      var d = Math.abs(slides[i].offsetLeft - x);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    return best;
+  }
+
+  function goTo(i) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    track.scrollTo({
+      left: slides[i].offsetLeft - padLeft(),
+      behavior: reduceMotion.matches ? 'auto' : 'smooth'
+    });
+  }
+
+  var ticking = false;
+  function requestUpdate() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  }
+
+  function update() {
+    ticking = false;
+    var viewL = track.scrollLeft;
+    var viewR = viewL + track.clientWidth;
+
+    for (var i = 0; i < slides.length; i++) {
+      var s = slides[i];
+      var overlap = Math.min(s.offsetLeft + s.offsetWidth, viewR) - Math.max(s.offsetLeft, viewL);
+      var frac = overlap / s.offsetWidth;
+      s.classList.toggle('is-active', frac >= 0.6);
+    }
+
+    var n = nearestIndex();
+    counter.textContent = String(n + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0');
+
+    var maxScroll = track.scrollWidth - track.clientWidth;
+    progressFill.style.transform = 'scaleX(' + (maxScroll > 0 ? Math.max(0.04, viewL / maxScroll) : 1) + ')';
+    prevBtn.disabled = viewL <= 2;
+    nextBtn.disabled = viewL >= maxScroll - 2;
+  }
+
+  track.addEventListener('scroll', requestUpdate, { passive: true });
+  window.addEventListener('resize', requestUpdate);
+
+  prevBtn.addEventListener('click', function() { goTo(nearestIndex() - 1); });
+  nextBtn.addEventListener('click', function() { goTo(nearestIndex() + 1); });
+
+  track.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); goTo(nearestIndex() + 1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(nearestIndex() - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(slides.length - 1); }
+  });
+
+  // Mouse drag-to-scroll. Touch and pen keep native momentum scrolling.
+  // Native image drag would cancel our pointer events mid-gesture.
+  track.addEventListener('dragstart', function(e) { e.preventDefault(); });
+
+  var dragging = false, startX = 0, startScroll = 0, moved = 0;
+
+  track.addEventListener('pointerdown', function(e) {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    dragging = true;
+    moved = 0;
+    startX = e.clientX;
+    startScroll = track.scrollLeft;
+    track.classList.add('is-dragging');
+    track.setPointerCapture(e.pointerId);
+  });
+
+  track.addEventListener('pointermove', function(e) {
+    if (!dragging) return;
+    moved = e.clientX - startX;
+    track.scrollLeft = startScroll - moved;
+  });
+
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false;
+    goTo(nearestIndex());
+    // Restore snap on the next frame so the browser doesn't insta-resnap mid-glide.
+    requestAnimationFrame(function() { track.classList.remove('is-dragging'); });
+  }
+  track.addEventListener('pointerup', endDrag);
+  track.addEventListener('pointercancel', endDrag);
+
+  // Swallow the click that follows a real drag; let taps on side cards navigate.
+  track.addEventListener('click', function(e) {
+    if (Math.abs(moved) > 5) {
+      moved = 0;
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    var slide = e.target.closest ? e.target.closest('.slide') : null;
+    if (!slide) return;
+    var i = slides.indexOf(slide);
+    if (i !== -1 && i !== nearestIndex()) goTo(i);
+  }, true);
+
+  // Entrance: reveal the page, then activate slide 0 after first paint so its
+  // text visibly rises instead of appearing already-settled.
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      document.body.classList.add('is-loaded');
+      update();
+    });
+  });
+})();
+</script>
+</body>
+</html>
