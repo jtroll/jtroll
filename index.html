@@ -349,153 +349,133 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   .writing-row-thumb { width: 72px; height: 50px; }
 }
 
-/* ===== Work — Stage + Rail ===== */
-.work-stage { display: grid; grid-template-columns: 2.2fr 1fr; gap: 32px; margin-bottom: 48px; align-items: start; }
-@media (max-width: 960px) { .work-stage { grid-template-columns: 1fr; gap: 28px; } }
+/* ===== Work — Morphing carousel =====
+   Every card shares one height but animates its WIDTH between a collapsed
+   and an expanded value. The image inside is a fixed-size layer anchored to
+   the frame's center, so a narrow card is a tight center crop and a growing
+   card seamlessly reveals more of the same picture — the crop widens; the
+   content never rescales or pans. */
+.work-head {
+  display: flex; justify-content: space-between; align-items: flex-end; gap: 16px;
+  border-top: 1px solid var(--ink); padding-top: 24px;
+  margin-bottom: 48px;
+}
+.head-controls { display: flex; align-items: center; gap: 14px; }
+.counter {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.nav-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--rule-strong); background: transparent; color: var(--ink);
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 0; font: inherit;
+  transition: background 200ms ease, color 200ms ease, opacity 200ms ease, border-color 200ms ease;
+}
+.nav-btn:hover:not(:disabled) { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.nav-btn:disabled { opacity: 0.3; cursor: default; }
+@media (max-width: 720px) { .nav-btn { display: none; } }
 
-.stage-image {
-  aspect-ratio: 3 / 2; overflow: hidden; border-radius: 8px;
-  background: var(--paper-2); position: relative;
-  /* Faint inset hairline so the rounded corners stay visible on
-     work images whose background blends with the page paper color. */
-  box-shadow: inset 0 0 0 1px var(--rule);
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
+.work-carousel {
+  --morph: 680ms;
+  --carousel-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
-.stage-image .stage-layer {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%; object-fit: cover;
-  opacity: 0;
-  pointer-events: none;
+.work-viewport {
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: grab;
 }
-.stage-image .stage-layer.is-current { opacity: 1; }
-/* Prime GPU layers only while the stage is being interacted with, so resting
-   pages don't hold full-frame composited bitmaps in VRAM. */
-.stage-image:hover .stage-layer { will-change: transform, opacity, filter; }
-.stage-counter {
-  position: absolute; top: 14px; left: 14px;
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--paper);
-  background: rgba(0,28,47,0.55);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  padding: 4px 10px; border-radius: 999px;
-  z-index: 3;
-  pointer-events: none;
-}
+.work-viewport.is-dragging { cursor: grabbing; }
+.work-viewport:focus-visible { outline: 2px solid var(--red); outline-offset: -2px; border-radius: 4px; }
 
-/* Hover-revealed nav overlays — one shows depending on cursor side */
-.stage-nav {
-  position: absolute; top: 50%;
-  width: 48px; height: 48px;
-  border: 0; padding: 0;
-  border-radius: 999px;
-  background: rgba(0,28,47,0.55);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  color: var(--paper);
-  font-family: var(--sans); font-size: 18px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  z-index: 2;
-  pointer-events: none;
-  opacity: 0;
-  transition:
-    opacity 220ms ease,
-    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
-    background 200ms ease;
+.work-track {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap, 24px);
+  margin: 0; padding: 8px 0;
+  list-style: none;
+  transform: translate3d(0, 0, 0);
+  transition: transform var(--morph) var(--carousel-ease);
+  will-change: transform;
 }
-.stage-nav--prev { left: 16px; transform: translate(-12px, -50%) scale(0.9); }
-.stage-nav--next { right: 16px; transform: translate(12px, -50%) scale(0.9); }
-.stage-image[data-side="left"] .stage-nav--prev {
-  opacity: 1; transform: translate(0, -50%) scale(1);
-}
-.stage-image[data-side="right"] .stage-nav--next {
-  opacity: 1; transform: translate(0, -50%) scale(1);
-}
-.stage-image[data-side="left"]:active .stage-nav--prev,
-.stage-image[data-side="right"]:active .stage-nav--next {
-  background: var(--ink);
-  transform: translate(0, -50%) scale(0.94);
+.work-carousel.no-anim .work-track,
+.work-carousel.no-anim .work-slide { transition: none; }
+
+.work-slide {
+  flex: 0 0 auto;
+  /* width set inline by JS; collapsed <-> expanded */
+  transition: width var(--morph) var(--carousel-ease);
 }
 
-.stage-meta { display: flex; flex-direction: column; gap: 18px; padding-top: 0; }
-.stage-meta .kicker-row { margin-bottom: 0; }
-.stage-meta h3 {
-  font-family: var(--serif); font-weight: 400; font-size: clamp(26px, 2.8vw, 34px);
-  line-height: 1.08; letter-spacing: -0.02em; color: var(--ink); margin: 0;
-  transition: opacity 280ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-.stage-body {
-  font-size: 15px; line-height: 1.6; color: var(--ink-2); margin: 0;
-  transition: opacity 280ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: 40ms;
-}
-.stage-meta.is-swapping h3,
-.stage-meta.is-swapping .stage-body {
-  opacity: 0;
-  transform: translateY(10px);
-  transition-duration: 220ms, 280ms;
-  transition-delay: 0ms;
-}
-
-.stage-left { display: flex; flex-direction: column; gap: 14px; }
-
-.thumb-rail {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 10px;
-  padding: 4px;
-  margin: -4px;
-}
-@media (max-width: 960px) {
-  .thumb-rail {
-    grid-template-columns: none;
-    grid-auto-flow: column;
-    grid-auto-columns: 30%;
-    overflow-x: auto;
-    margin: -4px -24px 0; padding: 4px 24px 8px;
-    scroll-padding: 4px 24px;
-    -webkit-overflow-scrolling: touch;
-  }
-  .thumb-rail::-webkit-scrollbar { display: none; }
-  .thumb-rail { scrollbar-width: none; }
-}
-
-.thumb {
-  padding: 0; border: 0; background: transparent;
-  display: flex; flex-direction: column; gap: 8px; text-align: left;
-  opacity: 0.55; transition: opacity 200ms ease;
-}
-.thumb:hover { opacity: 0.85; }
-.thumb.is-active { opacity: 1; }
-.thumb-image {
-  aspect-ratio: 4 / 3; overflow: hidden; border-radius: 4px; background: var(--paper-2);
-  outline: 1px solid var(--rule); outline-offset: 0;
-  transition: outline 180ms ease, outline-offset 180ms ease;
+.work-slide .card { margin: 0; }
+.card-media {
   position: relative;
+  height: var(--media-h, 300px);
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--paper);
 }
-.thumb-image img { width: 100%; height: 100%; object-fit: cover; }
-.thumb.is-active .thumb-image { outline: 2px solid var(--ink); outline-offset: 2px; }
-/* Ring pulse — emitted when a thumb becomes active. */
-.thumb-image::after {
-  content: '';
-  position: absolute; inset: 0;
-  border-radius: 4px;
+.card-media img {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: var(--img-w, 100%);
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.75;
+  transition: opacity 260ms ease;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+/* Non-primary images invite interaction: lift on hover, dip on press, then
+   complete the ramp to full opacity as the card becomes primary. */
+.work-slide:not(.is-open):hover .card-media img { opacity: 0.9; }
+.work-slide:not(.is-open):active .card-media img { opacity: 0.7; }
+.work-slide.is-open .card-media img { opacity: 1; }
+.card-media::after {
+  /* hairline inset, kept off the img so it never clips the reveal */
+  content: ""; position: absolute; inset: 0;
+  border-radius: inherit; box-shadow: inset 0 0 0 1px var(--rule);
   pointer-events: none;
-  box-shadow: 0 0 0 0 var(--red);
+}
+
+/* Captions never fade during the morph — they ride their card. The kicker's
+   width follows the animating card so the year glides with the card's edge;
+   title/body wrap widths are snapped (inline, no transition) to the card's
+   TARGET width the instant a move starts, so any rewrap happens once,
+   invisibly, as everything begins sliding. */
+.card-text { margin-top: 18px; transition: opacity 180ms ease; }
+@media (max-width: 720px) {
+  /* Mobile slivers stay image-only; captions belong to the open card. */
+  .work-slide:not(.is-open) .card-text { opacity: 0; }
+}
+.card-kicker {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  margin: 0 0 10px;
+}
+.card-role {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--ink-3); white-space: nowrap;
+}
+.card-year { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--ink-3); white-space: nowrap; }
+.card-title {
+  font-family: var(--serif); font-weight: 400;
+  font-size: clamp(22px, 2.2vw, 27px);
+  line-height: 1.12; letter-spacing: -0.02em; color: var(--ink);
+  margin: 0 0 10px;
+}
+.card-body {
+  font-size: 14px; line-height: 1.6; color: var(--ink-2); max-width: 62ch;
+  margin: 0;
   opacity: 0;
+  transition: opacity 140ms ease;
 }
-.thumb.is-just-active .thumb-image::after {
-  animation: thumb-ring 620ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-@keyframes thumb-ring {
-  0%   { box-shadow: 0 0 0 0 var(--red); opacity: 0.7; }
-  100% { box-shadow: 0 0 0 12px var(--red); opacity: 0; }
-}
-.thumb-label {
-  font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
-  color: var(--ink-3); line-height: 1.3;
-}
-.thumb.is-active .thumb-label { color: var(--ink); font-weight: 700; }
+/* The description belongs to the open card only. It starts fading in the
+   instant a move begins and lands at full opacity comfortably before the
+   morph settles; the outgoing body pops out fast. */
+.work-slide.is-open .card-body { opacity: 1; transition: opacity 380ms ease; }
 
 /* ===== About ===== */
 .about-wrap { max-width: 760px; }
@@ -854,6 +834,8 @@ body.is-loaded .hero h1 .dot {
   .hero h1 .dot { opacity: 1 !important; }
   .avatar-frame .avatar-pose { clip-path: none !important; filter: none !important; }
   .photo:not(.photo-cta) img { transform: none !important; }
+  .card-text { opacity: 1 !important; }
+  .work-slide.is-open .card-body { opacity: 1 !important; }
 }
 </style>
 
@@ -992,44 +974,30 @@ body.is-loaded .hero h1 .dot {
   </div>
 </section>
 
-<!-- ============ WORK — Stage + Rail ============ -->
+<!-- ============ WORK — Morphing carousel ============ -->
 <section class="section section--paper2" id="work">
-  <div class="wrap">
-    <header class="section-head">
-      <h2 class="section-title">Work<span class="dot">.</span></h2>
-      <p class="section-lede" hidden></p>
-    </header>
-
-    <div class="work-stage">
-      <div class="stage-left">
-        <div class="stage-image" id="stage-image">
-          <img class="stage-layer is-current" id="stage-layer-a" src="assets/work_sofi.webp" alt="" width="1162" height="776" loading="lazy"/>
-          <img class="stage-layer" id="stage-layer-b" alt="" width="1162" height="776"/>
-          <div class="stage-counter" id="stage-counter">01 / 10</div>
-          <button class="stage-nav stage-nav--prev" id="stage-prev" type="button" aria-label="Previous project">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M9 2.5L4.5 7L9 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <button class="stage-nav stage-nav--next" id="stage-next" type="button" aria-label="Next project">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M5 2.5L9.5 7L5 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div class="stage-meta" id="stage-meta">
-        <div class="kicker-row">
-          <span class="kicker" id="stage-role">Sr. Director of Design · SoFi</span>
-          <span class="year" id="stage-year">2024 — NOW</span>
-        </div>
-        <h3 id="stage-title">SoFi, Member Group Business Unit</h3>
-        <p class="stage-body" id="stage-body">Leading product &amp; content design across SoFi's horizontal group business unit spanning AI-in-product, navigation, premium features, growth and personal finance management.</p>
-      </div>
+  <div class="wrap work-head">
+    <h2 class="section-title">Work<span class="dot">.</span></h2>
+    <div class="head-controls">
+      <span class="counter" id="work-counter" aria-live="polite">01 / 10</span>
+      <button class="nav-btn" id="work-prev" type="button" aria-label="Previous project" disabled>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M9 2.5L4.5 7L9 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="nav-btn" id="work-next" type="button" aria-label="Next project">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M5 2.5L9.5 7L5 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </div>
+  </div>
 
-    <div class="thumb-rail" id="thumb-rail">
-      <!-- populated by JS -->
+  <div class="work-carousel" id="work-carousel">
+    <div class="work-viewport" id="work-viewport" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Work projects">
+      <ul class="work-track" id="work-track">
+        <!-- slides injected by JS -->
+      </ul>
     </div>
   </div>
 </section>
@@ -1307,234 +1275,311 @@ body.is-loaded .hero h1 .dot {
     });
   });
 
-  /* ===== Work: Stage + Rail ===== */
+  /* ===== Work: Morphing carousel =====
+     Cards animate width between collapsed and expanded; the image inside is a
+     fixed-size center-anchored layer, so width changes read as the crop
+     widening over a still picture. JS owns the geometry (px widths + track
+     offset); the CSS transitions on .work-slide (width) and .work-track
+     (transform) animate the morph as one motion. */
   (function() {
     var projects = [
-      { img: 'assets/work_sofi.webp', year:'2024 — NOW', role: 'Sr. Director of Design', title: 'SoFi, Member Group Business Unit', short: 'SoFi', body: "Leading product & content design across SoFi's horizontal group business unit spanning AI-in-product, navigation, premium features, growth and personal finance management." },
-      { img: 'assets/work_cruise.webp', year:'2023', role: 'Head of Ridehail Design', title: 'Cruise', short: 'Cruise', body: "Head of product design for the ridehail consumer experience of Cruise, one of the foremost autonomous vehicle companies at the time. Responsible for 80% of the company's business, from in-car to app experiences. Spanned three vehicle platforms, a 13-city scaling plan, our apps and IVI." },
-      { img: 'assets/work_rl.webp', year:'2021–23', role: 'Head of XD', title: 'Neural interfaces (AR)', short: 'AR', body: "Head of Experiences Design for new neural interfaces product lines — and 5 new teams around them — within Meta's Augmented Reality division, creating the next great input mechanic and consumer devices. 12+ patents in novel inputs." },
-      { img: 'assets/work_campus.webp', year:'2020–21', role: 'Founding Design Manager', title: 'Facebook Campus', short: 'Campus', body: "Supported a comprehensive new community product for college students within Facebook's Community Incubator. Launched its North American beta summer 2020 with 30 US universities, ramping to many more and exceeding our launch metric goals." },
-      { img: 'assets/work_neighborhoods.webp', year:'2020', role: 'Founding Design Manager', title: 'Facebook Neighborhoods', short: '\u2018Hoods', body: "Founding design manager for another new community product, for local neighborhoods. Launched its North American beta fall 2020, and in the process build several novel features comprising a more comprehensive tool set for all Facebook group admins." },
-      { img: 'assets/work_events.webp', year:'2017–19', role: 'Design Manager', title: 'Events & Local', short: 'Local', body: "For 3 years I supported the Facebook Local product ecosystem and the Facebook Local app. Oversaw an increase to 700M consumers & 120K creators per month as the world's largest events and \"things to do\" platform. I oversaw 12+ major new feature & service launches, including an all-new social map & data later still used company-wide. Before the pandemic Facebook Local eclipsed Yelp in the US for stickiness and MAU." },
-      { img: 'assets/work_communityintegrity.webp', year:'2014–17', role: 'Design Lead', title: 'Community Integrity', short: 'Integrity', body: "Design lead across all Facebook Consumer Support tools, including reporting and the global Help Center. Established industry-leading best practices for the time that scaled across 120 languages and created all-new ML-powered content recognition, response, and chatbot help products." },
-      { img: 'assets/work_coreexperiences.webp', year:'2013–14', role: 'Designer', title: 'Core Experiences', short: 'Core', body: "Designed core systems for Facebook — News Feed, rich engagement features, emerging-market support. Co-designed the first comprehensive component-based design library for the Facebook app on Android, and shipped the first rich comments (stickers)." },
-      { img: 'assets/work_mada.webp', year:'2016–2021', role: 'Founding Designer', title: 'Make America Dinner Again', short: 'MADA', body: "Founding designer for this national volunteer organization, fostering better communication across the aisle leveraging over 12 national chapters in 20 cities. Coverage in NYT, the BBC, Glenn Beck, Oprah, CNN, NPR, and other national & international media." },
-      { img: 'assets/work_08_prefacebook.webp', year:'Pre-2013', role: 'IDEO + startups', title: 'Pre-Meta', short: 'Older', body: "Co-founded two start-ups in local discovery and social creation tools, ran a small design consultancy, and had a career in design agency life before that through places like IDEO." }
+      { img: 'assets/work_sofi.webp', w: 1162, h: 776, year: '2024 — NOW', role: 'Sr. Director of Design', title: 'SoFi, Member Group Business Unit', body: "Leading product & content design across SoFi's horizontal group business unit spanning AI-in-product, navigation, premium features, growth and personal finance management." },
+      { img: 'assets/work_cruise.webp', w: 1160, h: 772, year: '2023', role: 'Head of Ridehail Design', title: 'Cruise', body: "Head of product design for the ridehail consumer experience of Cruise, one of the foremost autonomous vehicle companies at the time. Responsible for 80% of the company's business, from in-car to app experiences. Spanned three vehicle platforms, a 13-city scaling plan, our apps and IVI." },
+      { img: 'assets/work_rl.webp', w: 1740, h: 1158, year: '2021–23', role: 'Head of XD', title: 'Neural interfaces (AR)', body: "Head of Experiences Design for new neural interfaces product lines — and 5 new teams around them — within Meta's Augmented Reality division, creating the next great input mechanic and consumer devices. 12+ patents in novel inputs." },
+      { img: 'assets/work_campus.webp', w: 1740, h: 1158, year: '2020–21', role: 'Founding Design Manager', title: 'Facebook Campus', body: "Supported a comprehensive new community product for college students within Facebook's Community Incubator. Launched its North American beta summer 2020 with 30 US universities, ramping to many more and exceeding our launch metric goals." },
+      { img: 'assets/work_neighborhoods.webp', w: 1740, h: 1158, year: '2020', role: 'Founding Design Manager', title: 'Facebook Neighborhoods', body: "Founding design manager for another new community product, for local neighborhoods. Launched its North American beta fall 2020, and in the process build several novel features comprising a more comprehensive tool set for all Facebook group admins." },
+      { img: 'assets/work_events.webp', w: 1740, h: 1158, year: '2017–19', role: 'Design Manager', title: 'Events & Local', body: "For 3 years I supported the Facebook Local product ecosystem and the Facebook Local app. Oversaw an increase to 700M consumers & 120K creators per month as the world's largest events and \"things to do\" platform. I oversaw 12+ major new feature & service launches, including an all-new social map & data later still used company-wide. Before the pandemic Facebook Local eclipsed Yelp in the US for stickiness and MAU." },
+      { img: 'assets/work_communityintegrity.webp', w: 1740, h: 1158, year: '2014–17', role: 'Design Lead', title: 'Community Integrity', body: "Design lead across all Facebook Consumer Support tools, including reporting and the global Help Center. Established industry-leading best practices for the time that scaled across 120 languages and created all-new ML-powered content recognition, response, and chatbot help products." },
+      { img: 'assets/work_coreexperiences.webp', w: 1740, h: 1158, year: '2013–14', role: 'Designer', title: 'Core Experiences', body: "Designed core systems for Facebook — News Feed, rich engagement features, emerging-market support. Co-designed the first comprehensive component-based design library for the Facebook app on Android, and shipped the first rich comments (stickers)." },
+      { img: 'assets/work_mada.webp', w: 1160, h: 772, year: '2016–2021', role: 'Founding Designer', title: 'Make America Dinner Again', body: "Founding designer for this national volunteer organization, fostering better communication across the aisle leveraging over 12 national chapters in 20 cities. Coverage in NYT, the BBC, Glenn Beck, Oprah, CNN, NPR, and other national & international media." },
+      { img: 'assets/work_08_prefacebook.webp', w: 1740, h: 1158, year: 'Pre-2013', role: 'IDEO + startups', title: 'Pre-Meta', body: "Co-founded two start-ups in local discovery and social creation tools, ran a small design consultancy, and had a career in design agency life before that through places like IDEO." }
     ];
 
-    var rail = document.getElementById('thumb-rail');
-    var stageImage = document.getElementById('stage-image');
-    var layerA = document.getElementById('stage-layer-a');
-    var layerB = document.getElementById('stage-layer-b');
-    var stageMeta = document.getElementById('stage-meta');
-    var stageRole = document.getElementById('stage-role');
-    var stageYear = document.getElementById('stage-year');
-    var stageTitle = document.getElementById('stage-title');
-    var stageBody = document.getElementById('stage-body');
-    var stageCounter = document.getElementById('stage-counter');
-    var prevBtn = document.getElementById('stage-prev');
-    var nextBtn = document.getElementById('stage-next');
-    var active = 0;
-    var currentLayer = layerA;
-    var nextLayer = layerB;
-    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var IMG_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    var carousel = document.getElementById('work-carousel');
+    var viewport = document.getElementById('work-viewport');
+    var track = document.getElementById('work-track');
+    var counter = document.getElementById('work-counter');
+    var prevBtn = document.getElementById('work-prev');
+    var nextBtn = document.getElementById('work-next');
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    // Warm the browser cache so subsequent decodes are instant.
-    function preload(src) {
-      var im = new Image();
-      im.src = src;
-      if (im.decode) im.decode().catch(function() {});
-    }
-    projects.forEach(function(p) { preload(p.img); });
-
-    function updateCounter() {
-      stageCounter.textContent = String(active + 1).padStart(2, '0') + ' / ' + String(projects.length).padStart(2, '0');
+    function esc(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
     }
 
-    function setMetaText(p) {
-      stageRole.textContent = p.role;
-      stageYear.textContent = p.year;
-      stageTitle.textContent = p.title;
-      stageBody.textContent = p.body;
+    track.innerHTML = projects.map(function(p, i) {
+      var loadAttrs = i < 3 ? 'loading="eager"' + (i === 0 ? ' fetchpriority="high"' : '') : 'loading="lazy"';
+      return '<li class="work-slide" role="group" aria-roledescription="slide" aria-label="' + (i + 1) + ' of ' + projects.length + '">' +
+        '<figure class="card">' +
+          '<div class="card-media">' +
+            '<img src="' + p.img + '" alt="' + esc(p.title) + '" width="' + p.w + '" height="' + p.h + '" ' + loadAttrs + ' decoding="async" draggable="false"/>' +
+          '</div>' +
+          '<figcaption class="card-text">' +
+            '<p class="card-kicker"><span class="card-role">' + esc(p.role) + '</span><span class="card-year">' + esc(p.year) + '</span></p>' +
+            '<h3 class="card-title">' + esc(p.title) + '</h3>' +
+            '<p class="card-body">' + esc(p.body) + '</p>' +
+          '</figcaption>' +
+        '</figure>' +
+      '</li>';
+    }).join('');
+
+    var slides = Array.prototype.slice.call(track.children);
+    var titles = slides.map(function(s) { return s.querySelector('.card-title'); });
+    var bodies = slides.map(function(s) { return s.querySelector('.card-body'); });
+    var N = slides.length;
+    var index = 0;
+
+    /* All widths are computed in px here (single source of truth) and animated
+       by the CSS transitions. m = { exp, col, gap, pad, step, mediaH } */
+    var m = {};
+
+    function measure() {
+      var vw = document.documentElement.clientWidth;
+      var mobile = vw <= 720;
+      if (mobile) {
+        m.gap = 12;
+        m.exp = Math.round(vw - 80);              // slivers of both neighbors visible
+        m.col = Math.round(vw * 0.58);
+        m.pad = Math.round((vw - m.exp) / 2);     // open card centered
+        m.mediaH = Math.round(m.exp * 0.72);
+      } else {
+        var gutter = Math.max(56, (vw - 1280) / 2 + 56);
+        var inner = vw - gutter * 2;
+        m.gap = 24;
+        m.exp = Math.round(inner * 0.70);         // main card: one dominant primary
+        m.col = Math.round(inner * 0.30);         // the secondary; third card barely peeks
+        m.pad = Math.round(gutter);               // open card sits on the grid's left edge
+        // Native 3:2 frame, so the open card shows the full picture uncropped;
+        // collapsed cards are center crops of that same rendering.
+        m.mediaH = Math.round(m.exp / 1.5);
+      }
+      m.step = m.col + m.gap;                     // how far the track shifts per index
+      carousel.style.setProperty('--gap', m.gap + 'px');
+      carousel.style.setProperty('--media-h', m.mediaH + 'px');
+      // The image layer is sized for the EXPANDED frame and never resizes with
+      // the card, so collapsed cards are center crops of the same rendering.
+      carousel.style.setProperty('--img-w', Math.max(m.exp, Math.round(m.mediaH * 1.5)) + 'px');
     }
 
-    function pulseActiveThumb() {
-      Array.from(rail.children).forEach(function(el, i) {
-        el.classList.toggle('is-active', i === active);
-        el.classList.remove('is-just-active');
-      });
-      var activeEl = rail.children[active];
-      if (!activeEl) return;
-      // Force reflow so the keyframe animation re-triggers when re-adding the class.
-      void activeEl.offsetWidth;
-      activeEl.classList.add('is-just-active');
+    function offsetFor(i) { return m.pad - i * m.step; }
+
+    function widthFor(i) { return i === index ? m.exp : m.col; }
+
+    /* The unit's height is fixed to the tallest card measured at the EXPANDED
+       width, so paginating between long and short descriptions never shifts
+       the content below. The viewport's overflow:hidden clips the layout-only
+       (invisible) description text of collapsed cards. */
+    function lockHeight() {
+      for (var i = 0; i < N; i++) {
+        slides[i].style.width = m.exp + 'px';
+        titles[i].style.width = m.exp + 'px';
+        bodies[i].style.width = m.exp + 'px';
+      }
+      var h = 0;
+      for (var i = 0; i < N; i++) h = Math.max(h, slides[i].offsetHeight);
+      viewport.style.height = (h + 16) + 'px'; // + track's vertical padding
     }
 
-    function scrollActiveIntoView() {
-      if (rail.scrollWidth > rail.clientWidth) {
-        var activeEl = rail.children[active];
-        if (activeEl) {
-          var target = activeEl.offsetLeft - (rail.clientWidth - activeEl.offsetWidth) / 2;
-          var max = rail.scrollWidth - rail.clientWidth;
-          target = Math.max(0, Math.min(max, target));
-          rail.scrollTo({ left: target, behavior: 'smooth' });
-        }
+    var settleTimer = null;
+    function startMoving() {
+      carousel.classList.add('is-moving');
+      if (settleTimer) clearTimeout(settleTimer);
+      // Fallback in case transitionend is swallowed (e.g. reduced motion).
+      settleTimer = setTimeout(settle, 900);
+    }
+    function settle() {
+      if (settleTimer) { clearTimeout(settleTimer); settleTimer = null; }
+      carousel.classList.remove('is-moving');
+    }
+    track.addEventListener('transitionend', function(e) {
+      if (e.target === track && e.propertyName === 'transform') settle();
+    });
+
+    function render() {
+      for (var i = 0; i < N; i++) {
+        slides[i].style.width = widthFor(i) + 'px';
+        // Title/body wrap widths snap straight to the target (no transition),
+        // so the one possible rewrap happens the instant motion starts.
+        titles[i].style.width = widthFor(i) + 'px';
+        bodies[i].style.width = widthFor(i) + 'px';
+        slides[i].classList.toggle('is-open', i === index);
+      }
+      track.style.transform = 'translate3d(' + offsetFor(index) + 'px, 0, 0)';
+      counter.textContent = String(index + 1).padStart(2, '0') + ' / ' + String(N).padStart(2, '0');
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === N - 1;
+    }
+
+    function goTo(i, animate) {
+      i = Math.max(0, Math.min(N - 1, i));
+      if (i === index && animate !== false) return;
+      index = i;
+      if (animate === false || reduceMotion.matches) {
+        carousel.classList.add('no-anim');
+        render();
+        // Flush styles so re-enabling transitions doesn't animate this change.
+        void track.offsetWidth;
+        carousel.classList.remove('no-anim');
+        settle();
+      } else {
+        startMoving();
+        render();
       }
     }
 
-    var swapToken = 0;
-    function swapImage(p) {
-      if (reduceMotion) {
-        nextLayer.src = p.img;
-        nextLayer.classList.add('is-current');
-        currentLayer.classList.remove('is-current');
-        var swap0 = currentLayer; currentLayer = nextLayer; nextLayer = swap0;
+    /* Drag / swipe: the outgoing and incoming widths (and the track offset)
+       are interpolated 1:1 with the gesture, then released to the CSS
+       transition for the settle. */
+    var drag = null; // {startX, startY, active, lastX, lastT, v, p, dir}
+
+    function setScrub(dir, p) {
+      // dir: +1 toward next, -1 toward prev; p in [0,1]
+      var j = index + dir;
+      for (var i = 0; i < N; i++) {
+        var w = i === index ? m.exp - (m.exp - m.col) * p
+              : i === j     ? m.col + (m.exp - m.col) * p
+              : m.col;
+        slides[i].style.width = w + 'px';
+      }
+      track.style.transform = 'translate3d(' + (offsetFor(index) - dir * p * m.step) + 'px, 0, 0)';
+    }
+
+    viewport.addEventListener('dragstart', function(e) { e.preventDefault(); });
+
+    viewport.addEventListener('pointerdown', function(e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      drag = { startX: e.clientX, startY: e.clientY, active: false, lastX: e.clientX, lastT: e.timeStamp, v: 0, p: 0, dir: 0 };
+    });
+
+    viewport.addEventListener('pointermove', function(e) {
+      if (!drag) return;
+      var dx = e.clientX - drag.startX;
+      var dy = e.clientY - drag.startY;
+      if (!drag.active) {
+        if (Math.abs(dx) < 6 || Math.abs(dx) < Math.abs(dy)) return; // let vertical scroll through
+        drag.active = true;
+        viewport.setPointerCapture(e.pointerId);
+        viewport.classList.add('is-dragging');
+        carousel.classList.add('no-anim');
+        startMoving();
+        if (settleTimer) { clearTimeout(settleTimer); settleTimer = null; } // no settle while held
+      }
+      var dt = e.timeStamp - drag.lastT;
+      if (dt > 0) drag.v = (e.clientX - drag.lastX) / dt;
+      drag.lastX = e.clientX; drag.lastT = e.timeStamp;
+
+      var dir = dx < 0 ? 1 : -1;
+      var j = index + dir;
+      var p;
+      if (j < 0 || j >= N) {
+        p = Math.min(0.10, Math.abs(dx) / m.step * 0.10); // end-of-row resistance
+      } else {
+        p = Math.min(1, Math.abs(dx) / m.step);
+      }
+      drag.dir = dir; drag.p = p;
+      setScrub(dir, p);
+    });
+
+    var suppressClick = false;
+    function endDrag(e) {
+      if (!drag) return;
+      var d = drag; drag = null;
+      if (!d.active) return;
+      suppressClick = true;
+      viewport.classList.remove('is-dragging');
+      carousel.classList.remove('no-anim');
+      var j = index + d.dir;
+      var commit = j >= 0 && j < N && (d.p > 0.35 || (d.dir === 1 ? d.v < -0.5 : d.v > 0.5));
+      startMoving();
+      if (commit) index = j;
+      render();
+    }
+    viewport.addEventListener('pointerup', endDrag);
+    viewport.addEventListener('pointercancel', endDrag);
+
+    // Swallow the click that follows a drag; let taps on side cards navigate.
+    viewport.addEventListener('click', function(e) {
+      if (suppressClick) {
+        suppressClick = false;
+        e.preventDefault();
+        e.stopPropagation();
         return;
       }
-      var myToken = ++swapToken;
-
-      // Start the outgoing fade IMMEDIATELY so the swap feels snappy and
-      // text/image fade-outs stay in lockstep.
-      currentLayer.animate([
-        { transform: 'scale(1)',    opacity: 1, filter: 'blur(0)' },
-        { transform: 'scale(1.04)', opacity: 0, filter: 'blur(10px)' }
-      ], { duration: 520, easing: 'cubic-bezier(0.4, 0, 0.6, 1)', fill: 'forwards' });
-
-      // Load the incoming image. We must wait for THIS layer element's own
-      // decode to resolve before fading it in — until then, this <img>
-      // continues painting its previous src's pixels, which would flash as the
-      // prior project for a frame. Init-time preload makes this almost always a
-      // sub-frame wait; the 400ms timeout is just insurance.
-      nextLayer.src = p.img;
-      var decodePromise = nextLayer.decode
-        ? nextLayer.decode().catch(function() {})
-        : new Promise(function(resolve) {
-            if (nextLayer.complete) resolve();
-            else { nextLayer.onload = nextLayer.onerror = resolve; }
-          });
-
-      Promise.race([
-        decodePromise,
-        new Promise(function(r) { setTimeout(r, 400); })
-      ]).then(function() {
-        if (myToken !== swapToken) return; // superseded by a newer click
-
-        nextLayer.animate([
-          { transform: 'scale(1.06)', opacity: 0, filter: 'blur(12px)' },
-          { transform: 'scale(1)',    opacity: 1, filter: 'blur(0)' }
-        ], { duration: 720, easing: IMG_EASE, fill: 'both' });
-
-        nextLayer.classList.add('is-current');
-        currentLayer.classList.remove('is-current');
-
-        var swap = currentLayer; currentLayer = nextLayer; nextLayer = swap;
-      });
-    }
-
-    var textTimer = null;
-    function swapText(p) {
-      if (reduceMotion) { setMetaText(p); return; }
-      if (textTimer) clearTimeout(textTimer);
-      stageMeta.classList.add('is-swapping');
-      // After the fade-out completes, swap content while invisible, then
-      // remove the class on the next frame to fade the new text back in.
-      textTimer = setTimeout(function() {
-        setMetaText(p);
-        requestAnimationFrame(function() {
-          stageMeta.classList.remove('is-swapping');
-        });
-      }, 230);
-    }
-
-    function setProject(newIndex, direction) {
-      if (newIndex === active && direction !== 0) return;
-      var p = projects[newIndex];
-      active = newIndex;
-      updateCounter();
-      if (direction === 0) {
-        currentLayer.src = p.img;
-        currentLayer.classList.add('is-current');
-        setMetaText(p);
-      } else {
-        swapImage(p);
-        swapText(p);
-      }
-      pulseActiveThumb();
-      scrollActiveIntoView();
-    }
-
-    function next() { setProject((active + 1) % projects.length, 1); }
-    function prev() { setProject((active - 1 + projects.length) % projects.length, -1); }
-
-    // ----- Rail buttons -----
-    projects.forEach(function(p, i) {
-      var btn = document.createElement('button');
-      btn.className = 'thumb';
-      var label = p.short || p.title.split('—')[0].split('(')[0].trim();
-      btn.innerHTML = '<div class="thumb-image"><img src="' + p.img + '" alt="" width="1160" height="772" loading="lazy"/></div>' +
-                      '<span class="thumb-label">' + String(i + 1).padStart(2, '0') + ' · ' + label + '</span>';
-      btn.addEventListener('click', function() {
-        if (i === active) return;
-        var direction = i > active ? 1 : -1;
-        setProject(i, direction);
-      });
-      rail.appendChild(btn);
-    });
-    rail.scrollLeft = 0;
-
-    // ----- Stage hover + click navigation -----
-    // Cache the stage rect on enter so the high-frequency pointermove handler
-    // doesn't force a layout read every event, and only write data-side when
-    // the side actually changes (avoids needless style invalidations).
-    var stageRect = null;
-    var stageSide = null;
-    function updateSide(clientX) {
-      if (!stageRect) return;
-      var x = clientX - stageRect.left;
-      var side = x < stageRect.width / 2 ? 'left' : 'right';
-      if (side !== stageSide) {
-        stageSide = side;
-        stageImage.dataset.side = side;
-      }
-    }
-    stageImage.addEventListener('pointerenter', function(e) {
-      stageRect = stageImage.getBoundingClientRect();
-      updateSide(e.clientX);
-    });
-    stageImage.addEventListener('pointermove', function(e) {
-      updateSide(e.clientX);
-    });
-    stageImage.addEventListener('pointerleave', function() {
-      stageRect = null;
-      stageSide = null;
-      delete stageImage.dataset.side;
-    });
-    stageImage.addEventListener('click', function(e) {
-      // The nav buttons inside the stage have their own click handlers; this
-      // catches clicks on the image surface itself.
-      if (e.target.closest('.stage-nav')) return;
-      var r = stageImage.getBoundingClientRect();
-      var x = e.clientX - r.left;
-      if (x < r.width / 2) prev(); else next();
+      var slide = e.target.closest ? e.target.closest('.work-slide') : null;
+      if (!slide) return;
+      var i = slides.indexOf(slide);
+      if (i !== -1 && i !== index) { e.preventDefault(); goTo(i); }
     });
 
-    prevBtn.addEventListener('click', function(e) { e.stopPropagation(); prev(); });
-    nextBtn.addEventListener('click', function(e) { e.stopPropagation(); next(); });
+    prevBtn.addEventListener('click', function() { goTo(index - 1); });
+    nextBtn.addEventListener('click', function() { goTo(index + 1); });
 
-    // ----- Keyboard support when section is on screen -----
+    viewport.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); goTo(index + 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(index - 1); }
+      else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+      else if (e.key === 'End') { e.preventDefault(); goTo(N - 1); }
+    });
+
+    // Arrow keys also work while the section is on screen (parity with the
+    // old stage), unless focus is somewhere that handles its own keys.
     document.addEventListener('keydown', function(e) {
-      // Don't fight any open modal (e.g. the photo lightbox).
-      var modal = document.querySelector('.lightbox.is-open');
-      if (modal) return;
-      var r = stageImage.getBoundingClientRect();
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      if (e.target !== document.body) return;
+      if (document.querySelector('.lightbox.is-open')) return;
+      var r = viewport.getBoundingClientRect();
       if (r.bottom < 0 || r.top > window.innerHeight) return;
-      if (e.key === 'ArrowLeft')  { prev(); }
-      else if (e.key === 'ArrowRight') { next(); }
+      goTo(index + (e.key === 'ArrowRight' ? 1 : -1));
     });
 
-    // Initial render — direction 0 skips the animation.
-    setProject(0, 0);
+    // Horizontal trackpad swipes advance one card per gesture.
+    var wheelAcc = 0, wheelIdle = null, wheelLocked = false;
+    viewport.addEventListener('wheel', function(e) {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      if (wheelLocked) return;
+      wheelAcc += e.deltaX;
+      if (wheelIdle) clearTimeout(wheelIdle);
+      wheelIdle = setTimeout(function() { wheelAcc = 0; wheelLocked = false; }, 180);
+      if (Math.abs(wheelAcc) > 90) {
+        wheelLocked = true;
+        goTo(index + (wheelAcc > 0 ? 1 : -1));
+        wheelAcc = 0;
+      }
+    }, { passive: false });
+
+    function relayout() {
+      measure();
+      carousel.classList.add('no-anim');
+      lockHeight();
+      render();
+      void track.offsetWidth;
+      carousel.classList.remove('no-anim');
+    }
+
+    var resizeRaf = null;
+    window.addEventListener('resize', function() {
+      if (resizeRaf) return;
+      resizeRaf = requestAnimationFrame(function() {
+        resizeRaf = null;
+        relayout();
+      });
+    });
+
+    relayout();
+
+    // Text metrics shift once the webfonts arrive; re-lock the height then.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(relayout);
+    }
+
+    // Warm neighbors so the first morph reveals decoded pixels.
+    [1, 2].forEach(function(i) {
+      if (!projects[i]) return;
+      var im = new Image();
+      im.src = projects[i].img;
+      if (im.decode) im.decode().catch(function() {});
+    });
   })();
 
   /* ===== Avatar pose system =====
