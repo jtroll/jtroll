@@ -138,11 +138,15 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   max-width: none;
   height: 100%;
   object-fit: cover;
-  opacity: 0.9;
-  transition: opacity 320ms ease;
+  opacity: 0.75;
+  transition: opacity 260ms ease;
   -webkit-user-drag: none;
   user-select: none;
 }
+/* Non-primary images invite interaction: lift on hover, dip on press, then
+   complete the ramp to full opacity as the card becomes primary. */
+.slide:not(.is-open):hover .card-media img { opacity: 0.9; }
+.slide:not(.is-open):active .card-media img { opacity: 0.7; }
 .slide.is-open .card-media img { opacity: 1; }
 .card-media::after {
   /* hairline inset, kept off the img so it never clips the reveal */
@@ -184,12 +188,13 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
 .card-body {
   font-size: 14px; line-height: 1.6; color: var(--ink-2); max-width: 62ch;
   opacity: 0;
-  transition: opacity 120ms ease;
+  transition: opacity 140ms ease;
 }
-/* The description belongs to the open card only. It pops in the instant a
-   move starts (riding the morph like the titles, wrap width pre-snapped to
-   the destination) and pops out just as fast on the outgoing card. */
-.slide.is-open .card-body { opacity: 1; }
+/* The description belongs to the open card only. It starts fading in the
+   instant a move begins (riding the morph like the titles, wrap width
+   pre-snapped to the destination) and lands at full opacity comfortably
+   before the 680ms morph settles; the outgoing body pops out fast. */
+.slide.is-open .card-body { opacity: 1; transition: opacity 380ms ease; }
 
 /* ===== Entrance cascade ===== */
 .anim-item {
