@@ -184,12 +184,12 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
 .card-body {
   font-size: 14px; line-height: 1.6; color: var(--ink-2); max-width: 62ch;
   opacity: 0;
-  transition: opacity 100ms ease;
+  transition: opacity 120ms ease;
 }
-/* The description belongs to the open card only. It vanishes instantly when
-   a move starts and snaps in the moment the card lands — no slow fades. */
+/* The description belongs to the open card only. It pops in the instant a
+   move starts (riding the morph like the titles, wrap width pre-snapped to
+   the destination) and pops out just as fast on the outgoing card. */
 .slide.is-open .card-body { opacity: 1; }
-.carousel.is-moving .card-body { opacity: 0; transition: opacity 60ms ease; }
 
 /* ===== Entrance cascade ===== */
 .anim-item {
@@ -288,6 +288,7 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
 
   var slides = Array.prototype.slice.call(track.children);
   var titles = slides.map(function(s) { return s.querySelector('.card-title'); });
+  var bodies = slides.map(function(s) { return s.querySelector('.card-body'); });
   var N = slides.length;
   var index = 0;
 
@@ -335,6 +336,7 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
     for (var i = 0; i < N; i++) {
       slides[i].style.width = m.exp + 'px';
       titles[i].style.width = m.exp + 'px';
+      bodies[i].style.width = m.exp + 'px';
     }
     var h = 0;
     for (var i = 0; i < N; i++) h = Math.max(h, slides[i].offsetHeight);
@@ -362,9 +364,10 @@ body.is-loaded .anim-item { opacity: 1; transform: none; }
   function render() {
     for (var i = 0; i < N; i++) {
       slides[i].style.width = widthFor(i) + 'px';
-      // Title wrap width snaps straight to the target (no transition), so the
-      // one possible rewrap happens the instant motion starts, not during it.
+      // Title/body wrap widths snap straight to the target (no transition), so
+      // the one possible rewrap happens the instant motion starts, not during it.
       titles[i].style.width = widthFor(i) + 'px';
+      bodies[i].style.width = widthFor(i) + 'px';
       slides[i].classList.toggle('is-open', i === index);
     }
     track.style.transform = 'translate3d(' + offsetFor(index) + 'px, 0, 0)';
