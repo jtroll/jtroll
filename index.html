@@ -498,23 +498,25 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   grid-template-rows: 1fr; opacity: 1;
 }
 .about__toggle {
-  appearance: none; background: transparent; border: 0;
-  margin-top: 32px; padding: 0;
+  appearance: none; background: transparent;
+  border: 1px solid transparent; border-radius: 999px;
+  margin: 32px 0 0 -18px; padding: 12px 18px; min-height: 44px;
   font-family: var(--mono); font-weight: 400; font-size: 11px;
   letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--ink-3);
-  display: inline-flex; align-items: center; gap: 12px;
+  display: inline-flex; align-items: center; gap: 10px;
   cursor: pointer;
-  transition: color 180ms ease;
+  transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
 }
-.about__toggle::before {
-  content: ''; width: 24px; height: 1px; background: currentColor; opacity: 0.6;
-  transition: width 220ms ease, opacity 220ms ease;
+/* Muted sibling of .social-link: same pill shape, padding and 44px height.
+   Transparent at rest, and the -18px left margin cancels the horizontal
+   padding so the label stays flush with the body copy above it. */
+.about__toggle:hover,
+.about__toggle:focus-visible {
+  color: var(--ink); background: var(--paper-2);
+  border-color: var(--rule); transform: translateY(-1px);
 }
-.about__toggle:hover { color: var(--ink); }
-.about__toggle:hover::before { width: 36px; opacity: 1; }
 .about__toggle .about__toggle-label { display: inline-flex; align-items: center; gap: 8px; }
-.about__toggle .about__toggle-label .dot { color: var(--red); font-family: var(--serif); font-size: 14px; line-height: 0; transform: translateY(1px); }
 .about__toggle-arrow {
   display: inline-block; width: 8px; height: 8px;
   border-right: 1px solid currentColor; border-bottom: 1px solid currentColor;
@@ -1032,7 +1034,6 @@ body.is-loaded .hero h1 .dot {
 
       <button class="about__toggle" type="button" aria-expanded="false" aria-controls="about-more" data-about-toggle>
         <span class="about__toggle-label">
-          <span class="dot" aria-hidden="true">•</span>
           <span class="collapsed-label">Continue reading</span>
           <span class="expanded-label">Collapse</span>
         </span>
