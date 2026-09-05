@@ -9,10 +9,11 @@ async function main() {
   const light = await fs.readFile(path.join(root, 'favicon-light.svg'), 'utf8');
   const dark = light.replaceAll('#001D30', '#FFFFFF');
   const adaptive = light.replace('><path', '><style>@media(prefers-color-scheme:dark){path{fill:#fff;stroke:#fff}}</style><path');
-  const tile = light.replace('><path', '><rect x="-4" y="-2" width="48" height="48" rx="8" fill="#F4F7F8"/><path');
+  // The master has extra transparent padding to avoid edge bleed in browser resizing.
+  const tile = light.replace('><path', '><rect x="-6" y="-4" width="52" height="52" rx="8" fill="#F4F7F8"/><path');
   // Home-screen icons use an opaque full-bleed tile and more breathing room.
-  const touch = tile.replace('viewBox="-4 -2 48 48"', 'viewBox="-12 -10 64 64"')
-    .replace('x="-4" y="-2" width="48" height="48" rx="8"', 'x="-12" y="-10" width="64" height="64"');
+  const touch = tile.replace('viewBox="-6 -4 52 52"', 'viewBox="-12 -10 64 64"')
+    .replace('x="-6" y="-4" width="52" height="52" rx="8"', 'x="-12" y="-10" width="64" height="64"');
   const write = (name, data) => fs.writeFile(path.join(root, name), data);
   const png = (svg, size) => sharp(Buffer.from(svg), { density: 384 })
     .resize(size, size).png({ compressionLevel: 9, palette: true }).toBuffer();

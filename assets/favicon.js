@@ -5,7 +5,7 @@
   if (!icon || !window.matchMedia) return;
   var theme = window.matchMedia('(prefers-color-scheme: dark)');
   function updateIcon() {
-    icon.href = theme.matches ? '/favicon-dark.svg?v=3' : '/favicon-light.svg?v=3';
+    icon.href = theme.matches ? '/favicon-dark.svg?v=4' : '/favicon-light.svg?v=4';
   }
   updateIcon();
   if (theme.addEventListener) theme.addEventListener('change', updateIcon);
