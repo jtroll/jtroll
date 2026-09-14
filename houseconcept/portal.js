@@ -27,7 +27,7 @@
   async function decrypt(key, item, build) {
     const payload = await (await get(item.file)).arrayBuffer();
     if (payload.byteLength !== item.bytes) throw Error('The download was interrupted. Please try again.');
-    return crypto.subtle.decrypt({name:'AES-GCM',iv:bytes(item.iv),additionalData:encoder.encode(`houseconcept:1:${build}:${item.id}`)},key,payload);
+    return crypto.subtle.decrypt({name:'AES-GCM',iv:bytes(item.iv),additionalData:encoder.encode(`houseconcept:1:${item.aadBuild || build}:${item.id}`)},key,payload);
   }
   form.addEventListener('submit', async event => {
     event.preventDefault();
