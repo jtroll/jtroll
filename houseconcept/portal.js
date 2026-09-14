@@ -20,7 +20,7 @@
     const url = new URL(path, base);
     if (url.origin !== base.origin || !url.pathname.startsWith(base.pathname)) throw Error('Invalid house file.');
     // Only encrypted payloads are cached by the browser. Keys remain in memory.
-    const response = await fetch(url);
+    const response = await fetch(url, path === 'manifest.json' ? {cache:'no-cache'} : {});
     if (!response.ok) throw Error('A house file could not be downloaded. Please try again.');
     return response;
   }
