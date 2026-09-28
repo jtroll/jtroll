@@ -393,8 +393,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   will-change: transform;
 }
 .work-carousel.no-anim .work-track,
-.work-carousel.no-anim .work-slide,
-.work-carousel.no-anim .card-phone { transition: none; }
+.work-carousel.no-anim .work-slide { transition: none; }
 
 .work-slide {
   flex: 0 0 auto;
@@ -434,22 +433,19 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   -webkit-user-drag: none;
   user-select: none;
 }
-/* Cut-out phones drift into place as their card opens: neighbors hold the
-   phone a touch off-center and tilted (--pose: -1 left … 0 open … +1 right,
-   written by JS and scrubbed live while dragging), and it settles slightly
-   after the card lands for a little parallax depth. The pivot sits at the
-   bottom edge where the phone bleeds off the frame; the small drop keeps its
-   cut edge hidden while tilted. At rest it's pixel-aligned with the plate. */
-.card-art .card-phone {
-  /* inset/size come inline from the project's phone box (percent of frame) */
-  object-fit: fill;
-  transform-origin: 50% 100%;
-  transform:
-    translate3d(calc(var(--pose, 0) * 7%), calc(var(--pose-abs, 0) * 1.8%), 0)
-    rotate(calc(var(--pose, 0) * -3.2deg));
-  transition: transform 1150ms cubic-bezier(0.2, 0.9, 0.25, 1);
-  will-change: transform;
+/* Phone projects: the cut-out phone (inset/size inline, percent of frame) is
+   the static fallback; once WebGL is up, a 3D handset rendered over the
+   phone-free plate replaces it (assets/work-phones-3d.js). */
+.card-art .card-phone { object-fit: fill; }
+.card-art .card-phone3d {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 240ms ease;
 }
+.card-art.is-3d .card-phone3d { opacity: 1; }
+.card-art.is-3d .card-phone { visibility: hidden; }
 /* Non-primary images invite interaction: lift on hover, dip on press, then
    complete the ramp to full opacity as the card becomes primary. */
 .work-slide:not(.is-open):hover .card-art { opacity: 0.9; }
@@ -859,7 +855,6 @@ body.is-loaded .hero h1 .dot {
   .photo:not(.photo-cta) img { transform: none !important; }
   .card-text { opacity: 1 !important; }
   .work-slide.is-open .card-body { opacity: 1 !important; }
-  .card-art .card-phone { transform: none !important; }
 }
 </style>
 
@@ -1309,11 +1304,11 @@ body.is-loaded .hero h1 .dot {
       { img: 'assets/work_sofi.webp', w: 1162, h: 776, year: '2024 — NOW', role: 'Sr. Director of Design', title: 'SoFi, Member Group Business Unit', body: "Leading product & content design across SoFi's horizontal group business unit spanning AI-in-product, navigation, premium features, growth and personal finance management." },
       { img: 'assets/work_cruise.webp', w: 1160, h: 772, year: '2023', role: 'Head of Ridehail Design', title: 'Cruise', body: "Head of product design for the ridehail consumer experience of Cruise, one of the foremost autonomous vehicle companies at the time. Responsible for 80% of the company's business, from in-car to app experiences. Spanned three vehicle platforms, a 13-city scaling plan, our apps and IVI." },
       { img: 'assets/work_rl.webp', w: 1740, h: 1158, year: '2021–23', role: 'Head of XD', title: 'Neural interfaces (AR)', body: "Head of Experiences Design for new neural interfaces product lines — and 5 new teams around them — within Meta's Augmented Reality division, creating the next great input mechanic and consumer devices. 12+ patents in novel inputs." },
-      { img: 'assets/work_campus_bg.webp', phone: { src: 'assets/work_campus_phone.webp', box: [29.54, 0.345, 39.31, 99.655] }, w: 1740, h: 1158, year: '2020–21', role: 'Founding Design Manager', title: 'Facebook Campus', body: "Supported a comprehensive new community product for college students within Facebook's Community Incubator. Launched its North American beta summer 2020 with 30 US universities, ramping to many more and exceeding our launch metric goals." },
-      { img: 'assets/work_neighborhoods_bg.webp', phone: { src: 'assets/work_neighborhoods_phone.webp', box: [29.828, 0.777, 38.563, 99.223] }, w: 1740, h: 1158, year: '2020', role: 'Founding Design Manager', title: 'Facebook Neighborhoods', body: "Founding design manager for another new community product, for local neighborhoods. Launched its North American beta fall 2020, and in the process build several novel features comprising a more comprehensive tool set for all Facebook group admins." },
-      { img: 'assets/work_events_bg.webp', phone: { src: 'assets/work_events_phone.webp', box: [29.655, 4.059, 40.632, 95.941] }, w: 1740, h: 1158, year: '2017–19', role: 'Design Manager', title: 'Events & Local', body: "For 3 years I supported the Facebook Local product ecosystem and the Facebook Local app. Oversaw an increase to 700M consumers & 120K creators per month as the world's largest events and \"things to do\" platform. I oversaw 12+ major new feature & service launches, including an all-new social map & data later still used company-wide. Before the pandemic Facebook Local eclipsed Yelp in the US for stickiness and MAU." },
-      { img: 'assets/work_communityintegrity_bg.webp', phone: { src: 'assets/work_communityintegrity_phone.webp', box: [29.195, 1.641, 39.828, 98.359] }, w: 1740, h: 1158, year: '2014–17', role: 'Design Lead', title: 'Community Integrity', body: "Design lead across all Facebook Consumer Support tools, including reporting and the global Help Center. Established industry-leading best practices for the time that scaled across 120 languages and created all-new ML-powered content recognition, response, and chatbot help products." },
-      { img: 'assets/work_coreexperiences_bg.webp', phone: { src: 'assets/work_coreexperiences_phone.webp', box: [29.943, 0.604, 38.966, 99.396] }, w: 1740, h: 1158, year: '2013–14', role: 'Designer', title: 'Core Experiences', body: "Designed core systems for Facebook — News Feed, rich engagement features, emerging-market support. Co-designed the first comprehensive component-based design library for the Facebook app on Android, and shipped the first rich comments (stickers)." },
+      { img: 'assets/work_campus_bg.webp', phone: { src: 'assets/work_campus_phone.webp', box: [29.54, 0.345, 39.31, 99.655], screen: 'assets/work_campus_screen.webp', place: [51.15, 5.02, 29.42, 8.84] }, w: 1740, h: 1158, year: '2020–21', role: 'Founding Design Manager', title: 'Facebook Campus', body: "Supported a comprehensive new community product for college students within Facebook's Community Incubator. Launched its North American beta summer 2020 with 30 US universities, ramping to many more and exceeding our launch metric goals." },
+      { img: 'assets/work_neighborhoods_bg.webp', phone: { src: 'assets/work_neighborhoods_phone.webp', box: [29.828, 0.777, 38.563, 99.223], screen: 'assets/work_neighborhoods_screen.webp', place: [49.19, 4.83, 32.71, 5.54] }, w: 1740, h: 1158, year: '2020', role: 'Founding Design Manager', title: 'Facebook Neighborhoods', body: "Founding design manager for another new community product, for local neighborhoods. Launched its North American beta fall 2020, and in the process build several novel features comprising a more comprehensive tool set for all Facebook group admins." },
+      { img: 'assets/work_events_bg.webp', phone: { src: 'assets/work_events_phone.webp', box: [29.655, 4.059, 40.632, 95.941], screen: 'assets/work_events_screen.webp', place: [49.91, 6.82, 36.33, -0.06] }, w: 1740, h: 1158, year: '2017–19', role: 'Design Manager', title: 'Events & Local', body: "For 3 years I supported the Facebook Local product ecosystem and the Facebook Local app. Oversaw an increase to 700M consumers & 120K creators per month as the world's largest events and \"things to do\" platform. I oversaw 12+ major new feature & service launches, including an all-new social map & data later still used company-wide. Before the pandemic Facebook Local eclipsed Yelp in the US for stickiness and MAU." },
+      { img: 'assets/work_communityintegrity_bg.webp', phone: { src: 'assets/work_communityintegrity_phone.webp', box: [29.195, 1.641, 39.828, 98.359], screen: 'assets/work_communityintegrity_screen.webp', place: [48.68, 4.51, 33.99, -0.76] }, w: 1740, h: 1158, year: '2014–17', role: 'Design Lead', title: 'Community Integrity', body: "Design lead across all Facebook Consumer Support tools, including reporting and the global Help Center. Established industry-leading best practices for the time that scaled across 120 languages and created all-new ML-powered content recognition, response, and chatbot help products." },
+      { img: 'assets/work_coreexperiences_bg.webp', phone: { src: 'assets/work_coreexperiences_phone.webp', box: [29.943, 0.604, 38.966, 99.396], screen: 'assets/work_coreexperiences_screen.webp', place: [49.58, 11.55, 32.38, -7.16] }, w: 1740, h: 1158, year: '2013–14', role: 'Designer', title: 'Core Experiences', body: "Designed core systems for Facebook — News Feed, rich engagement features, emerging-market support. Co-designed the first comprehensive component-based design library for the Facebook app on Android, and shipped the first rich comments (stickers)." },
       { img: 'assets/work_mada.webp', w: 1160, h: 772, year: '2016–2021', role: 'Founding Designer', title: 'Make America Dinner Again', body: "Founding designer for this national volunteer organization, fostering better communication across the aisle leveraging over 12 national chapters in 20 cities. Coverage in NYT, the BBC, Glenn Beck, Oprah, CNN, NPR, and other national & international media." },
       { img: 'assets/work_08_prefacebook.webp', w: 1740, h: 1158, year: 'Pre-2013', role: 'IDEO + startups', title: 'Pre-Meta', body: "Co-founded two start-ups in local discovery and social creation tools, ran a small design consultancy, and had a career in design agency life before that through places like IDEO." }
     ];
@@ -1330,12 +1325,15 @@ body.is-loaded .hero h1 .dot {
       return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
     }
 
-    // Phone layer, positioned by its box ([left, top, width, height] as % of
-    // the full frame) over a plate with the phone painted out.
+    // Phone layer over a plate with the phone painted out: a flat cut-out
+    // (box = [left, top, width, height], % of frame) plus the canvas the 3D
+    // handset renders into. `screen` is the flattened UI; `place` is where
+    // that screen sat in the original shot: [centerX%, top%, width%, roll°].
     function phoneImg(ph, loadAttrs) {
       var b = ph.box;
       return '<img class="card-phone" src="' + ph.src + '" alt="" aria-hidden="true" ' + loadAttrs + ' decoding="async" draggable="false" ' +
-        'style="inset: auto; left: ' + b[0] + '%; top: ' + b[1] + '%; width: ' + b[2] + '%; height: ' + b[3] + '%"/>';
+        'style="inset: auto; left: ' + b[0] + '%; top: ' + b[1] + '%; width: ' + b[2] + '%; height: ' + b[3] + '%"/>' +
+        '<canvas class="card-phone3d" aria-hidden="true"></canvas>';
     }
 
     track.innerHTML = projects.map(function(p, i) {
@@ -1397,15 +1395,37 @@ body.is-loaded .hero h1 .dot {
 
     function offsetFor(i) { return m.pad - i * m.step; }
 
-    /* Phone pose per card: its signed distance from the open position,
-       clamped to one card (-1 … +1). `at` may be fractional mid-drag. */
+    /* 3D phones: the module (and three.js) loads once the section nears the
+       viewport. It follows `at`, the open card's position, fractional while
+       dragging, and springs toward it; until it's up, the cut-outs show. */
+    var phones3d = null, poseAt = 0;
     function setPoses(at) {
-      for (var i = 0; i < N; i++) {
-        var d = Math.max(-1, Math.min(1, i - at));
-        slides[i].style.setProperty('--pose', d.toFixed(3));
-        slides[i].style.setProperty('--pose-abs', Math.abs(d).toFixed(3));
-      }
+      poseAt = at;
+      if (phones3d) phones3d.setAt(at);
     }
+    (function() {
+      var entries = [];
+      projects.forEach(function(p, i) {
+        if (!p.phone || !p.phone.screen) return;
+        var art = slides[i].querySelector('.card-art');
+        entries.push({
+          index: i,
+          canvas: art.querySelector('.card-phone3d'),
+          screen: p.phone.screen,
+          place: p.phone.place,
+          onReady: function() { art.classList.add('is-3d'); }
+        });
+      });
+      if (!entries.length || !('IntersectionObserver' in window)) return;
+      var io = new IntersectionObserver(function(list) {
+        if (!list.some(function(r) { return r.isIntersecting; })) return;
+        io.disconnect();
+        import('./assets/work-phones-3d.js').then(function(mod) {
+          phones3d = mod.init(entries, poseAt);
+        }).catch(function() { /* keep the cut-outs */ });
+      }, { rootMargin: '600px 0px' });
+      io.observe(viewport);
+    })();
 
     function widthFor(i) { return i === index ? m.exp : m.col; }
 
