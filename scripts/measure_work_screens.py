@@ -1,13 +1,12 @@
-"""Flatten each Work phone's screen into a texture for the 3D handsets.
+"""Measure where each Work phone's screen sits in its original shot.
 
-For assets/work_<name>.webp this writes work_<name>_screen.webp: the screen
-straightened with a perspective warp (from its fitted left, right and top
-edges) to a 900px-wide 19.5:9 image. The part below the frame edge, which
-the shot never showed, is filled with the screen's bottom colour. It also
-prints `place` for index.html: [centerX%, top%, width%, roll°] of the
-screen's top edge in the original shot.
+Prints `place` for index.html: [centerX%, top%, width%, roll°] of the
+screen's top edge in assets/work_<name>.webp, found by fitting the screen's
+left, right and top edges inside the bezel. The 3D phone uses it to land
+where the original put it. (The screens themselves are exported from Figma
+as assets/work_<name>_screen.webp; this script doesn't touch them.)
 
-  python3 scripts/flatten_work_screens.py
+  python3 scripts/measure_work_screens.py
 """
 import cv2, numpy as np, os, json
 from scipy import ndimage as ndi
@@ -53,6 +52,4 @@ for name in ['campus','neighborhoods','events','communityintegrity','coreexperie
     FH=int(OW*19.5/9)
     fill=np.median(out[max(0,OH-40):OH].reshape(-1,3),axis=0)
     full=np.empty((FH,OW,3),np.uint8); full[:]=fill; full[:min(OH,FH)]=out[:FH]
-    from PIL import Image
-    Image.fromarray(cv2.cvtColor(full,cv2.COLOR_BGR2RGB)).save(A+f'work_{name}_screen.webp',quality=88,method=6)
     print(name, 'place:',json.dumps([round((tl[0]+tr[0])/2/W*100,2), round((tl[1]+tr[1])/2/H*100,2), round(topw/W*100,2), round(-np.degrees(np.arctan2(tr[1]-tl[1],tr[0]-tl[0])),2)]))

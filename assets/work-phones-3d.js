@@ -1,18 +1,23 @@
 /* Work carousel: real 3D phones.
    Each phone project gets a small WebGL scene over its phone-free plate: a
-   modeled handset (rounded aluminum frame, black glass front, side buttons)
-   with the project's flattened UI as its screen. The phone hangs on an
-   orbit whose pivot sits behind it, so as the carousel moves it swings
-   around that point, turning to one side, then through face-on, then to
-   the other. The carousel drives it with setAt(position), where position
-   is the (possibly fractional, mid-drag) index of the open card. */
+   real iPhone 15 Pro Max model (assets/models, see CREDITS there) with the
+   project's original flat screen from Figma on its display. The phone hangs
+   on an orbit whose pivot sits behind it, so as the carousel moves it swings
+   around that point, turning to one side, then through face-on, then to the
+   other. The carousel drives it with setAt(position), where position is the
+   (possibly fractional, mid-drag) index of the open card. */
 import * as THREE from './vendor/three.module.min.js';
+import { GLTFLoader } from './vendor/GLTFLoader.js';
+import { DRACOLoader } from './vendor/DRACOLoader.js';
 import { RoomEnvironment } from './vendor/RoomEnvironment.js';
 
-// Handset, in millimeters (iPhone 15 Pro-ish proportions).
-var PHONE = { w: 71.5, h: 147.5, d: 8.2, r: 11.5, bevel: 1.5 };
-var SCREEN = { w: 62.4, r: 8.6 };
-SCREEN.h = SCREEN.w * 19.5 / 9;
+var MODEL_URL = new URL('./models/iphone-15-pro-max.glb', import.meta.url).href;
+var DRACO_URL = new URL('./vendor/draco/', import.meta.url).href;
+var SCREEN_MESH = 'xXDHkMplTIDAXLN'; // the display surface in that model
+
+// Measured from the model, in millimeters (it's authored in meters).
+var PHONE = { w: 77.7, h: 159.5 };
+var SCREEN = { w: 71.28, h: 154.03 };
 
 // Motion. Per unit of pose (one card away from open):
 var ORBIT = {
@@ -24,28 +29,6 @@ var ORBIT = {
 var FOV = 20;
 var DROP = 10; // mm lower than the original shot, so tilted bottoms stay off-frame
 var SPRING = { k: 70, c: 16 }; // stiffness / damping: settles in ~0.7s, barely overshoots
-
-function roundedRect(w, h, r) {
-  var s = new THREE.Shape(), x = -w / 2, y = -h / 2;
-  s.moveTo(x + r, y);
-  s.lineTo(x + w - r, y);
-  s.quadraticCurveTo(x + w, y, x + w, y + r);
-  s.lineTo(x + w, y + h - r);
-  s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  s.lineTo(x + r, y + h);
-  s.quadraticCurveTo(x, y + h, x, y + h - r);
-  s.lineTo(x, y + r);
-  s.quadraticCurveTo(x, y, x + r, y);
-  return s;
-}
-
-// ShapeGeometry UVs are in shape units; remap them to 0..1 over the rect.
-function planeUVs(geo, w, h) {
-  var pos = geo.attributes.position, uv = geo.attributes.uv;
-  for (var i = 0; i < pos.count; i++) uv.setXY(i, pos.getX(i) / w + 0.5, pos.getY(i) / h + 0.5);
-  uv.needsUpdate = true;
-  return geo;
-}
 
 function shadowTexture() {
   var c = document.createElement('canvas'); c.width = 256; c.height = 512;
@@ -60,54 +43,56 @@ function shadowTexture() {
   return t;
 }
 
-function buildPhone(screenTex) {
-  var P = PHONE, b = P.bevel;
-  var group = new THREE.Group();
-
-  var bodyGeo = new THREE.ExtrudeGeometry(roundedRect(P.w - 2 * b, P.h - 2 * b, P.r - b), {
-    depth: P.d - 2 * b, bevelEnabled: true, bevelThickness: b, bevelSize: b,
-    bevelSegments: 6, curveSegments: 40
-  });
-  bodyGeo.translate(0, 0, -(P.d - 2 * b) / 2);
-  var glass = new THREE.MeshPhysicalMaterial({ color: 0x050506, roughness: 0.18, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.08 });
-  var frame = new THREE.MeshPhysicalMaterial({ color: 0x3a3b40, roughness: 0.3, metalness: 0.9, clearcoat: 0.3 });
-  group.add(new THREE.Mesh(bodyGeo, [glass, frame])); // ExtrudeGeometry groups: 0 = caps, 1 = sides
-
-  var btnGeo = function(len) { return new THREE.BoxGeometry(1.0, len, 3.0); };
-  [[-1, 0.305, 6.5], [-1, 0.2, 11], [-1, 0.105, 11], [1, 0.16, 17]].forEach(function(s) {
-    var m = new THREE.Mesh(btnGeo(s[2]), frame);
-    m.position.set(s[0] * (P.w / 2 + 0.25), P.h * (s[1]), 0);
-    group.add(m);
-  });
-
-  var front = P.d / 2;
-  var scrGeo = planeUVs(new THREE.ShapeGeometry(roundedRect(SCREEN.w, SCREEN.h, SCREEN.r), 24), SCREEN.w, SCREEN.h);
-  var screen = new THREE.Mesh(scrGeo, new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false }));
-  screen.position.z = front + 0.02;
-  group.add(screen);
-
-  // Cover glass: reflection only (black dielectric, added on top), so the
-  // environment glints across the screen as it turns.
-  var sheen = new THREE.Mesh(scrGeo, new THREE.MeshPhysicalMaterial({
-    color: 0x000000, roughness: 0.06, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.04,
-    transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
-  }));
-  sheen.position.z = front + 0.06;
-  group.add(sheen);
-
-  return group;
+var modelPromise = null;
+function loadModel() {
+  if (!modelPromise) {
+    var draco = new DRACOLoader().setDecoderPath(DRACO_URL);
+    // window.WORK_PHONE_MODEL_URL (a URL, or a promise of one) can point
+    // the loader elsewhere, e.g. a preview host that won't serve .glb files.
+    modelPromise = Promise.resolve(window.WORK_PHONE_MODEL_URL || MODEL_URL).then(function(url) {
+      return new GLTFLoader().setDRACOLoader(draco).loadAsync(url);
+    }).then(function(gltf) {
+      draco.dispose();
+      return gltf.scene;
+    });
+  }
+  return modelPromise;
 }
 
-function Phone(cfg) {
+// A handset with this project's screen: the shared model, cloned (geometry
+// and materials are shared; only the display gets its own material), turned
+// to face the camera and scaled to millimeters.
+function buildPhone(template, screenTex) {
+  var phone = template.clone(true);
+  var screen = phone.getObjectByName(SCREEN_MESH);
+  screen.material = new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false });
+
+  // Cover glass: reflection only (black dielectric, added on top), so the
+  // room glints across the screen as it turns.
+  var sheen = new THREE.Mesh(screen.geometry, new THREE.MeshPhysicalMaterial({
+    color: 0x000000, roughness: 0.06, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.04,
+    transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
+    polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2
+  }));
+  sheen.renderOrder = 1;
+  screen.add(sheen);
+
+  var holder = new THREE.Group();
+  phone.rotation.y = Math.PI;   // the model's display faces -Z
+  holder.add(phone);
+  holder.scale.setScalar(1000); // meters -> millimeters
+  return holder;
+}
+
+function Phone(cfg, template) {
   this.cfg = cfg;
   this.pose = cfg.pose; this.vel = 0; this.target = cfg.pose;
   this.dirty = true; this.ready = false; this.visible = true;
 
-  var canvas = cfg.canvas;
-  var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
+  var renderer = new THREE.WebGLRenderer({ canvas: cfg.canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = 1.0;
   renderer.setClearColor(0x000000, 0);
   this.renderer = renderer;
 
@@ -115,7 +100,7 @@ function Phone(cfg) {
   var pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   pmrem.dispose();
-  var key = new THREE.DirectionalLight(0xffffff, 1.2);
+  var key = new THREE.DirectionalLight(0xffffff, 1.0);
   key.position.set(-60, 120, 160);
   scene.add(key);
   this.scene = scene;
@@ -123,8 +108,8 @@ function Phone(cfg) {
   this.camera = new THREE.PerspectiveCamera(FOV, 1.5, 10, 5000);
 
   // Rig: root (rest placement + in-plane roll from the original shot)
-  //        -> orbit (pivot, ORBIT.radius behind the phone; yaw/pitch here)
-  //          -> phone (pushed back out to the front of the pivot)
+  //        -> orbit (pivot, ORBIT.radius behind the phone; yaw here)
+  //          -> phone (pushed back out to the front of the pivot, leaning back)
   this.root = new THREE.Group();
   this.orbit = new THREE.Group();
   this.orbit.position.z = -ORBIT.radius;
@@ -143,7 +128,7 @@ function Phone(cfg) {
   });
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  this.phone = buildPhone(tex);
+  this.phone = buildPhone(template, tex);
   this.phone.position.z = ORBIT.radius;
   this.phone.rotation.x = THREE.MathUtils.degToRad(ORBIT.pitch);
   this.orbit.add(this.phone);
@@ -209,8 +194,12 @@ Phone.prototype.render = function() {
   if (!this.shown) { this.shown = true; this.cfg.onReady(); }
 };
 
-var phones = [], raf = null, last = 0;
+var phones = [], raf = null, last = 0, target = 0;
 var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+function poseFor(index, at) {
+  return reduceMotion.matches ? 0 : Math.max(-1, Math.min(1, index - at));
+}
 
 function frame(t) {
   raf = null;
@@ -227,38 +216,36 @@ function frame(t) {
 }
 function kick() { if (!raf) raf = requestAnimationFrame(frame); }
 
-/* entries: [{ index, canvas, screen, place, onReady }]
-   Returns null when WebGL isn't available (the cut-out images stay). */
+/* entries: [{ index, canvas, screen, place, onReady }]. Returns a controller
+   right away; the phones appear once the model has loaded. If WebGL or the
+   model isn't available, nothing happens and the cut-out images stay. */
 export function init(entries, at) {
-  try {
+  target = at;
+  loadModel().then(function(template) {
     entries.forEach(function(e) {
-      e.pose = reduceMotion.matches ? 0 : Math.max(-1, Math.min(1, e.index - at));
-      phones.push(new Phone(e));
+      e.pose = poseFor(e.index, target);
+      phones.push(new Phone(e, template));
     });
-  } catch (err) {
-    return null;
-  }
-
-  var ro = new ResizeObserver(function(list) {
-    list.forEach(function(r) {
-      phones.forEach(function(p) { if (p.cfg.canvas === r.target) p.resize(); });
+    var ro = new ResizeObserver(function(list) {
+      list.forEach(function(r) {
+        phones.forEach(function(p) { if (p.cfg.canvas === r.target) p.resize(); });
+      });
+      kick();
     });
+    var io = new IntersectionObserver(function(list) {
+      list.forEach(function(r) {
+        phones.forEach(function(p) { if (p.cfg.canvas === r.target) { p.visible = r.isIntersecting; p.dirty = true; } });
+      });
+      kick();
+    });
+    phones.forEach(function(p) { ro.observe(p.cfg.canvas); io.observe(p.cfg.canvas); });
     kick();
-  });
-  var io = new IntersectionObserver(function(list) {
-    list.forEach(function(r) {
-      phones.forEach(function(p) { if (p.cfg.canvas === r.target) { p.visible = r.isIntersecting; p.dirty = true; } });
-    });
-    kick();
-  });
-  phones.forEach(function(p) { ro.observe(p.cfg.canvas); io.observe(p.cfg.canvas); });
-  kick();
+  }).catch(function() { /* keep the cut-outs */ });
 
   return {
     setAt: function(at) {
-      phones.forEach(function(p) {
-        p.target = reduceMotion.matches ? 0 : Math.max(-1, Math.min(1, p.cfg.index - at));
-      });
+      target = at;
+      phones.forEach(function(p) { p.target = poseFor(p.cfg.index, at); });
       kick();
     }
   };
