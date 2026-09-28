@@ -8,11 +8,9 @@
    (possibly fractional, mid-drag) index of the open card. */
 import * as THREE from './vendor/three.module.min.js';
 import { GLTFLoader } from './vendor/GLTFLoader.js';
-import { DRACOLoader } from './vendor/DRACOLoader.js';
 import { RoomEnvironment } from './vendor/RoomEnvironment.js';
 
 var MODEL_URL = new URL('./models/iphone-15-pro-max.glb', import.meta.url).href;
-var DRACO_URL = new URL('./vendor/draco/', import.meta.url).href;
 var SCREEN_MESH = 'xXDHkMplTIDAXLN'; // the display surface in that model
 
 // Measured from the model, in millimeters (it's authored in meters).
@@ -22,13 +20,13 @@ var SCREEN = { w: 71.28, h: 154.03 };
 // Motion. Per unit of pose (one card away from open):
 var ORBIT = {
   radius: 70,    // pivot distance behind the phone (mm)
-  yaw: 22,       // degrees turned around the pivot
+  yaw: 30,       // degrees turned around the pivot
   pitch: -4,     // the handset leans back a touch (top away), in place
   restYaw: -8    // the open card still shows a sliver of its left edge
 };
 var FOV = 20;
 var DROP = 10; // mm lower than the original shot, so tilted bottoms stay off-frame
-var SPRING = { k: 70, c: 16 }; // stiffness / damping: settles in ~0.7s, barely overshoots
+var SPRING = { k: 40, c: 12 }; // stiffness / damping: settles in ~1s, just after the card lands
 
 function shadowTexture() {
   var c = document.createElement('canvas'); c.width = 256; c.height = 512;
@@ -46,13 +44,13 @@ function shadowTexture() {
 var modelPromise = null;
 function loadModel() {
   if (!modelPromise) {
-    var draco = new DRACOLoader().setDecoderPath(DRACO_URL);
-    // window.WORK_PHONE_MODEL_URL (a URL, or a promise of one) can point
-    // the loader elsewhere, e.g. a preview host that won't serve .glb files.
-    modelPromise = Promise.resolve(window.WORK_PHONE_MODEL_URL || MODEL_URL).then(function(url) {
-      return new GLTFLoader().setDRACOLoader(draco).loadAsync(url);
+    // window.WORK_PHONE_MODEL (a URL or the .glb's bytes as an ArrayBuffer,
+    // or a promise of either) can stand in for the file, e.g. on a preview
+    // host that won't serve .glb files.
+    var loader = new GLTFLoader();
+    modelPromise = Promise.resolve(window.WORK_PHONE_MODEL || MODEL_URL).then(function(src) {
+      return typeof src === 'string' ? loader.loadAsync(src) : loader.parseAsync(src, '');
     }).then(function(gltf) {
-      draco.dispose();
       return gltf.scene;
     });
   }
@@ -216,16 +214,24 @@ function frame(t) {
 }
 function kick() { if (!raf) raf = requestAnimationFrame(frame); }
 
+// Progress for anyone listening ('loading' | 'ready' | 'error'); the site
+// itself doesn't need it, a preview page can show it.
+function status(state, error) {
+  document.dispatchEvent(new CustomEvent('work-phones', { detail: { state: state, error: error && String(error.message || error) } }));
+}
+
 /* entries: [{ index, canvas, screen, place, onReady }]. Returns a controller
    right away; the phones appear once the model has loaded. If WebGL or the
    model isn't available, nothing happens and the cut-out images stay. */
 export function init(entries, at) {
   target = at;
+  status('loading');
   loadModel().then(function(template) {
     entries.forEach(function(e) {
       e.pose = poseFor(e.index, target);
       phones.push(new Phone(e, template));
     });
+    status('ready');
     var ro = new ResizeObserver(function(list) {
       list.forEach(function(r) {
         phones.forEach(function(p) { if (p.cfg.canvas === r.target) p.resize(); });
@@ -240,7 +246,7 @@ export function init(entries, at) {
     });
     phones.forEach(function(p) { ro.observe(p.cfg.canvas); io.observe(p.cfg.canvas); });
     kick();
-  }).catch(function() { /* keep the cut-outs */ });
+  }).catch(function(err) { status('error', err); /* keep the cut-outs */ });
 
   return {
     setAt: function(at) {
