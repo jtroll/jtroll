@@ -1,7 +1,8 @@
 /* Work carousel: real 3D phones.
    Each phone project gets a small WebGL scene over its phone-free plate: a
-   real iPhone 15 Pro Max model (assets/models, see CREDITS there) with the
-   project's original flat screen from Figma on its display. The phone hangs
+   real phone model (an iPhone 15 Pro Max, or a Pixel 6 Pro for the Android
+   project; assets/models, see CREDITS there) with the project's original
+   flat screen from Figma on its display. The phone hangs
    on an orbit whose pivot sits behind it, so as the carousel moves it swings
    around that point, turning to one side, then through face-on, then to the
    other. The carousel drives it with setAt(position), where position is the
@@ -10,12 +11,14 @@ import * as THREE from './vendor/three.module.min.js';
 import { GLTFLoader } from './vendor/GLTFLoader.js';
 import { RoomEnvironment } from './vendor/RoomEnvironment.js';
 
-var MODEL_URL = new URL('./models/iphone-15-pro-max.glb', import.meta.url).href;
-var SCREEN_MESH = 'xXDHkMplTIDAXLN'; // the display surface in that model
-
-// Measured from the model, in millimeters (it's authored in meters).
-var PHONE = { w: 77.7, h: 159.5 };
-var SCREEN = { w: 71.28, h: 154.03 };
+// Handsets. `screen` names the display mesh; `width` is the body's overall
+// width in millimeters (the models come in their own units, so each is
+// scaled to that). Both models' displays face -Z and map a screenshot
+// upright with the default texture orientation.
+var MODELS = {
+  iphone: { url: new URL('./models/iphone-15-pro-max.glb', import.meta.url).href, screen: 'xXDHkMplTIDAXLN', width: 77.7 },
+  pixel:  { url: new URL('./models/pixel-6-pro.glb', import.meta.url).href, screen: 'Screen_Screen_0', width: 77.0 }
+};
 
 // Motion. Per unit of pose (one card away from open):
 var ORBIT = {
@@ -41,28 +44,48 @@ function shadowTexture() {
   return t;
 }
 
-var modelPromise = null;
-function loadModel() {
-  if (!modelPromise) {
-    // window.WORK_PHONE_MODEL (a URL or the .glb's bytes as an ArrayBuffer,
-    // or a promise of either) can stand in for the file, e.g. on a preview
-    // host that won't serve .glb files.
-    var loader = new GLTFLoader();
-    modelPromise = Promise.resolve(window.WORK_PHONE_MODEL || MODEL_URL).then(function(src) {
+// Loads a handset once and normalizes it: turned to face the camera, scaled
+// to millimeters, and centered on its display, with the display's size
+// measured (template.userData.dims). window.WORK_PHONE_MODELS[id] (a URL or
+// the .glb's bytes as an ArrayBuffer, or a promise of either) can stand in
+// for the file, e.g. on a preview host that won't serve .glb files.
+var modelPromises = {};
+function loadModel(id) {
+  if (!modelPromises[id]) {
+    var m = MODELS[id], loader = new GLTFLoader();
+    var override = window.WORK_PHONE_MODELS && window.WORK_PHONE_MODELS[id];
+    modelPromises[id] = Promise.resolve(override || m.url).then(function(src) {
       return typeof src === 'string' ? loader.loadAsync(src) : loader.parseAsync(src, '');
     }).then(function(gltf) {
-      return gltf.scene;
+      var inner = gltf.scene, holder = new THREE.Group();
+      inner.rotation.y = Math.PI; // displays face -Z
+      holder.add(inner);
+      holder.updateMatrixWorld(true);
+      var body = new THREE.Box3().setFromObject(inner);
+      var k = m.width / (body.max.x - body.min.x);
+      inner.scale.multiplyScalar(k);
+      holder.updateMatrixWorld(true);
+      body = new THREE.Box3().setFromObject(inner);
+      var disp = new THREE.Box3().setFromObject(inner.getObjectByName(m.screen));
+      var dc = disp.getCenter(new THREE.Vector3());
+      inner.position.set(-dc.x, -dc.y, -body.getCenter(new THREE.Vector3()).z);
+      holder.userData.dims = {
+        phone: { w: body.max.x - body.min.x, h: body.max.y - body.min.y },
+        screen: { w: disp.max.x - disp.min.x, h: disp.max.y - disp.min.y }
+      };
+      holder.userData.screenName = m.screen;
+      return holder;
     });
   }
-  return modelPromise;
+  return modelPromises[id];
 }
 
-// A handset with this project's screen: the shared model, cloned (geometry
-// and materials are shared; only the display gets its own material), turned
-// to face the camera and scaled to millimeters.
+// A handset with this project's screen: the shared, normalized model, cloned
+// (geometry and materials are shared; only the display gets its own
+// material).
 function buildPhone(template, screenTex) {
   var phone = template.clone(true);
-  var screen = phone.getObjectByName(SCREEN_MESH);
+  var screen = phone.getObjectByName(template.userData.screenName);
   screen.material = new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false });
 
   // Cover glass: reflection only (black dielectric, added on top), so the
@@ -75,15 +98,12 @@ function buildPhone(template, screenTex) {
   sheen.renderOrder = 1;
   screen.add(sheen);
 
-  var holder = new THREE.Group();
-  phone.rotation.y = Math.PI;   // the model's display faces -Z
-  holder.add(phone);
-  holder.scale.setScalar(1000); // meters -> millimeters
-  return holder;
+  return phone;
 }
 
 function Phone(cfg, template) {
   this.cfg = cfg;
+  this.dims = template.userData.dims;
   this.pose = cfg.pose; this.vel = 0; this.target = cfg.pose;
   this.dirty = true; this.ready = false; this.visible = true;
 
@@ -115,7 +135,7 @@ function Phone(cfg, template) {
   scene.add(this.root);
 
   this.shadow = new THREE.Mesh(
-    new THREE.PlaneGeometry(PHONE.w * 1.55, PHONE.h * 1.3),
+    new THREE.PlaneGeometry(this.dims.phone.w * 1.55, this.dims.phone.h * 1.3),
     new THREE.MeshBasicMaterial({ map: shadowTexture(), transparent: true, opacity: 0.13, depthWrite: false, toneMapped: false })
   );
   scene.add(this.shadow);
@@ -144,6 +164,7 @@ Phone.prototype.resize = function() {
   // Frame the scene so the phone at rest lands where it was in the original
   // shot: screen width, horizontal center and top edge, as % of the frame.
   var s = this.cfg.place; // [centerX%, top%, width%, roll°]
+  var SCREEN = this.dims.screen;
   var frameW = SCREEN.w / (s[2] / 100);
   var frameH = frameW / this.camera.aspect;
   var dist = (frameH / 2) / Math.tan(THREE.MathUtils.degToRad(FOV / 2));
@@ -152,7 +173,8 @@ Phone.prototype.resize = function() {
   var roll = THREE.MathUtils.degToRad(s[3]);
   var cx = (s[0] / 100 - 0.5) * frameW;
   var topY = (0.5 - s[1] / 100) * frameH;
-  // Screen top-center sits SCREEN.h/2 above the phone's center; undo the roll.
+  // Screen top-center sits SCREEN.h/2 above the display's center (the rig's
+  // origin); undo the roll.
   this.root.rotation.z = roll;
   // The rest yaw swings the phone sideways around the pivot; cancel that so
   // the open card's phone stays where the original put it.
@@ -223,16 +245,18 @@ function status(state, error) {
   document.dispatchEvent(new CustomEvent('work-phones', { detail: { state: state, error: error && String(error.message || error) } }));
 }
 
-/* entries: [{ index, canvas, screen, place, onReady }]. Returns a controller
+/* entries: [{ index, canvas, screen, place, model ('iphone' | 'pixel'), onReady }]. Returns a controller
    right away; the phones appear once the model has loaded. If WebGL or the
    model isn't available, nothing happens and the cut-out images stay. */
 export function init(entries, at) {
   target = at;
   status('loading');
-  loadModel().then(function(template) {
+  var ids = [];
+  entries.forEach(function(e) { e.model = e.model || 'iphone'; if (ids.indexOf(e.model) < 0) ids.push(e.model); });
+  Promise.all(ids.map(loadModel)).then(function(templates) {
     entries.forEach(function(e) {
       e.pose = poseFor(e.index, target);
-      phones.push(new Phone(e, template));
+      phones.push(new Phone(e, templates[ids.indexOf(e.model)]));
     });
     status('ready');
     var ro = new ResizeObserver(function(list) {

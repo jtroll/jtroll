@@ -662,6 +662,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   transition: opacity 160ms ease, transform 160ms ease, visibility 0s;
 }
 .credits-pop .credits-line { display: block; }
+.credits-pop .credits-line + .credits-line { margin-top: 6px; }
 .credits-pop .credits-line + .credits-label { margin-top: 12px; }
 .credits-pop .credits-label {
   display: block;
@@ -1270,8 +1271,9 @@ body.is-loaded .hero h1 .dot {
     <span>HAND- AND CLAUDE-CODED IN THE SF BAY AREA · <span class="credits" id="credits">
       <button type="button" class="credits-toggle" aria-expanded="false" aria-controls="credits-pop">OTHER CREDITS</button>
       <span class="credits-pop" id="credits-pop">
-        <span class="credits-label">3D phone model</span>
+        <span class="credits-label">3D phone models</span>
         <span class="credits-line">“<a href="https://sketchfab.com/3d-models/apple-iphone-15-pro-max-black-df17520841214c1792fb8a44c6783ee7" target="_blank" rel="noopener">Apple iPhone 15 Pro Max Black</a>” by <a href="https://sketchfab.com/Polyman_3D" target="_blank" rel="noopener">Polyman</a>, licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</span>
+        <span class="credits-line">“<a href="https://sketchfab.com/3d-models/google-pixel-6-pro-b9b58ca40c254f8dafd8370869af74fb" target="_blank" rel="noopener">Google Pixel 6 Pro</a>” by <a href="https://sketchfab.com/DatSketch" target="_blank" rel="noopener">DatSketch</a>, licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</span>
       </span>
     </span></span>
   </div>
@@ -1369,7 +1371,7 @@ body.is-loaded .hero h1 .dot {
       { img: 'assets/work_neighborhoods_bg.webp', phone: { src: 'assets/work_neighborhoods_phone.webp', box: [29.828, 0.777, 38.563, 99.223], screen: 'assets/work_neighborhoods_screen.webp', place: [49.19, 4.83, 32.71, 5.54] }, w: 1740, h: 1158, year: '2020', role: 'Founding Design Manager', title: 'Facebook Neighborhoods', body: "Founding design manager for another new community product, for local neighborhoods. Launched its North American beta fall 2020, and in the process build several novel features comprising a more comprehensive tool set for all Facebook group admins." },
       { img: 'assets/work_events_bg.webp', phone: { src: 'assets/work_events_phone.webp', box: [29.655, 4.059, 40.632, 95.941], screen: 'assets/work_events_screen.webp', place: [49.91, 6.82, 36.33, -0.06] }, w: 1740, h: 1158, year: '2017–19', role: 'Design Manager', title: 'Events & Local', body: "For 3 years I supported the Facebook Local product ecosystem and the Facebook Local app. Oversaw an increase to 700M consumers & 120K creators per month as the world's largest events and \"things to do\" platform. I oversaw 12+ major new feature & service launches, including an all-new social map & data later still used company-wide. Before the pandemic Facebook Local eclipsed Yelp in the US for stickiness and MAU." },
       { img: 'assets/work_communityintegrity_bg.webp', phone: { src: 'assets/work_communityintegrity_phone.webp', box: [29.195, 1.641, 39.828, 98.359], screen: 'assets/work_communityintegrity_screen.webp', place: [48.68, 4.51, 33.99, -0.76] }, w: 1740, h: 1158, year: '2014–17', role: 'Design Lead', title: 'Community Integrity', body: "Design lead across all Facebook Consumer Support tools, including reporting and the global Help Center. Established industry-leading best practices for the time that scaled across 120 languages and created all-new ML-powered content recognition, response, and chatbot help products." },
-      { img: 'assets/work_coreexperiences_bg.webp', phone: { src: 'assets/work_coreexperiences_phone.webp', box: [29.943, 0.604, 38.966, 99.396], screen: 'assets/work_coreexperiences_screen.webp', place: [49.58, 11.55, 32.38, -7.16] }, w: 1740, h: 1158, year: '2013–14', role: 'Designer', title: 'Core Experiences', body: "Designed core systems for Facebook — News Feed, rich engagement features, emerging-market support. Co-designed the first comprehensive component-based design library for the Facebook app on Android, and shipped the first rich comments (stickers)." },
+      { img: 'assets/work_coreexperiences_bg.webp', phone: { model: 'pixel', src: 'assets/work_coreexperiences_phone.webp', box: [29.943, 0.604, 38.966, 99.396], screen: 'assets/work_coreexperiences_screen.webp', place: [49.58, 11.55, 32.38, -7.16] }, w: 1740, h: 1158, year: '2013–14', role: 'Designer', title: 'Core Experiences', body: "Designed core systems for Facebook — News Feed, rich engagement features, emerging-market support. Co-designed the first comprehensive component-based design library for the Facebook app on Android, and shipped the first rich comments (stickers)." },
       { img: 'assets/work_mada.webp', w: 1160, h: 772, year: '2016–2021', role: 'Founding Designer', title: 'Make America Dinner Again', body: "Founding designer for this national volunteer organization, fostering better communication across the aisle leveraging over 12 national chapters in 20 cities. Coverage in NYT, the BBC, Glenn Beck, Oprah, CNN, NPR, and other national & international media." },
       { img: 'assets/work_08_prefacebook.webp', w: 1740, h: 1158, year: 'Pre-2013', role: 'IDEO + startups', title: 'Pre-Meta', body: "Co-founded two start-ups in local discovery and social creation tools, ran a small design consultancy, and had a career in design agency life before that through places like IDEO." }
     ];
@@ -1389,7 +1391,8 @@ body.is-loaded .hero h1 .dot {
     // Phone layer over a plate with the phone painted out: a flat cut-out
     // (box = [left, top, width, height], % of frame) plus the canvas the 3D
     // handset renders into. `screen` is the flattened UI; `place` is where
-    // that screen sat in the original shot: [centerX%, top%, width%, roll°].
+    // that screen sat in the original shot: [centerX%, top%, width%, roll°];
+    // `model` picks the handset (default iPhone; 'pixel' for Android).
     function phoneImg(ph, loadAttrs) {
       var b = ph.box;
       return '<img class="card-phone" src="' + ph.src + '" alt="" aria-hidden="true" ' + loadAttrs + ' decoding="async" draggable="false" ' +
@@ -1474,6 +1477,7 @@ body.is-loaded .hero h1 .dot {
           canvas: art.querySelector('.card-phone3d'),
           screen: p.phone.screen,
           place: p.phone.place,
+          model: p.phone.model,
           onReady: function() { art.classList.add('is-3d'); }
         });
       });
