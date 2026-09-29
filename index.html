@@ -410,24 +410,47 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   overflow: hidden;
   background: var(--paper);
 }
-.card-media img {
+/* The art layer is a fixed-size, center-anchored frame (sized for the
+   EXPANDED card); the photo — or, for phone shots, a phone-free plate plus
+   the cut-out phone — sits inside it. Opacity lives on the layer so a phone
+   never shows the plate through itself on dimmed cards. */
+.card-art {
   position: absolute;
   top: 0; left: 50%;
   transform: translateX(-50%);
   width: var(--img-w, 100%);
+  height: 100%;
+  opacity: 0.75;
+  transition: opacity 260ms ease;
+}
+.card-art img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
   max-width: none;
   height: 100%;
   object-fit: cover;
-  opacity: 0.75;
-  transition: opacity 260ms ease;
   -webkit-user-drag: none;
   user-select: none;
 }
+/* Phone projects: the cut-out phone (inset/size inline, percent of frame) is
+   the static fallback; once WebGL is up, a 3D handset rendered over the
+   phone-free plate replaces it (assets/work-phones-3d.js). */
+.card-art .card-phone { object-fit: fill; }
+.card-art .card-phone3d {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+.card-art.is-3d .card-phone3d { opacity: 1; }
+.card-art.is-3d .card-phone { visibility: hidden; }
 /* Non-primary images invite interaction: lift on hover, dip on press, then
    complete the ramp to full opacity as the card becomes primary. */
-.work-slide:not(.is-open):hover .card-media img { opacity: 0.9; }
-.work-slide:not(.is-open):active .card-media img { opacity: 0.7; }
-.work-slide.is-open .card-media img { opacity: 1; }
+.work-slide:not(.is-open):hover .card-art { opacity: 0.9; }
+.work-slide:not(.is-open):active .card-art { opacity: 0.7; }
+.work-slide.is-open .card-art { opacity: 1; }
 .card-media::after {
   /* hairline inset, kept off the img so it never clips the reveal */
   content: ""; position: absolute; inset: 0;
@@ -610,6 +633,48 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
   font-family: var(--mono); font-size: 11px; color: var(--ink-3); letter-spacing: 0.06em;
 }
 @media (max-width: 720px) { .footer { flex-direction: column; gap: 16px; text-align: center; } }
+
+/* "Other credits": a quiet footer link that opens a small card with the
+   attributions third-party assets ask for (hover, keyboard focus, or tap). */
+.credits { position: relative; display: inline-block; }
+.credits-toggle {
+  background: none; border: 0; padding: 0; margin: 0;
+  font: inherit; letter-spacing: inherit; color: inherit; text-transform: inherit;
+  cursor: pointer; border-bottom: 1px dotted currentColor;
+}
+.credits-toggle:hover, .credits.is-open .credits-toggle { color: var(--ink); }
+.credits-toggle:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; border-radius: 2px; }
+.credits-pop {
+  position: absolute; right: 0; bottom: calc(100% + 12px); z-index: 20;
+  width: min(320px, calc(100vw - 32px));
+  padding: 14px 16px;
+  background: var(--paper); color: var(--ink-2);
+  border: 1px solid var(--rule-strong); border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 28, 47, 0.12);
+  font-family: var(--sans); font-size: 12px; line-height: 1.5; letter-spacing: 0; text-align: left; text-transform: none;
+  opacity: 0; visibility: hidden; transform: translateY(4px);
+  transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 160ms;
+}
+/* invisible bridge so the pointer can travel from the link into the card */
+.credits-pop::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 12px; }
+.credits:hover .credits-pop, .credits:focus-within .credits-pop, .credits.is-open .credits-pop {
+  opacity: 1; visibility: visible; transform: none;
+  transition: opacity 160ms ease, transform 160ms ease, visibility 0s;
+}
+.credits-pop .credits-line { display: block; }
+.credits-pop .credits-line + .credits-line { margin-top: 6px; }
+.credits-pop .credits-line + .credits-label { margin-top: 12px; }
+.credits-pop .credits-label {
+  display: block;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3);
+  margin-bottom: 6px;
+}
+.credits-pop a { color: var(--ink); border-bottom: 1px solid var(--rule-strong); }
+.credits-pop a:hover { color: var(--red); border-color: currentColor; }
+@media (max-width: 720px) {
+  .credits-pop { right: auto; left: 50%; transform: translate(-50%, 4px); }
+  .credits:hover .credits-pop, .credits:focus-within .credits-pop, .credits.is-open .credits-pop { transform: translate(-50%, 0); }
+}
 
 /* ===== Text selection — a very light wash of brand red ===== */
 ::selection { background: rgba(209, 41, 61, 0.22); color: var(--ink); }
@@ -1203,9 +1268,30 @@ body.is-loaded .hero h1 .dot {
 <footer class="footer">
   <div class="wrap" style="display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap;">
     <span>© J.T. TROLLMAN · MMXXVI</span>
-    <span>HAND- AND CLAUDE-CODED IN THE SF BAY AREA</span>
+    <span>HAND- AND CLAUDE-CODED IN THE SF BAY AREA · <span class="credits" id="credits">
+      <button type="button" class="credits-toggle" aria-expanded="false" aria-controls="credits-pop">OTHER CREDITS</button>
+      <span class="credits-pop" id="credits-pop">
+        <span class="credits-label">3D phone models</span>
+        <span class="credits-line">“<a href="https://sketchfab.com/3d-models/apple-iphone-15-pro-max-black-df17520841214c1792fb8a44c6783ee7" target="_blank" rel="noopener">Apple iPhone 15 Pro Max Black</a>” by <a href="https://sketchfab.com/Polyman_3D" target="_blank" rel="noopener">Polyman</a>, licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</span>
+        <span class="credits-line">“<a href="https://sketchfab.com/3d-models/google-pixel-6-pro-b9b58ca40c254f8dafd8370869af74fb" target="_blank" rel="noopener">Google Pixel 6 Pro</a>” by <a href="https://sketchfab.com/DatSketch" target="_blank" rel="noopener">DatSketch</a>, licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</span>
+      </span>
+    </span></span>
   </div>
 </footer>
+
+<script>
+  // Footer "Other credits": tap/click toggles the card (hover and focus
+  // already show it); Escape or a click elsewhere closes it.
+  (function() {
+    var root = document.getElementById('credits');
+    if (!root) return;
+    var btn = root.querySelector('.credits-toggle');
+    function set(open) { root.classList.toggle('is-open', open); btn.setAttribute('aria-expanded', String(open)); }
+    btn.addEventListener('click', function() { set(!root.classList.contains('is-open')); });
+    document.addEventListener('click', function(e) { if (!root.contains(e.target)) set(false); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && root.classList.contains('is-open')) { set(false); btn.focus(); } });
+  })();
+</script>
 
 <script>
   /* ===== Sticky nav: show after scrolling past hero ===== */
@@ -1281,11 +1367,11 @@ body.is-loaded .hero h1 .dot {
       { img: 'assets/work_sofi.webp', w: 1162, h: 776, year: '2024 — NOW', role: 'Sr. Director of Design', title: 'SoFi, Member Group Business Unit', body: "Leading product & content design across SoFi's horizontal group business unit spanning AI-in-product, navigation, premium features, growth and personal finance management." },
       { img: 'assets/work_cruise.webp', w: 1160, h: 772, year: '2023', role: 'Head of Ridehail Design', title: 'Cruise', body: "Head of product design for the ridehail consumer experience of Cruise, one of the foremost autonomous vehicle companies at the time. Responsible for 80% of the company's business, from in-car to app experiences. Spanned three vehicle platforms, a 13-city scaling plan, our apps and IVI." },
       { img: 'assets/work_rl.webp', w: 1740, h: 1158, year: '2021–23', role: 'Head of XD', title: 'Neural interfaces (AR)', body: "Head of Experiences Design for new neural interfaces product lines — and 5 new teams around them — within Meta's Augmented Reality division, creating the next great input mechanic and consumer devices. 12+ patents in novel inputs." },
-      { img: 'assets/work_campus.webp', w: 1740, h: 1158, year: '2020–21', role: 'Founding Design Manager', title: 'Facebook Campus', body: "Supported a comprehensive new community product for college students within Facebook's Community Incubator. Launched its North American beta summer 2020 with 30 US universities, ramping to many more and exceeding our launch metric goals." },
-      { img: 'assets/work_neighborhoods.webp', w: 1740, h: 1158, year: '2020', role: 'Founding Design Manager', title: 'Facebook Neighborhoods', body: "Founding design manager for another new community product, for local neighborhoods. Launched its North American beta fall 2020, and in the process build several novel features comprising a more comprehensive tool set for all Facebook group admins." },
-      { img: 'assets/work_events.webp', w: 1740, h: 1158, year: '2017–19', role: 'Design Manager', title: 'Events & Local', body: "For 3 years I supported the Facebook Local product ecosystem and the Facebook Local app. Oversaw an increase to 700M consumers & 120K creators per month as the world's largest events and \"things to do\" platform. I oversaw 12+ major new feature & service launches, including an all-new social map & data later still used company-wide. Before the pandemic Facebook Local eclipsed Yelp in the US for stickiness and MAU." },
-      { img: 'assets/work_communityintegrity.webp', w: 1740, h: 1158, year: '2014–17', role: 'Design Lead', title: 'Community Integrity', body: "Design lead across all Facebook Consumer Support tools, including reporting and the global Help Center. Established industry-leading best practices for the time that scaled across 120 languages and created all-new ML-powered content recognition, response, and chatbot help products." },
-      { img: 'assets/work_coreexperiences.webp', w: 1740, h: 1158, year: '2013–14', role: 'Designer', title: 'Core Experiences', body: "Designed core systems for Facebook — News Feed, rich engagement features, emerging-market support. Co-designed the first comprehensive component-based design library for the Facebook app on Android, and shipped the first rich comments (stickers)." },
+      { img: 'assets/work_campus_bg.webp', phone: { src: 'assets/work_campus_phone.webp', box: [29.54, 0.345, 39.31, 99.655], screen: 'assets/work_campus_screen.webp', place: [51.15, 5.02, 29.42, 8.84] }, w: 1740, h: 1158, year: '2020–21', role: 'Founding Design Manager', title: 'Facebook Campus', body: "Supported a comprehensive new community product for college students within Facebook's Community Incubator. Launched its North American beta summer 2020 with 30 US universities, ramping to many more and exceeding our launch metric goals." },
+      { img: 'assets/work_neighborhoods_bg.webp', phone: { src: 'assets/work_neighborhoods_phone.webp', box: [29.828, 0.777, 38.563, 99.223], screen: 'assets/work_neighborhoods_screen.webp', place: [49.19, 4.83, 32.71, 5.54] }, w: 1740, h: 1158, year: '2020', role: 'Founding Design Manager', title: 'Facebook Neighborhoods', body: "Founding design manager for another new community product, for local neighborhoods. Launched its North American beta fall 2020, and in the process build several novel features comprising a more comprehensive tool set for all Facebook group admins." },
+      { img: 'assets/work_events_bg.webp', phone: { src: 'assets/work_events_phone.webp', box: [29.655, 4.059, 40.632, 95.941], screen: 'assets/work_events_screen.webp', place: [49.91, 6.82, 36.33, -0.06] }, w: 1740, h: 1158, year: '2017–19', role: 'Design Manager', title: 'Events & Local', body: "For 3 years I supported the Facebook Local product ecosystem and the Facebook Local app. Oversaw an increase to 700M consumers & 120K creators per month as the world's largest events and \"things to do\" platform. I oversaw 12+ major new feature & service launches, including an all-new social map & data later still used company-wide. Before the pandemic Facebook Local eclipsed Yelp in the US for stickiness and MAU." },
+      { img: 'assets/work_communityintegrity_bg.webp', phone: { src: 'assets/work_communityintegrity_phone.webp', box: [29.195, 1.641, 39.828, 98.359], screen: 'assets/work_communityintegrity_screen.webp', place: [48.68, 4.51, 33.99, -0.76] }, w: 1740, h: 1158, year: '2014–17', role: 'Design Lead', title: 'Community Integrity', body: "Design lead across all Facebook Consumer Support tools, including reporting and the global Help Center. Established industry-leading best practices for the time that scaled across 120 languages and created all-new ML-powered content recognition, response, and chatbot help products." },
+      { img: 'assets/work_coreexperiences_bg.webp', phone: { model: 'pixel', src: 'assets/work_coreexperiences_phone.webp', box: [29.943, 0.604, 38.966, 99.396], screen: 'assets/work_coreexperiences_screen.webp', place: [49.58, 11.55, 32.38, -7.16] }, w: 1740, h: 1158, year: '2013–14', role: 'Designer', title: 'Core Experiences', body: "Designed core systems for Facebook — News Feed, rich engagement features, emerging-market support. Co-designed the first comprehensive component-based design library for the Facebook app on Android, and shipped the first rich comments (stickers)." },
       { img: 'assets/work_mada.webp', w: 1160, h: 772, year: '2016–2021', role: 'Founding Designer', title: 'Make America Dinner Again', body: "Founding designer for this national volunteer organization, fostering better communication across the aisle leveraging over 12 national chapters in 20 cities. Coverage in NYT, the BBC, Glenn Beck, Oprah, CNN, NPR, and other national & international media." },
       { img: 'assets/work_08_prefacebook.webp', w: 1740, h: 1158, year: 'Pre-2013', role: 'IDEO + startups', title: 'Pre-Meta', body: "Co-founded two start-ups in local discovery and social creation tools, ran a small design consultancy, and had a career in design agency life before that through places like IDEO." }
     ];
@@ -1302,12 +1388,28 @@ body.is-loaded .hero h1 .dot {
       return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
     }
 
+    // Phone layer over a plate with the phone painted out: a flat cut-out
+    // (box = [left, top, width, height], % of frame) plus the canvas the 3D
+    // handset renders into. `screen` is the flattened UI; `place` is where
+    // that screen sat in the original shot: [centerX%, top%, width%, roll°]
+    // (the 3D phone keeps the top, size and tilt, centered on the card);
+    // `model` picks the handset (default iPhone; 'pixel' for Android).
+    function phoneImg(ph, loadAttrs) {
+      var b = ph.box;
+      return '<img class="card-phone" src="' + ph.src + '" alt="" aria-hidden="true" ' + loadAttrs + ' decoding="async" draggable="false" ' +
+        'style="inset: auto; left: ' + b[0] + '%; top: ' + b[1] + '%; width: ' + b[2] + '%; height: ' + b[3] + '%"/>' +
+        '<canvas class="card-phone3d" aria-hidden="true"></canvas>';
+    }
+
     track.innerHTML = projects.map(function(p, i) {
       var loadAttrs = i < 3 ? 'loading="eager"' + (i === 0 ? ' fetchpriority="high"' : '') : 'loading="lazy"';
       return '<li class="work-slide" role="group" aria-roledescription="slide" aria-label="' + (i + 1) + ' of ' + projects.length + '">' +
         '<figure class="card">' +
           '<div class="card-media">' +
-            '<img src="' + p.img + '" alt="' + esc(p.title) + '" width="' + p.w + '" height="' + p.h + '" ' + loadAttrs + ' decoding="async" draggable="false"/>' +
+            '<div class="card-art">' +
+              '<img src="' + p.img + '" alt="' + esc(p.title) + '" width="' + p.w + '" height="' + p.h + '" ' + loadAttrs + ' decoding="async" draggable="false"/>' +
+              (p.phone ? phoneImg(p.phone, loadAttrs) : '') +
+            '</div>' +
           '</div>' +
           '<figcaption class="card-text">' +
             '<p class="card-kicker"><span class="card-role">' + esc(p.role) + '</span><span class="card-year">' + esc(p.year) + '</span></p>' +
@@ -1358,6 +1460,42 @@ body.is-loaded .hero h1 .dot {
 
     function offsetFor(i) { return m.pad - i * m.step; }
 
+    /* 3D phones: the module (and three.js) loads once the section nears the
+       viewport. It follows `at`, the open card's position, fractional while
+       dragging, and springs toward it; until it's up, the cut-outs show. */
+    var phones3d = null, poseAt = 0;
+    function setPoses(at) {
+      poseAt = at;
+      if (phones3d) phones3d.setAt(at);
+    }
+    (function() {
+      var entries = [];
+      projects.forEach(function(p, i) {
+        if (!p.phone || !p.phone.screen) return;
+        var art = slides[i].querySelector('.card-art');
+        entries.push({
+          index: i,
+          canvas: art.querySelector('.card-phone3d'),
+          screen: p.phone.screen,
+          place: p.phone.place,
+          model: p.phone.model,
+          onReady: function() { art.classList.add('is-3d'); }
+        });
+      });
+      if (!entries.length || !('IntersectionObserver' in window)) return;
+      var io = new IntersectionObserver(function(list) {
+        if (!list.some(function(r) { return r.isIntersecting; })) return;
+        io.disconnect();
+        import('./assets/work-phones-3d.js').then(function(mod) {
+          phones3d = mod.init(entries, poseAt);
+        }).catch(function(err) {
+          // Keep the cut-outs; say why for anyone listening (e.g. a preview).
+          document.dispatchEvent(new CustomEvent('work-phones', { detail: { state: 'error', error: String(err && err.message || err) } }));
+        });
+      }, { rootMargin: '600px 0px' });
+      io.observe(viewport);
+    })();
+
     function widthFor(i) { return i === index ? m.exp : m.col; }
 
     /* The unit's height is fixed to the tallest card measured at the EXPANDED
@@ -1399,6 +1537,7 @@ body.is-loaded .hero h1 .dot {
         bodies[i].style.width = widthFor(i) + 'px';
         slides[i].classList.toggle('is-open', i === index);
       }
+      setPoses(index);
       track.style.transform = 'translate3d(' + offsetFor(index) + 'px, 0, 0)';
       counter.textContent = String(index + 1).padStart(2, '0') + ' / ' + String(N).padStart(2, '0');
       prevBtn.disabled = index === 0;
@@ -1437,6 +1576,7 @@ body.is-loaded .hero h1 .dot {
         slides[i].style.width = w + 'px';
       }
       track.style.transform = 'translate3d(' + (offsetFor(index) - dir * p * m.step) + 'px, 0, 0)';
+      setPoses(index + dir * p);
     }
 
     viewport.addEventListener('dragstart', function(e) { e.preventDefault(); });
