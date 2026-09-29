@@ -86,7 +86,12 @@ function loadModel(id) {
 function buildPhone(template, screenTex) {
   var phone = template.clone(true);
   var screen = phone.getObjectByName(template.userData.screenName);
-  screen.material = new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false });
+  // The display sits flush with the bezel; a small depth offset makes it win
+  // any tie so the two never z-fight.
+  screen.material = new THREE.MeshBasicMaterial({
+    map: screenTex, toneMapped: false,
+    polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1
+  });
 
   // Cover glass: reflection only (black dielectric, added on top), so the
   // room glints across the screen as it turns.
@@ -169,6 +174,11 @@ Phone.prototype.resize = function() {
   var frameH = frameW / this.camera.aspect;
   var dist = (frameH / 2) / Math.tan(THREE.MathUtils.degToRad(FOV / 2));
   this.camera.position.set(0, 0, dist);
+  // Hug the scene's depth (phone swinging within ~±90mm of the pivot, the
+  // shadow just behind it): a tight near/far keeps the depth buffer precise
+  // enough on phone GPUs that the display and its bezel don't flicker.
+  this.camera.near = Math.max(1, dist - ORBIT.radius - 100);
+  this.camera.far = dist + ORBIT.radius + 100;
   this.camera.updateProjectionMatrix();
   var roll = THREE.MathUtils.degToRad(s[3]);
   var cx = (s[0] / 100 - 0.5) * frameW;
