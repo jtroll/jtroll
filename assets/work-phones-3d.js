@@ -17,13 +17,17 @@ import { RoomEnvironment } from './vendor/RoomEnvironment.js';
 // upright with the default texture orientation.
 var MODELS = {
   iphone: { url: new URL('./models/iphone-15-pro-max.glb', import.meta.url).href, screen: 'xXDHkMplTIDAXLN', width: 77.7 },
-  pixel:  { url: new URL('./models/pixel-6-pro.glb', import.meta.url).href, screen: 'Screen_Screen_0', width: 77.0 }
+  // The Pixel's display peaks level with the black bezel panel beneath it
+  // (within 0.01mm), which phone GPUs can't resolve: it streaks. `lift`
+  // raises the display that far (mm) toward the viewer. (Not the iPhone:
+  // its Dynamic Island must stay in front of the display.)
+  pixel:  { url: new URL('./models/pixel-6-pro.glb', import.meta.url).href, screen: 'Screen_Screen_0', width: 77.0, lift: 0.2 }
 };
 
 // Motion. Per unit of pose (one card away from open):
 var ORBIT = {
   radius: 70,    // pivot distance behind the phone (mm)
-  yaw: 20,       // degrees turned around the pivot
+  yaw: 15,       // degrees turned around the pivot
   pitch: -4,     // the handset leans back a touch (top away), in place
   restYaw: -8    // the open card still shows a sliver of its left edge
 };
@@ -69,6 +73,15 @@ function loadModel(id) {
       var disp = new THREE.Box3().setFromObject(inner.getObjectByName(m.screen));
       var dc = disp.getCenter(new THREE.Vector3());
       inner.position.set(-dc.x, -dc.y, -body.getCenter(new THREE.Vector3()).z);
+      if (m.lift) {
+        // Move the display along +Z in the holder's frame, expressed in its
+        // parent's local space.
+        holder.updateMatrixWorld(true);
+        var scr = inner.getObjectByName(m.screen), inv = scr.parent.matrixWorld.clone().invert();
+        var a = scr.getWorldPosition(new THREE.Vector3());
+        var b = a.clone().add(new THREE.Vector3(0, 0, m.lift));
+        scr.position.add(b.applyMatrix4(inv).sub(a.applyMatrix4(inv)));
+      }
       holder.userData.dims = {
         phone: { w: body.max.x - body.min.x, h: body.max.y - body.min.y },
         screen: { w: disp.max.x - disp.min.x, h: disp.max.y - disp.min.y }
@@ -167,8 +180,10 @@ Phone.prototype.resize = function() {
   this.camera.aspect = w / h;
 
   // Frame the scene so the phone at rest lands where it was in the original
-  // shot: screen width, horizontal center and top edge, as % of the frame.
-  var s = this.cfg.place; // [centerX%, top%, width%, roll°]
+  // shot: screen width, top edge and tilt; horizontally, the display's center
+  // sits on the card's center line (anchoring by the top edge let a tilted
+  // phone drift off to one side).
+  var s = this.cfg.place; // [centerX% (unused), top%, width%, roll°]
   var SCREEN = this.dims.screen;
   var frameW = SCREEN.w / (s[2] / 100);
   var frameH = frameW / this.camera.aspect;
@@ -181,15 +196,14 @@ Phone.prototype.resize = function() {
   this.camera.far = dist + ORBIT.radius + 100;
   this.camera.updateProjectionMatrix();
   var roll = THREE.MathUtils.degToRad(s[3]);
-  var cx = (s[0] / 100 - 0.5) * frameW;
   var topY = (0.5 - s[1] / 100) * frameH;
   // Screen top-center sits SCREEN.h/2 above the display's center (the rig's
-  // origin); undo the roll.
+  // origin); undo the roll for the height.
   this.root.rotation.z = roll;
   // The rest yaw swings the phone sideways around the pivot; cancel that so
   // the open card's phone stays where the original put it.
   var restShift = ORBIT.radius * Math.sin(THREE.MathUtils.degToRad(ORBIT.restYaw));
-  this.root.position.set(cx + Math.sin(roll) * SCREEN.h / 2 - restShift * Math.cos(roll),
+  this.root.position.set(-restShift * Math.cos(roll),
                          topY - Math.cos(roll) * SCREEN.h / 2 - restShift * Math.sin(roll) - DROP, 0);
   this.dirty = true;
 };

@@ -1391,7 +1391,8 @@ body.is-loaded .hero h1 .dot {
     // Phone layer over a plate with the phone painted out: a flat cut-out
     // (box = [left, top, width, height], % of frame) plus the canvas the 3D
     // handset renders into. `screen` is the flattened UI; `place` is where
-    // that screen sat in the original shot: [centerX%, top%, width%, roll°];
+    // that screen sat in the original shot: [centerX%, top%, width%, roll°]
+    // (the 3D phone keeps the top, size and tilt, centered on the card);
     // `model` picks the handset (default iPhone; 'pixel' for Android).
     function phoneImg(ph, loadAttrs) {
       var b = ph.box;
