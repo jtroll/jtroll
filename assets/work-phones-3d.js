@@ -23,7 +23,7 @@ var MODELS = {
 // Motion. Per unit of pose (one card away from open):
 var ORBIT = {
   radius: 70,    // pivot distance behind the phone (mm)
-  yaw: 30,       // degrees turned around the pivot
+  yaw: 20,       // degrees turned around the pivot
   pitch: -4,     // the handset leans back a touch (top away), in place
   restYaw: -8    // the open card still shows a sliver of its left edge
 };
