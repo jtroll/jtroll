@@ -208,7 +208,10 @@ function frame(t) {
     var ph = phones[i];
     ph.step(dt);
     if (ph.visible) ph.render();
-    if (ph.dirty || ph.pose !== ph.target) busy = true;
+    // Keep going while anything is still moving, or a visible phone still
+    // owes a draw. (Off-screen phones stay dirty until they come back into
+    // view; the IntersectionObserver kicks the loop then.)
+    if (ph.pose !== ph.target || (ph.visible && ph.dirty)) busy = true;
   }
   if (busy) raf = requestAnimationFrame(frame); else last = 0;
 }

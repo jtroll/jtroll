@@ -1,10 +1,13 @@
-"""Split the flat Work phone shots into a phone-free plate + cut-out phone.
+"""Cut the phone out of each flat Work phone shot.
 
-For each assets/work_<name>.webp this writes:
-  work_<name>_bg.webp     the background with the phone painted out (flat paper)
-  work_<name>_phone.webp  the phone alone (alpha), cropped to its bounds
-and prints each phone's box ([left, top, width, height] as % of the frame)
-for the `phone.box` field in index.html's projects list.
+For each assets/work_<name>.webp this writes work_<name>_phone.webp: the
+phone alone (alpha), cropped to its bounds, used as the static fallback
+until the 3D phone is up. It prints each phone's box ([left, top, width,
+height] as % of the frame) for the `phone.box` field in index.html.
+
+(The backgrounds, work_<name>_bg.webp, aren't made here: they're the
+project frames exported from the portfolio Figma file with the phone
+layer hidden, so the whole dot bloom is there to rotate in front of.)
 
 Works because the phones have near-black bezels on light paper: the largest
 dark component is the bezel, closed along the frame edge it bleeds off, then
@@ -44,7 +47,6 @@ for name in ['campus','neighborhoods','events','communityintegrity','coreexperie
     paper=np.median(img[ring],axis=0)
     hole=cv2.GaussianBlur(ndi.binary_dilation(m,iterations=10).astype(np.float32),(0,0),3)[...,None]
     plate=(img*(1-hole)+paper*hole).astype(np.uint8)
-    Image.fromarray(cv2.cvtColor(plate,cv2.COLOR_BGR2RGB)).save(A+f'work_{name}_bg.webp',quality=86,method=6)
     ys,xs=np.where(a>0); x0,x1,y0,y1=xs.min(),xs.max()+1,ys.min(),ys.max()+1
     Image.fromarray(cv2.cvtColor(rgba[y0:y1,x0:x1],cv2.COLOR_BGRA2RGBA)).save(A+f'work_{name}_phone.webp',quality=90,method=6)
     out[name]=[round(x0/W*100,3),round(y0/H*100,3),round((x1-x0)/W*100,3),round((y1-y0)/H*100,3)]
