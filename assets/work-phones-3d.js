@@ -21,7 +21,11 @@ var MODELS = {
   // (within 0.01mm), which phone GPUs can't resolve: it streaks. `lift`
   // raises the display that far (mm) toward the viewer. (Not the iPhone:
   // its Dynamic Island must stay in front of the display.)
-  pixel:  { url: new URL('./models/pixel-6-pro.glb', import.meta.url).href, screen: 'Screen_Screen_0', width: 77.0, lift: 0.2 }
+  // `matte` lists meshes repainted flat black: the Pixel's glossy bezel strip
+  // and earpiece grilles, which caught the light as a bright line along the
+  // top of the display (on the real phone that border reads as black).
+  pixel:  { url: new URL('./models/pixel-6-pro.glb', import.meta.url).href, screen: 'Screen_Screen_0', width: 77.0, lift: 0.2,
+            matte: ['Bezel_Bezel_0', 'Bezel_Mic_0', 'Frame_Mic_0'] }
 };
 
 // Motion. Per unit of pose (one card away from open):
@@ -73,6 +77,10 @@ function loadModel(id) {
       var disp = new THREE.Box3().setFromObject(inner.getObjectByName(m.screen));
       var dc = disp.getCenter(new THREE.Vector3());
       inner.position.set(-dc.x, -dc.y, -body.getCenter(new THREE.Vector3()).z);
+      if (m.matte) {
+        var black = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.9, metalness: 0 });
+        m.matte.forEach(function(name) { var o = inner.getObjectByName(name); if (o) o.material = black; });
+      }
       if (m.lift) {
         // Move the display along +Z in the holder's frame, expressed in its
         // parent's local space.
@@ -99,22 +107,13 @@ function loadModel(id) {
 function buildPhone(template, screenTex) {
   var phone = template.clone(true);
   var screen = phone.getObjectByName(template.userData.screenName);
-  // The display sits flush with the bezel; a small depth offset makes it win
-  // any tie so the two never z-fight.
+  // The screenshot is shown exactly as designed: unlit, no glass reflection
+  // on top (a glint washed dark status bars out to grey). The display sits
+  // flush with the bezel; a small depth offset makes it win any tie.
   screen.material = new THREE.MeshBasicMaterial({
     map: screenTex, toneMapped: false,
     polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1
   });
-
-  // Cover glass: reflection only (black dielectric, added on top), so the
-  // room glints across the screen as it turns.
-  var sheen = new THREE.Mesh(screen.geometry, new THREE.MeshPhysicalMaterial({
-    color: 0x000000, roughness: 0.06, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.04,
-    transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
-    polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2
-  }));
-  sheen.renderOrder = 1;
-  screen.add(sheen);
 
   return phone;
 }
