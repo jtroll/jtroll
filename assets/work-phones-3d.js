@@ -118,23 +118,42 @@ function buildPhone(template, screenTex) {
   return phone;
 }
 
+/* One WebGL renderer, offscreen, serves every phone: each card's canvas is
+   a plain 2D canvas the shared renderer's frame is copied into. So there's
+   a single GPU context, and each model's geometry and textures are uploaded
+   once however many cards use it (separate contexts per card cost ~5x the
+   GPU memory, which mobile Safari punishes). */
+var gl = null, environment = null;
+function sharedRenderer() {
+  if (gl) return gl;
+  gl = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
+  gl.outputColorSpace = THREE.SRGBColorSpace;
+  gl.toneMapping = THREE.ACESFilmicToneMapping;
+  gl.toneMappingExposure = 1.0;
+  gl.setClearColor(0x000000, 0);
+  gl.setPixelRatio(1); // sizes below are already in device pixels
+  var pmrem = new THREE.PMREMGenerator(gl);
+  environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  pmrem.dispose();
+  // If the browser drops the context (memory pressure), three.js rebuilds
+  // its GPU resources on restore; redraw everything then.
+  gl.domElement.addEventListener('webglcontextlost', function(e) { e.preventDefault(); }, false);
+  gl.domElement.addEventListener('webglcontextrestored', function() {
+    phones.forEach(function(p) { p.dirty = true; }); kick();
+  }, false);
+  return gl;
+}
+
 function Phone(cfg, template) {
   this.cfg = cfg;
   this.dims = template.userData.dims;
   this.pose = cfg.pose; this.vel = 0; this.target = cfg.pose;
   this.dirty = true; this.ready = false; this.visible = true;
-
-  var renderer = new THREE.WebGLRenderer({ canvas: cfg.canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.0;
-  renderer.setClearColor(0x000000, 0);
-  this.renderer = renderer;
+  this.ctx = cfg.canvas.getContext('2d');
+  this.pw = 0; this.ph = 0; // canvas size in device pixels
 
   var scene = new THREE.Scene();
-  var pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  pmrem.dispose();
+  scene.environment = environment;
   var key = new THREE.DirectionalLight(0xffffff, 1.0);
   key.position.set(-60, 120, 160);
   scene.add(key);
@@ -162,7 +181,7 @@ function Phone(cfg, template) {
     self.ready = true; self.dirty = true; kick();
   });
   tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  tex.anisotropy = gl.capabilities.getMaxAnisotropy();
   this.phone = buildPhone(template, tex);
   this.phone.position.z = ORBIT.radius;
   this.phone.rotation.x = THREE.MathUtils.degToRad(ORBIT.pitch);
@@ -174,8 +193,9 @@ function Phone(cfg, template) {
 Phone.prototype.resize = function() {
   var c = this.cfg.canvas, w = c.clientWidth, h = c.clientHeight;
   if (!w || !h) return;
-  this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  this.renderer.setSize(w, h, false);
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  this.pw = Math.round(w * dpr); this.ph = Math.round(h * dpr);
+  if (c.width !== this.pw || c.height !== this.ph) { c.width = this.pw; c.height = this.ph; }
   this.camera.aspect = w / h;
 
   // Frame the scene so the phone at rest lands where it was in the original
@@ -230,9 +250,15 @@ Phone.prototype.step = function(dt) {
 };
 
 Phone.prototype.render = function() {
-  if (!this.ready || !this.dirty) return;
+  if (!this.ready || !this.dirty || !this.pw) return;
   this.apply();
-  this.renderer.render(this.scene, this.camera);
+  // Every card's art box is the same size, so the shared canvas rarely
+  // needs resizing between phones.
+  var size = gl.getSize(new THREE.Vector2());
+  if (size.x !== this.pw || size.y !== this.ph) gl.setSize(this.pw, this.ph, false);
+  gl.render(this.scene, this.camera);
+  this.ctx.clearRect(0, 0, this.pw, this.ph);
+  this.ctx.drawImage(gl.domElement, 0, 0);
   this.dirty = false;
   if (!this.shown) { this.shown = true; this.cfg.onReady(); }
 };
@@ -277,6 +303,7 @@ export function init(entries, at) {
   var ids = [];
   entries.forEach(function(e) { e.model = e.model || 'iphone'; if (ids.indexOf(e.model) < 0) ids.push(e.model); });
   Promise.all(ids.map(loadModel)).then(function(templates) {
+    sharedRenderer();
     entries.forEach(function(e) {
       e.pose = poseFor(e.index, target);
       phones.push(new Phone(e, templates[ids.indexOf(e.model)]));
