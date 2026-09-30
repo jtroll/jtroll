@@ -438,8 +438,10 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
    phone-free plate replaces it (assets/work-phones-3d.js). */
 .card-art .card-phone { object-fit: fill; }
 .card-art .card-phone3d {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
+  /* the middle strip where the phone can be; keep in step with CROP in
+     assets/work-phones-3d.js */
+  position: absolute; top: 0; left: 14%;
+  width: 72%; height: 100%;
   pointer-events: none;
   opacity: 0;
   transition: opacity 240ms ease;
