@@ -39,6 +39,12 @@ var FOV = 20;
 var DROP = 10; // mm lower than the original shot, so tilted bottoms stay off-frame
 var SPRING = { k: 40, c: 12 }; // stiffness / damping: settles in ~1s, just after the card lands
 
+// Drawing cost. Each card's canvas covers only the middle strip of its art
+// box, where the phone and its shadow can be (x from CROP.x, CROP.w wide, as
+// fractions); the rest is paper the plate already shows. Phones always draw
+// at full resolution (device pixel ratio, up to 2x).
+var CROP = { x: 0.14, w: 0.72 };
+
 function shadowTexture() {
   var c = document.createElement('canvas'); c.width = 256; c.height = 512;
   var g = c.getContext('2d');
@@ -123,10 +129,23 @@ function buildPhone(template, screenTex) {
    a single GPU context, and each model's geometry and textures are uploaded
    once however many cards use it (separate contexts per card cost ~5x the
    GPU memory, which mobile Safari punishes). */
-var gl = null, environment = null;
+var gl = null, environment = null, transfer = false;
 function sharedRenderer() {
   if (gl) return gl;
-  gl = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
+  // Multisampling is the costliest per-pixel step (4 samples per pixel); at
+  // 2x density edges are already smooth, so only 1x screens get it.
+  // No powerPreference: 'low-power' would pin dual-GPU laptops to the
+  // integrated chip.
+  var opts = { alpha: true, antialias: (window.devicePixelRatio || 1) < 1.5 };
+  // Preferably render offscreen and hand each finished frame to its card's
+  // canvas as an ImageBitmap (a zero-copy transfer), rather than copying
+  // pixels with drawImage, which syncs the GPU with the page every draw.
+  if (typeof OffscreenCanvas !== 'undefined' && 'transferToImageBitmap' in OffscreenCanvas.prototype) {
+    try { gl = new THREE.WebGLRenderer(Object.assign({ canvas: new OffscreenCanvas(1, 1) }, opts)); }
+    catch (e) { gl = null; }
+  }
+  if (!gl) gl = new THREE.WebGLRenderer(opts);
+  transfer = typeof OffscreenCanvas !== 'undefined' && gl.domElement instanceof OffscreenCanvas;
   gl.outputColorSpace = THREE.SRGBColorSpace;
   gl.toneMapping = THREE.ACESFilmicToneMapping;
   gl.toneMappingExposure = 1.0;
@@ -149,7 +168,10 @@ function Phone(cfg, template) {
   this.dims = template.userData.dims;
   this.pose = cfg.pose; this.vel = 0; this.target = cfg.pose;
   this.dirty = true; this.ready = false; this.visible = true;
-  this.ctx = cfg.canvas.getContext('2d');
+  // Zero-copy path if the renderer is offscreen and the browser supports it;
+  // otherwise a plain 2D copy.
+  this.bitmap = transfer ? cfg.canvas.getContext('bitmaprenderer') : null;
+  this.ctx = this.bitmap ? null : cfg.canvas.getContext('2d');
   this.pw = 0; this.ph = 0; // canvas size in device pixels
 
   var scene = new THREE.Scene();
@@ -178,6 +200,10 @@ function Phone(cfg, template) {
 
   var self = this;
   var tex = new THREE.TextureLoader().load(cfg.screen, function() {
+    // Upload the screenshot and build this scene's shaders now, not on the
+    // first frame the phone swings into view (that stalled mid-swing).
+    gl.initTexture(tex);
+    gl.compile(self.scene, self.camera);
     self.ready = true; self.dirty = true; kick();
   });
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -193,10 +219,13 @@ function Phone(cfg, template) {
 Phone.prototype.resize = function() {
   var c = this.cfg.canvas, w = c.clientWidth, h = c.clientHeight;
   if (!w || !h) return;
-  var dpr = Math.min(window.devicePixelRatio || 1, 2);
-  this.pw = Math.round(w * dpr); this.ph = Math.round(h * dpr);
+  this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+  this.pw = Math.round(w * this.dpr); this.ph = Math.round(h * this.dpr);
   if (c.width !== this.pw || c.height !== this.ph) { c.width = this.pw; c.height = this.ph; }
-  this.camera.aspect = w / h;
+  // The camera frames the whole art box; the canvas shows its middle strip.
+  var fullW = w / CROP.w;
+  this.camera.aspect = fullW / h;
+  this.camera.setViewOffset(fullW, h, fullW * CROP.x, 0, w, h);
 
   // Frame the scene so the phone at rest lands where it was in the original
   // shot: screen width, top edge and tilt; horizontally, the display's center
@@ -249,16 +278,21 @@ Phone.prototype.step = function(dt) {
   this.dirty = true;
 };
 
+var glSize = new THREE.Vector2();
 Phone.prototype.render = function() {
   if (!this.ready || !this.dirty || !this.pw) return;
   this.apply();
-  // Every card's art box is the same size, so the shared canvas rarely
-  // needs resizing between phones.
-  var size = gl.getSize(new THREE.Vector2());
-  if (size.x !== this.pw || size.y !== this.ph) gl.setSize(this.pw, this.ph, false);
+  // Every card's canvas is the same size, so the shared buffer is sized once
+  // (resizing reallocates it: a hitch) and only changes with the window.
+  gl.getSize(glSize);
+  if (glSize.x !== this.pw || glSize.y !== this.ph) gl.setSize(this.pw, this.ph, false);
   gl.render(this.scene, this.camera);
-  this.ctx.clearRect(0, 0, this.pw, this.ph);
-  this.ctx.drawImage(gl.domElement, 0, 0);
+  if (this.bitmap) {
+    this.bitmap.transferFromImageBitmap(gl.domElement.transferToImageBitmap());
+  } else {
+    this.ctx.clearRect(0, 0, this.pw, this.ph);
+    this.ctx.drawImage(gl.domElement, 0, 0);
+  }
   this.dirty = false;
   if (!this.shown) { this.shown = true; this.cfg.onReady(); }
 };
@@ -272,17 +306,22 @@ function poseFor(index, at) {
 
 function frame(t) {
   raf = null;
-  var dt = Math.min(0.05, last ? (t - last) / 1000 : 0.016);
+  // Real elapsed time (capped for tab switches), so a dropped frame doesn't
+  // slow the swing down.
+  var dt = Math.min(0.1, last ? (t - last) / 1000 : 0.016);
   last = t;
-  var busy = false;
-  for (var i = 0; i < phones.length; i++) {
-    var ph = phones[i];
+  var busy = false, i, ph;
+  for (i = 0; i < phones.length; i++) {
+    ph = phones[i];
     ph.step(dt);
-    if (ph.visible) ph.render();
+    // Each phone also draws once as soon as it's ready, even off screen, so
+    // its first-draw GPU costs land while the section loads, not the first
+    // time it swings into view.
+    if (ph.visible || (ph.ready && !ph.shown)) ph.render();
     // Keep going while anything is still moving, or a visible phone still
     // owes a draw. (Off-screen phones stay dirty until they come back into
     // view; the IntersectionObserver kicks the loop then.)
-    if (ph.pose !== ph.target || (ph.visible && ph.dirty)) busy = true;
+    if (ph.pose !== ph.target || (ph.visible && ph.dirty) || (ph.ready && !ph.shown)) busy = true;
   }
   if (busy) raf = requestAnimationFrame(frame); else last = 0;
 }
