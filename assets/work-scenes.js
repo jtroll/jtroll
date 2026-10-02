@@ -68,7 +68,8 @@ var SCENES = {
       ] },
       { id: 'logo', src: 'mada/logo.webp', box: [50, 24.093, 34.483, 51.813] }
     ],
-    arrive: madaArrive
+    arrive: madaArrive,
+    openDelay: 40  // starts almost as soon as the card begins to open
   },
   sofi: {
     size: [1162, 776],
@@ -179,25 +180,25 @@ function madaArrive(L) {
     frames(L.logo, [
       { transform: 'translate(-50%, 0) scale(1.06)' },
       { transform: 'none' }
-    ], { duration: 820, delay: 80, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' }),
+    ], { duration: 615, delay: 0, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' }),
     frames(L.mic, [
       { transform: 'translate(0, 95%)' },
       { transform: 'none' }
-    ], { duration: 720, delay: 440, easing: 'cubic-bezier(0.3, 1.38, 0.6, 1)' }),
+    ], { duration: 540, delay: 270, easing: 'cubic-bezier(0.3, 1.38, 0.6, 1)' }),
     frames(L.leaves, [
       { offset: 0, transform: 'none' },
       { offset: 0.3, transform: 'rotate(-9deg)' },
       { offset: 0.55, transform: 'rotate(6deg)' },
       { offset: 0.78, transform: 'rotate(-3deg)' },
       { offset: 1, transform: 'none' }
-    ], { duration: 760, delay: 980, easing: 'ease-in-out' })
+    ], { duration: 570, delay: 675, easing: 'ease-in-out' })
   ];
   ['forbes', 'motherjones', 'glenn', 'oprah', 'npr', 'usatoday', 'bbc', 'nyt'].forEach(function(id, i) {
     anims.push(frames(L[id], [
       { offset: 0, opacity: 0, transform: 'scale(0.6)' },
       { offset: 0.6, opacity: 1, transform: 'scale(1.06)' },
       { offset: 1, opacity: 1, transform: 'none' }
-    ], { duration: 460, delay: 720 + i * 75, easing: 'cubic-bezier(0.3, 0.7, 0.4, 1)' }));
+    ], { duration: 345, delay: 480 + i * 56, easing: 'cubic-bezier(0.3, 0.7, 0.4, 1)' }));
   });
   return anims;
 }
@@ -297,6 +298,12 @@ function Scene(entry) {
     this.cycle = this.anims[0].effect.getTiming().duration;
   }
   if (def.drive) { this.p = 0; this.v = 0; this.target = 0; }
+  // Everything that moves gets its own compositor layer, so motion slides
+  // already-rasterised images around instead of repainting (and re-decoding)
+  // them each frame. Static plates stay flat.
+  var moving = this.anims.map(function(a) { return a.effect.target; });
+  if (def.drive) moving.push(this.L.car, this.L.rear, this.L.front);
+  moving.forEach(function(el) { el.style.willChange = 'transform, opacity'; });
   var imgs = Array.prototype.slice.call(root.querySelectorAll('img'));
   var self = this;
   this.ready = Promise.all(imgs.map(function(i) { return i.decode(); })).then(function() {
@@ -396,7 +403,7 @@ export function init(entries, opts) {
     // index of the open card; arrivals start once the card has begun to open
     setOpen: function(i) {
       openIndex = i;
-      scenes.forEach(function(s) { s.setOpen(s.index === i, onScreen, 180); });
+      scenes.forEach(function(s) { s.setOpen(s.index === i, onScreen, s.def.openDelay != null ? s.def.openDelay : 180); });
     },
     // the carousel's position, fractional mid-drag
     setAt: function(position) { at = position; kick(); },

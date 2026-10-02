@@ -102,7 +102,12 @@ def build_mada(raw):
 
 # ---------- SoFi: lift the hand's shadow out of the photo ----------
 def build_sofi(raw):
-    P = load(f'{raw}/sofi/plate_raw.png', 'RGB')
+    raw_plate = load(f'{raw}/sofi/plate_raw.png')
+    # the frame's background starts 1px in, leaving its first columns
+    # transparent (black once flattened): carry the first full column out
+    full = int(np.argmax(raw_plate[..., 3].min(0) == 255))
+    raw_plate[:, :full] = raw_plate[:, full:full + 1]
+    P = raw_plate[..., :3]
     H, W = P.shape[:2]
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
     hsv = cv2.cvtColor(P.astype(np.uint8), cv2.COLOR_RGB2HSV).astype(np.float32)
