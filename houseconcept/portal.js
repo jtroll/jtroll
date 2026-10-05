@@ -8,6 +8,14 @@
   const encoder = new TextEncoder();
   const bytes = str => Uint8Array.from(atob(str), char => char.charCodeAt(0));
   let busy = false;
+  const quality=$('quality');
+  const selected=new URL(location.href).searchParams.get('quality');
+  if(quality&&['auto','mobile','full'].includes(selected))quality.value=selected;
+  const isPhone=()=>/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent))||matchMedia('(pointer:coarse)').matches;
+  const chooseProfile=()=>quality?.value==='full'?'full':quality?.value==='mobile'||isPhone()?'mobile':'full';
+  let sizeManifest;
+  const updateSize=()=>{if(!sizeManifest)return;const profile=chooseProfile()==='mobile'&&sizeManifest.mobile?sizeManifest.mobile:sizeManifest;$('size').textContent=Math.round((profile.model.reduce((s,p)=>s+p.bytes,0)+sizeManifest.viewer.bytes)/1000000)};
+  quality?.addEventListener('change',updateSize);
   $('show').addEventListener('click', () => {
     const show = password.type === 'password';
     password.type = show ? 'text' : 'password';
@@ -29,6 +37,7 @@
     if (payload.byteLength !== item.bytes) throw Error('The download was interrupted. Please try again.');
     return crypto.subtle.decrypt({name:'AES-GCM',iv:bytes(item.iv),additionalData:encoder.encode(`houseconcept:1:${item.aadBuild || build}:${item.id}`)},key,payload);
   }
+  get('manifest.json').then(r=>r.json()).then(m=>{sizeManifest=m;updateSize()}).catch(()=>{});
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (busy) return;
@@ -41,6 +50,8 @@
     try {
       const manifest = await (await get('manifest.json')).json();
       if (manifest.format !== 1 || manifest.iterations !== 600000) throw Error('Please refresh to load the latest house viewer.');
+      const profileName=chooseProfile()==='mobile'&&manifest.mobile?'mobile':'full';
+      const profile=profileName==='mobile'?manifest.mobile:manifest;
       const material = await crypto.subtle.importKey('raw',encoder.encode(password.value),'PBKDF2',false,['deriveKey']);
       const key = await crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:bytes(manifest.salt),iterations:manifest.iterations},material,{name:'AES-GCM',length:256},false,['decrypt']);
       let viewer;
@@ -50,14 +61,14 @@
       const html = await new Response(new Blob([viewer]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
       viewer = null;
       let index = 0, downloaded = 0, downloadError;
-      const total = manifest.model.reduce((sum, item) => sum + item.bytes, 0);
+      const total = profile.model.reduce((sum, item) => sum + item.bytes, 0);
       $('size').textContent = Math.round((total + manifest.viewer.bytes) / 1000000);
       tell('Loading the house… 0%');
       const stream = new ReadableStream({
         async pull(controller) {
           try {
-            if (index === manifest.model.length) { controller.close(); return; }
-            const item = manifest.model[index++];
+            if (index === profile.model.length) { controller.close(); return; }
+            const item = profile.model[index++];
             controller.enqueue(new Uint8Array(await decrypt(key, item, manifest.build)));
             downloaded += item.bytes;
             const percent = Math.round(downloaded / total * 100);
@@ -68,10 +79,11 @@
       let model;
       try { model = await new Response(stream.pipeThrough(new DecompressionStream('gzip'))).blob(); }
       catch (error) { throw downloadError || error; }
-      if (model.size !== manifest.modelBytes) throw Error('The house download is incomplete. Please try again.');
+      if (model.size !== profile.modelBytes) throw Error('The house download is incomplete. Please try again.');
       tell('Preparing the rooms…');
       modelURL = URL.createObjectURL(model);
       window.__HOUSE_MODEL_URL = modelURL;
+      window.__HOUSE_PROFILE = profileName;
       window.addEventListener('pagehide', () => URL.revokeObjectURL(modelURL), {once:true});
       document.open(); document.write(html); document.close();
     } catch (error) {

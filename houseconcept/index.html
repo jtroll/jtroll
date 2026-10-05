@@ -21,6 +21,7 @@
     #show{border:0;background:transparent;color:#50665b;font-size:12px;padding:0 16px}
     #unlock{margin-top:14px;width:100%;padding:15px;border:0;border-radius:9px;background:#29483e;color:#fff;font-weight:600;font-size:14px}
     #unlock:hover{background:#355a4d}button:focus-visible,a:focus-visible{outline:3px solid #b87a55;outline-offset:3px}
+    #quality{width:100%;padding:12px;background:white;color:#29483e;border:1px solid #b9c3b9;border-radius:9px;font:inherit;font-size:14px}label[for=quality]{margin-top:18px}
     button:disabled{opacity:.65;cursor:wait}#message{min-height:25px;font-size:13px;margin:14px 0 0;color:#52665c}
     #message.error{color:#a33125}progress{width:100%;height:7px;accent-color:#8c543c;margin:18px 0 0}
     .note{font-size:12px;line-height:1.7;margin-top:27px;color:#718077}footer{margin-top:40px;border-top:1px solid #d9dfd4;padding-top:20px;font-size:12px}
@@ -37,11 +38,13 @@
     <form id="login">
       <label for="password">Password</label>
       <div class="field"><input id="password" name="password" type="password" autocomplete="current-password" required spellcheck="false" autocapitalize="none" aria-describedby="message"><button id="show" type="button" aria-label="Show password" aria-pressed="false">Show</button></div>
+      <label for="quality">Viewing quality</label>
+      <select id="quality"><option value="auto">Automatic — suited to this device</option><option value="mobile">Lighter — phones and slower computers</option><option value="full">Full detail — powerful computers</option></select>
       <button id="unlock" type="submit">Explore the house</button>
     </form>
     <progress id="progress" max="100" value="0" hidden aria-label="House download progress"></progress>
     <p id="message" role="status" aria-live="polite"></p>
-    <p class="note">A computer works best for exploring and walking through the house. The first visit downloads about <span id="size">221</span> MB; Wi-Fi is recommended.</p>
+    <p class="note">Phones automatically use a lighter version with the same rooms and controls. The first visit downloads about <span id="size">115–232</span> MB; Wi-Fi is recommended.</p>
     <footer><a href="/">← Back to jtroll.com</a></footer>
     <noscript><p>JavaScript is needed to unlock and explore the house.</p></noscript>
   </main>
