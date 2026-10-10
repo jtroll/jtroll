@@ -11,7 +11,7 @@
   const quality=$('quality');
   const selected=new URL(location.href).searchParams.get('quality');
   if(quality&&['auto','mobile','full'].includes(selected))quality.value=selected;
-  const isPhone=()=>/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent))||matchMedia('(pointer:coarse)').matches;
+  const isPhone=()=>/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent))||navigator.maxTouchPoints>0||matchMedia('(any-pointer:coarse)').matches;
   const chooseProfile=()=>quality?.value==='full'?'full':quality?.value==='mobile'||isPhone()?'mobile':'full';
   let sizeManifest;
   const updateSize=()=>{if(!sizeManifest)return;const profile=chooseProfile()==='mobile'&&sizeManifest.mobile?sizeManifest.mobile:sizeManifest;$('size').textContent=Math.round((profile.model.reduce((s,p)=>s+p.bytes,0)+sizeManifest.viewer.bytes)/1000000)};
@@ -77,12 +77,12 @@
         }
       });
       let model;
-      try { model = await new Response(stream.pipeThrough(new DecompressionStream('gzip'))).blob(); }
+      try { const decoded = new Response(stream.pipeThrough(new DecompressionStream('gzip'))); model = profileName === 'mobile' ? await decoded.arrayBuffer() : await decoded.blob(); }
       catch (error) { throw downloadError || error; }
-      if (model.size !== profile.modelBytes) throw Error('The house download is incomplete. Please try again.');
+      if ((profileName === 'mobile' ? model.byteLength : model.size) !== profile.modelBytes) throw Error('The house download is incomplete. Please try again.');
       tell('Preparing the rooms…');
-      modelURL = URL.createObjectURL(model);
-      window.__HOUSE_MODEL_URL = modelURL;
+      if (profileName === 'mobile') { window.__HOUSE_MODEL_BUFFER = model; model = null; }
+      else { modelURL = URL.createObjectURL(model); window.__HOUSE_MODEL_URL = modelURL; }
       window.__HOUSE_PROFILE = profileName;
       window.addEventListener('pagehide', () => URL.revokeObjectURL(modelURL), {once:true});
       document.open(); document.write(html); document.close();
